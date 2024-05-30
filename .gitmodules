@@ -1,0 +1,3 @@
+[submodule "FlowerHuntApp"]
+	path = FlowerHuntApp
+	url = git@github.com:Ray16/flower_hunt.git
