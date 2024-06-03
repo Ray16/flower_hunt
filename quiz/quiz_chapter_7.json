@@ -1,0 +1,62 @@
+[
+    {
+        "question": "Which function can be used to get user input in Python?",
+        "options": ["A. input()", "B. get_input()", "C. read()", "D. scan()"],
+        "answer": "A",
+        "Chapter": 7
+    },
+    {
+        "question": "Which of the following is used to execute a block of code repeatedly in Python?",
+        "options": ["A. if statement", "B. for loop", "C. while loop", "D. break statement"],
+        "answer": "C",
+        "Chapter": 7
+    },
+    {
+        "question": "What will be the output of the following code: `while False: print('Hello')`?",
+        "options": ["A. Hello", "B. Nothing", "C. Syntax Error", "D. Indentation Error"],
+        "answer": "B",
+        "Chapter": 7
+    },
+    {
+        "question": "Which statement is used to stop a loop in Python?",
+        "options": ["A. stop", "B. exit", "C. break", "D. terminate"],
+        "answer": "C",
+        "Chapter": 7
+    },
+    {
+        "question": "Which of the following will execute a block of code repeatedly as long as a condition is true?",
+        "options": ["A. if statement", "B. for loop", "C. while loop", "D. break statement"],
+        "answer": "C",
+        "Chapter": 7
+    },
+    {
+        "question": "What does the `continue` statement do in a loop?",
+        "options": ["A. Stops the loop", "B. Skips the rest of the code inside the loop for the current iteration", "C. Ends the loop immediately", "D. None of the above"],
+        "answer": "B",
+        "Chapter": 7
+    },
+    {
+        "question": "Which of the following is the correct way to write a while loop in Python?",
+        "options": ["A. while condition: code", "B. while condition {code}", "C. while (condition) code", "D. while (condition): code"],
+        "answer": "A",
+        "Chapter": 7
+    },
+    {
+        "question": "What is the purpose of the `else` clause in a while loop?",
+        "options": ["A. To execute code if the loop is infinite", "B. To execute code if the loop terminates normally", "C. To execute code if the loop condition is false", "D. To execute code if an exception occurs"],
+        "answer": "B",
+        "Chapter": 7
+    },
+    {
+        "question": "What will be the output of the following code: `while True: print('Hello')`?",
+        "options": ["A. Hello", "B. Nothing", "C. Infinite loop of 'Hello'", "D. Syntax Error"],
+        "answer": "C",
+        "Chapter": 7
+    },
+    {
+        "question": "Which of the following will convert user input to an integer?",
+        "options": ["A. int(input())", "B. float(input())", "C. str(input())", "D. bool(input())"],
+        "answer": "A",
+        "Chapter": 7
+    }
+]

@@ -1,0 +1,62 @@
+[
+    {
+        "question": "Which keyword is used to create a class in Python?",
+        "options": ["A. create", "B. class", "C. def", "D. object"],
+        "answer": "B",
+        "Chapter": 9
+    },
+    {
+        "question": "What is the primary purpose of a constructor method in object-oriented programming?",
+        "options": ["A. To create objects", "B. To destroy objects", "C. To update objects", "D. To copy objects"],
+        "answer": "A",
+        "Chapter": 9
+    },
+    {
+        "question": "Which of the following is a constructor method in Python?",
+        "options": ["A. __init__", "B. __create__", "C. __start__", "D. __new__"],
+        "answer": "A",
+        "Chapter": 9
+    },
+    {
+        "question": "How do you create an instance of a class in Python?",
+        "options": ["A. instance = ClassName()", "B. instance = ClassName", "C. instance = new ClassName()", "D. instance = ClassName.create()"],
+        "answer": "A",
+        "Chapter": 9
+    },
+    {
+        "question": "Which of the following is a method that belongs to a class rather than an instance of a class?",
+        "options": ["A. Static method", "B. Instance method", "C. Class method", "D. Both A and C"],
+        "answer": "D",
+        "Chapter": 9
+    },
+    {
+        "question": "What is the output of the following code: `class MyClass: def __init__(self, x): self.x = x obj = MyClass(5) print(obj.x)`?",
+        "options": ["A. 5", "B. 0", "C. None", "D. AttributeError"],
+        "answer": "A",
+        "Chapter": 9
+    },
+    {
+        "question": "Which of the following is used to define a class method?",
+        "options": ["A. def method(self): pass", "B. def method(cls): pass", "C. def method(): pass", "D. def method(static): pass"],
+        "answer": "B",
+        "Chapter": 9
+    },
+    {
+        "question": "What is the output of the following code: `class MyClass: def __init__(self): self.x = 5 obj = MyClass() obj.x = 10 print(obj.x)`?",
+        "options": ["A. 5", "B. 10", "C. None", "D. AttributeError"],
+        "answer": "B",
+        "Chapter": 9
+    },
+    {
+        "question": "Which of the following will define a static method?",
+        "options": ["A. @classmethod", "B. @staticmethod", "C. @staticmethodmethod", "D. @classstaticmethod"],
+        "answer": "B",
+        "Chapter": 9
+    },
+    {
+        "question": "Which of the following will check if an object is an instance of a class?",
+        "options": ["A. isinstance(object, class)", "B. isinstance(object, className)", "C. isinstance(object, type)", "D. isinstance(object, obj)"],
+        "answer": "A",
+        "Chapter": 9
+    }
+]

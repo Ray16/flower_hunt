@@ -1,0 +1,62 @@
+[
+    {
+        "question": "What is Python?",
+        "options": ["A. A type of snake", "B. A programming language", "C. A car brand", "D. A music band"],
+        "answer": "B",
+        "Chapter": 1
+    },
+    {
+        "question": "Which of the following is a Python built-in function?",
+        "options": ["A. reverse()", "B. append()", "C. len()", "D. sort()"],
+        "answer": "C",
+        "Chapter": 1
+    },
+    {
+        "question": "How do you add a single line comment in Python?",
+        "options": ["A. // This is a comment", "B. /* This is a comment */", "C. # This is a comment", "D. <!-- This is a comment -->"],
+        "answer": "C",
+        "Chapter": 1
+    },
+    {
+        "question": "What is the output of the following code: `print('Hello, World!')`?",
+        "options": ["A. Hello World", "B. 'Hello, World!'", "C. Hello, World!", "D. 'Hello World!'"],
+        "answer": "C",
+        "Chapter": 1
+    },
+    {
+        "question": "Which of the following is not a Python keyword?",
+        "options": ["A. if", "B. else", "C. elif", "D. loop"],
+        "answer": "D",
+        "Chapter": 1
+    },
+    {
+        "question": "Which function is used to get the type of an object in Python?",
+        "options": ["A. type()", "B. isinstance()", "C. id()", "D. len()"],
+        "answer": "A",
+        "Chapter": 1
+    },
+    {
+        "question": "What is the correct file extension for Python files?",
+        "options": ["A. .pyth", "B. .py", "C. .pyt", "D. .pt"],
+        "answer": "B",
+        "Chapter": 1
+    },
+    {
+        "question": "Which of the following is not a Python built-in data type?",
+        "options": ["A. list", "B. tuple", "C. dictionary", "D. array"],
+        "answer": "D",
+        "Chapter": 1
+    },
+    {
+        "question": "Which function can be used to get user input in Python?",
+        "options": ["A. input()", "B. get_input()", "C. read()", "D. scan()"],
+        "answer": "A",
+        "Chapter": 1
+    },
+    {
+        "question": "Which of the following is used to execute a block of code repeatedly in Python?",
+        "options": ["A. if statement", "B. for loop", "C. try statement", "D. break statement"],
+        "answer": "B",
+        "Chapter": 1
+    }
+]

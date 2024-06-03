@@ -1,0 +1,62 @@
+[
+    {
+        "question": "How do you create a list in Python?",
+        "options": ["A. list = {}", "B. list = []", "C. list = ()", "D. list = <>"],
+        "answer": "B",
+        "Chapter": 3
+    },
+    {
+        "question": "Which of the following methods can be used to add an element to a list?",
+        "options": ["A. insert()", "B. add()", "C. append()", "D. extend()"],
+        "answer": "C",
+        "Chapter": 3
+    },
+    {
+        "question": "Which method is used to get the length of a list in Python?",
+        "options": ["A. length()", "B. len()", "C. size()", "D. count()"],
+        "answer": "B",
+        "Chapter": 3
+    },
+    {
+        "question": "Which of the following will create a list in Python?",
+        "options": ["A. list = []", "B. list = {}", "C. list = ()", "D. list = <>"],
+        "answer": "A",
+        "Chapter": 3
+    },
+    {
+        "question": "What does the `pop()` method do in a list?",
+        "options": ["A. Adds an element", "B. Removes the last element", "C. Sorts the list", "D. Reverses the list"],
+        "answer": "B",
+        "Chapter": 3
+    },
+    {
+        "question": "Which of the following will remove an item from a list by its value?",
+        "options": ["A. del list[2]", "B. list.remove('value')", "C. list.pop(2)", "D. list.clear()"],
+        "answer": "B",
+        "Chapter": 3
+    },
+    {
+        "question": "What is the output of the following code: `print(['a', 'b', 'c'][1])`?",
+        "options": ["A. a", "B. b", "C. c", "D. None of the above"],
+        "answer": "B",
+        "Chapter": 3
+    },
+    {
+        "question": "How do you add multiple elements to a list in Python?",
+        "options": ["A. list.add(['a', 'b'])", "B. list.append(['a', 'b'])", "C. list.extend(['a', 'b'])", "D. list.insert(['a', 'b'])"],
+        "answer": "C",
+        "Chapter": 3
+    },
+    {
+        "question": "Which method is used to sort a list in Python?",
+        "options": ["A. sort()", "B. order()", "C. arrange()", "D. organize()"],
+        "answer": "A",
+        "Chapter": 3
+    },
+    {
+        "question": "What is the output of the following code: `print(['a', 'b', 'c'][-1])`?",
+        "options": ["A. a", "B. b", "C. c", "D. None of the above"],
+        "answer": "C",
+        "Chapter": 3
+    }
+]

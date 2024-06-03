@@ -1,0 +1,62 @@
+[
+    {
+        "question": "Which keyword is used to define a function in Python?",
+        "options": ["A. define", "B. func", "C. def", "D. function"],
+        "answer": "C",
+        "Chapter": 8
+    },
+    {
+        "question": "What is the correct way to declare a function in Python?",
+        "options": ["A. function myFunction()", "B. def myFunction()", "C. func myFunction()", "D. def myFunction[]"],
+        "answer": "B",
+        "Chapter": 8
+    },
+    {
+        "question": "What will be the output of the following code: `def add(a, b): return a + b print(add(2, 3))`?",
+        "options": ["A. 2", "B. 3", "C. 5", "D. None of the above"],
+        "answer": "C",
+        "Chapter": 8
+    },
+    {
+        "question": "Which of the following will execute a function in Python?",
+        "options": ["A. call myFunction()", "B. myFunction[]", "C. myFunction()", "D. function myFunction()"],
+        "answer": "C",
+        "Chapter": 8
+    },
+    {
+        "question": "What is the purpose of the `return` statement in a function?",
+        "options": ["A. To print the result", "B. To end the function execution and return a value", "C. To call another function", "D. To define a new function"],
+        "answer": "B",
+        "Chapter": 8
+    },
+    {
+        "question": "Which of the following will define a function with no parameters?",
+        "options": ["A. def myFunction[]: pass", "B. def myFunction(): pass", "C. def myFunction: pass", "D. def myFunction(): None"],
+        "answer": "B",
+        "Chapter": 8
+    },
+    {
+        "question": "Which of the following is used to define a function with default parameter values?",
+        "options": ["A. def myFunction(a=1, b=2): pass", "B. def myFunction(a, b=2): pass", "C. Both A and B", "D. None of the above"],
+        "answer": "C",
+        "Chapter": 8
+    },
+    {
+        "question": "What is the output of the following code: `def multiply(a, b=2): return a * b print(multiply(3))`?",
+        "options": ["A. 3", "B. 6", "C. 2", "D. 1"],
+        "answer": "B",
+        "Chapter": 8
+    },
+    {
+        "question": "Which of the following will define a function with variable-length arguments?",
+        "options": ["A. def myFunction(*args): pass", "B. def myFunction(args): pass", "C. def myFunction(*args, **kwargs): pass", "D. Both A and C"],
+        "answer": "D",
+        "Chapter": 8
+    },
+    {
+        "question": "What is the output of the following code: `def square(x): return x ** 2 print(square(4))`?",
+        "options": ["A. 2", "B. 4", "C. 8", "D. 16"],
+        "answer": "D",
+        "Chapter": 8
+    }
+]
