@@ -1,5 +1,5 @@
-### Multiple choice quiz questions and their answers
-The `quiz.json` file contains multile hoice for each of the following chapters:
+### Multiple choice quiz questions and answers
+The `quiz.json` file contains multile choice for each of the following chapters in the [Python Crash Course](https://www.google.com/books/edition/Python_Crash_Course_3rd_Edition/qD1wEAAAQBAJ?hl=en&gbpv=0) textbook:
 - Chapter 1: Introduction
 - Chapter 2: Variables and Simple Data Types
 - Chapter 3: Introducing Lists
