@@ -1,0 +1,62 @@
+[
+    {
+        "question": "Which of the following is a valid variable name in Python?",
+        "options": ["A. 1variable", "B. variable_name", "C. variable-name", "D. variable name"],
+        "answer": "B",
+        "Chapter": 2
+    },
+    {
+        "question": "What is the output of the following code: `print(2 ** 3)`?",
+        "options": ["A. 5", "B. 6", "C. 8", "D. 9"],
+        "answer": "C",
+        "Chapter": 2
+    },
+    {
+        "question": "What does the `len()` function do?",
+        "options": ["A. Returns the length of an object", "B. Converts a string to lowercase", "C. Adds two numbers", "D. Sorts a list"],
+        "answer": "A",
+        "Chapter": 2
+    },
+    {
+        "question": "Which data type in Python is used to represent whole numbers?",
+        "options": ["A. int", "B. float", "C. str", "D. list"],
+        "answer": "A",
+        "Chapter": 2
+    },
+    {
+        "question": "Which of the following is a floating-point number in Python?",
+        "options": ["A. 10", "B. 10.0", "C. '10'", "D. 10L"],
+        "answer": "B",
+        "Chapter": 2
+    },
+    {
+        "question": "What will be the output of the following code: `print('Hello'[-1])`?",
+        "options": ["A. H", "B. o", "C. e", "D. l"],
+        "answer": "B",
+        "Chapter": 2
+    },
+    {
+        "question": "What is the result of the following Python code: `3 + '3'`?",
+        "options": ["A. 6", "B. '33'", "C. TypeError", "D. '6'"],
+        "answer": "C",
+        "Chapter": 2
+    },
+    {
+        "question": "Which of the following is not a valid Python data type?",
+        "options": ["A. int", "B. double", "C. list", "D. tuple"],
+        "answer": "B",
+        "Chapter": 2
+    },
+    {
+        "question": "What is the output of the following code: `print(3 * 'Hello ')`?",
+        "options": ["A. Hello Hello Hello Hello", "B. 9", "C. Hello Hello Hello", "D. Syntax Error"],
+        "answer": "C",
+        "Chapter": 2
+    },
+    {
+        "question": "Which method would you use to convert a string to lowercase in Python?",
+        "options": ["A. lower()", "B. lowerCase()", "C. toLower()", "D. downcase()"],
+        "answer": "A",
+        "Chapter": 2
+    }
+]

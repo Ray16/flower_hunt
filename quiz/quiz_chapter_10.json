@@ -1,0 +1,62 @@
+[
+    {
+        "question": "Which function is used to open a file in Python?",
+        "options": ["A. open()", "B. file_open()", "C. read_file()", "D. file()"],
+        "answer": "A",
+        "Chapter": 10
+    },
+    {
+        "question": "Which mode is used to open a file for reading in Python?",
+        "options": ["A. 'r'", "B. 'w'", "C. 'a'", "D. 'x'"],
+        "answer": "A",
+        "Chapter": 10
+    },
+    {
+        "question": "Which of the following will read the entire contents of a file?",
+        "options": ["A. file.read()", "B. file.readline()", "C. file.readlines()", "D. file.readall()"],
+        "answer": "A",
+        "Chapter": 10
+    },
+    {
+        "question": "Which of the following will read a single line from a file?",
+        "options": ["A. file.read()", "B. file.readline()", "C. file.readlines()", "D. file.readall()"],
+        "answer": "B",
+        "Chapter": 10
+    },
+    {
+        "question": "Which of the following is used to handle exceptions in Python?",
+        "options": ["A. try", "B. catch", "C. except", "D. both A and C"],
+        "answer": "D",
+        "Chapter": 10
+    },
+    {
+        "question": "What will be the output of the following code if the file does not exist: `file = open('nonexistent.txt', 'r')`?",
+        "options": ["A. FileNotFoundError", "B. IOError", "C. Nothing", "D. OSError"],
+        "answer": "A",
+        "Chapter": 10
+    },
+    {
+        "question": "Which of the following will write data to a file?",
+        "options": ["A. file.write(data)", "B. file.writeline(data)", "C. file.writelines(data)", "D. file.writefile(data)"],
+        "answer": "A",
+        "Chapter": 10
+    },
+    {
+        "question": "What is the purpose of the `with` statement when working with files?",
+        "options": ["A. To open a file", "B. To ensure the file is properly closed after its suite finishes", "C. To read a file", "D. To write to a file"],
+        "answer": "B",
+        "Chapter": 10
+    },
+    {
+        "question": "Which of the following will close an open file?",
+        "options": ["A. file.close()", "B. file.end()", "C. file.terminate()", "D. file.shutdown()"],
+        "answer": "A",
+        "Chapter": 10
+    },
+    {
+        "question": "Which of the following will raise an exception if a division by zero occurs?",
+        "options": ["A. ZeroDivisionError", "B. ValueError", "C. TypeError", "D. AttributeError"],
+        "answer": "A",
+        "Chapter": 10
+    }
+]

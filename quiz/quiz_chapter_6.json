@@ -1,0 +1,62 @@
+[
+    {
+        "question": "How do you create a dictionary in Python?",
+        "options": ["A. dict = {}", "B. dict = []", "C. dict = ()", "D. dict = <>"],
+        "answer": "A",
+        "Chapter": 6
+    },
+    {
+        "question": "Which of the following will add a key-value pair to a dictionary?",
+        "options": ["A. dict.add('key', 'value')", "B. dict['key'] = 'value'", "C. dict.append('key', 'value')", "D. dict.insert('key', 'value')"],
+        "answer": "B",
+        "Chapter": 6
+    },
+    {
+        "question": "How do you access the value associated with a key in a dictionary?",
+        "options": ["A. dict.get('key')", "B. dict.key", "C. dict['key']", "D. dict.value('key')"],
+        "answer": "C",
+        "Chapter": 6
+    },
+    {
+        "question": "Which method would you use to get a list of all the keys in a dictionary?",
+        "options": ["A. dict.keys()", "B. dict.get_keys()", "C. dict.all_keys()", "D. dict.key_list()"],
+        "answer": "A",
+        "Chapter": 6
+    },
+    {
+        "question": "Which method would you use to get a list of all the values in a dictionary?",
+        "options": ["A. dict.values()", "B. dict.get_values()", "C. dict.all_values()", "D. dict.value_list()"],
+        "answer": "A",
+        "Chapter": 6
+    },
+    {
+        "question": "Which of the following will remove a key-value pair from a dictionary?",
+        "options": ["A. del dict['key']", "B. dict.remove('key')", "C. dict.pop('key')", "D. Both A and C"],
+        "answer": "D",
+        "Chapter": 6
+    },
+    {
+        "question": "Which of the following will check if a key is in a dictionary?",
+        "options": ["A. key in dictionary", "B. key exists dictionary", "C. dictionary.has_key(key)", "D. dictionary.contains(key)"],
+        "answer": "A",
+        "Chapter": 6
+    },
+    {
+        "question": "Which of the following methods will return the value associated with a key, or a default value if the key is not found?",
+        "options": ["A. dict.get('key', 'default')", "B. dict.key('default')", "C. dict.value('key', 'default')", "D. dict.default('key', 'value')"],
+        "answer": "A",
+        "Chapter": 6
+    },
+    {
+        "question": "What is the output of the following code: `dict = {'a': 1, 'b': 2, 'c': 3}; print(dict['b'])`?",
+        "options": ["A. 1", "B. 2", "C. 3", "D. KeyError"],
+        "answer": "B",
+        "Chapter": 6
+    },
+    {
+        "question": "Which of the following methods would you use to update a dictionary with another dictionary?",
+        "options": ["A. dict.update(other_dict)", "B. dict.add(other_dict)", "C. dict.merge(other_dict)", "D. dict.append(other_dict)"],
+        "answer": "A",
+        "Chapter": 6
+    }
+]

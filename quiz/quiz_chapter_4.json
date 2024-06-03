@@ -1,0 +1,62 @@
+[
+    {
+        "question": "Which of the following will remove an item from a list by its index?",
+        "options": ["A. del list[2]", "B. list.remove('value')", "C. list.pop('value')", "D. list.clear()"],
+        "answer": "A",
+        "Chapter": 4
+    },
+    {
+        "question": "What is the output of the following code: `print(['a', 'b', 'c'].index('b'))`?",
+        "options": ["A. 0", "B. 1", "C. 2", "D. ValueError"],
+        "answer": "B",
+        "Chapter": 4
+    },
+    {
+        "question": "How do you reverse the order of elements in a list?",
+        "options": ["A. list.reverse()", "B. list[::-1]", "C. Both A and B", "D. None of the above"],
+        "answer": "C",
+        "Chapter": 4
+    },
+    {
+        "question": "What is the output of the following code: `print(['a', 'b', 'c'][1:3])`?",
+        "options": ["A. ['a', 'b']", "B. ['b', 'c']", "C. ['c']", "D. ['a', 'b', 'c']"],
+        "answer": "B",
+        "Chapter": 4
+    },
+    {
+        "question": "Which of the following is used to iterate over a list in Python?",
+        "options": ["A. for loop", "B. while loop", "C. Both A and B", "D. None of the above"],
+        "answer": "C",
+        "Chapter": 4
+    },
+    {
+        "question": "What will be the output of the following code: `print(['a', 'b', 'c']*2)`?",
+        "options": ["A. ['a', 'b', 'c', 'a', 'b', 'c']", "B. ['a', 'b', 'c']2", "C. ['a', 'b', 'c']*2", "D. ['a', 'a', 'b', 'b', 'c', 'c']"],
+        "answer": "A",
+        "Chapter": 4
+    },
+    {
+        "question": "Which of the following will add an element at the end of a list?",
+        "options": ["A. list.add('value')", "B. list.insert(-1, 'value')", "C. list.append('value')", "D. list.extend(['value'])"],
+        "answer": "C",
+        "Chapter": 4
+    },
+    {
+        "question": "What is the output of the following code: `print(['a', 'b', 'c'].count('b'))`?",
+        "options": ["A. 0", "B. 1", "C. 2", "D. ValueError"],
+        "answer": "B",
+        "Chapter": 4
+    },
+    {
+        "question": "Which of the following will sort a list in descending order?",
+        "options": ["A. list.sort()", "B. list.sort(reverse=True)", "C. sorted(list)", "D. sorted(list, reverse=False)"],
+        "answer": "B",
+        "Chapter": 4
+    },
+    {
+        "question": "What is the output of the following code: `print(['a', 'b', 'c'].remove('b'))`?",
+        "options": ["A. None", "B. ['a', 'c']", "C. ['b', 'c']", "D. ValueError"],
+        "answer": "A",
+        "Chapter": 4
+    }
+]
