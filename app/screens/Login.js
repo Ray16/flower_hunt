@@ -7,10 +7,10 @@ export default function Login({ navigation }) {
     const [password, setPassword] = useState('');
 
     const loginHandler = () => {
-        if(username == 'Test' && password == '123456'){
-            console.log('correct!')
+        if(username == 'Tester' && password == '12345678'){
+            navigation.navigate('HomeTab');
         } else {
-            console.log('incorrect!')
+            console.log('incorrect!');
         }
     }
 
