@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, TextInput, View, Text, TouchableOpacity } from 'react-native';
 import { globalStyles } from '../globalStyles/globalStyles';
 
@@ -14,7 +14,7 @@ const signUpSchema = yup.object({
 		.min(8, 'Minimum 8 characters'),
 	confirm: yup.string()
 		.required('This field is required')
-		.oneOf([yup.ref('password'), null], "Passwords do not match")
+		.oneOf([yup.ref('password')], "Passwords do not match"),
 })
 
 export default function SignUpForm({ navigation }) {
@@ -27,7 +27,6 @@ export default function SignUpForm({ navigation }) {
 				initialValues={{ username: '', password: '', confirm: '' }}
                 validationSchema={signUpSchema}
 				onSubmit={(values, actions) => {
-					actions.resetForm();
 					navigation.navigate('Secret Creation');
 				}}
 			>
@@ -41,7 +40,9 @@ export default function SignUpForm({ navigation }) {
 					    value={props.values.username}
 						onBlur={props.handleBlur('username')}
 			        />
-					<Text style={style.errorText}>{ props.touched.username && props.errors.username }</Text>
+					{props.touched.username && props.errors.username ? (
+						<Text style={style.errorText}>{props.errors.username}</Text>
+					) : null}
 							
 			        <TextInput
 				        style={{ alignSelf: 'center', width: '85%', 
@@ -52,7 +53,9 @@ export default function SignUpForm({ navigation }) {
 						onBlur={props.handleBlur('password')}
 						secureTextEntry={true}
 		            />
-					<Text style={style.errorText}>{ props.touched.password && props.errors.password }</Text>
+					{props.touched.password && props.errors.password ? (
+						<Text style={style.errorText}>{props.errors.password}</Text>
+					) : null}
 							
 			        <TextInput
 			            style={{ alignSelf: 'center', width: '85%', 
@@ -63,7 +66,9 @@ export default function SignUpForm({ navigation }) {
 						onBlur={props.handleBlur('confirm')}
 						secureTextEntry={true}
                     />
-					<Text style={style.errorText}>{ props.touched.confirm && props.errors.confirm }</Text>
+					{props.touched.confirm && props.errors.confirm ? (
+						<Text style={style.errorText}>{props.errors.confirm}</Text>
+					) : null}
 							
                     <TouchableOpacity 
 						style={{

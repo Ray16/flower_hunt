@@ -1,44 +1,66 @@
-import React from 'react';
-import { StyleSheet, TextInput, View, Text, TouchableOpacity } from 'react-native';
+import React, {useState} from 'react';
+import { StyleSheet, TextInput, View, Text, TouchableOpacity,
+	FlatList
+ } from 'react-native';
 import { globalStyles } from '../globalStyles/globalStyles';
 
-import { Formik } from 'formik';
-import * as yup from 'yup';
+export default function SecretCreation({ navigation }) {
+	const [secrets, setSecrets] = useState([
+		{ prompt: 'What is your favourite movie?',  placeholder: 'e.g. Titanic', answer: '', key: 1 },
+		{ prompt: 'What is your favourite class?',  placeholder: 'e.g. Mathematics', answer: '', key: 2 },
+		{ prompt: 'What is the name of your first crush?',  placeholder: 'hmmm....', answer: '', key: 3 },
+	]);
 
-const secretSchema = yup.object({
-	secret1: yup.string()
-		.required('This field is required'),
-    secret2: yup.string()
-		.required('This field is required'),
-    secret3: yup.string()
-		.required('This field is required'),
-    secret4: yup.string()
-		.required('This field is required'),
-    secret5: yup.string()
-		.required('This field is required')
-})
+	const CreateProfile = () => {
+		navigation.navigate('HomeTab');
+	}
 
-export default function SecretCreation() {
 	return ( 
 		<View style={globalStyles.container}>
-            <View>
-                <Text style={globalStyles.title}>Tell Us Your Secrets!</Text>
-            </View>
-			<Formik
-				initialValues={{ secret1: '',
-                                secret2: '',
-                                secret3: '',
-                                secret4: '',
-                                secret5: '',
-                }}
-                validationSchema={secretSchema}
-				onSubmit={(values, actions) => {
-					actions.resetForm();
-				}}
+			<FlatList style={{ ...globalStyles.containers, width: '100%'}}
+				data={secrets}
+				renderItem={({ item }) => (
+					<View>
+						<Text style={style.title}>{ item.prompt }</Text>
+						<TextInput
+							multiline
+							style={{ alignSelf: 'center', width: '85%', 
+									...globalStyles.textInput}}
+							placeholder={ item.placeholder }
+							
+						/>
+					</View>
+				)}
+			/>
+            <TouchableOpacity 
+				style={{
+					alignSelf: 'center', width: '57%', 
+					...globalStyles.button
+				}} 
+				onPress={CreateProfile}
 			>
-			    {(props) => (
-			    <View style={{ ...globalStyles.containers, width: '100%'}}>
-					
+            	<Text style={globalStyles.buttonText}>Create!</Text>
+            </TouchableOpacity>
+		</View>
+	)
+}
+
+const style = StyleSheet.create({
+	errorText: {
+		fontFamily: 'EBG-Regular',
+        fontSize: 14,
+		color: 'red',
+		alignSelf: 'center'
+	},
+	title: {
+		fontFamily: 'EBG-Bold',
+		fontWeight: 'bold',
+		fontSize: 18,
+		marginLeft: 24,
+	}
+})
+
+/*					
                     <Text style={style.title}>Secret 1</Text>
 				    <TextInput
 						multiline
@@ -99,34 +121,4 @@ export default function SecretCreation() {
 						onBlur={props.handleBlur('secret5')}
 			        />
 					<Text style={style.errorText}>{ props.touched.secret5 && props.errors.secret5 }</Text>
-							
-                    <TouchableOpacity 
-						style={{
-								alignSelf: 'center', width: '57%', 
-								...globalStyles.button
-						}} 
-						onPress={props.handleSubmit}
-					>
-                        <Text style={globalStyles.buttonText}>Create!</Text>
-                    </TouchableOpacity>
-                </View>
-			    )}
-		    </Formik>
-		</View>
-	)
-}
-
-const style = StyleSheet.create({
-	errorText: {
-		fontFamily: 'EBG-Regular',
-        fontSize: 14,
-		color: 'red',
-		alignSelf: 'center'
-	},
-	title: {
-		fontFamily: 'EBG-Bold',
-		fontWeight: 'bold',
-		fontSize: 18,
-		marginLeft: 24,
-	}
-})
+*/
