@@ -18,3 +18,9 @@ web-build/
 
 expo-env.d.ts
 # @end expo-cli
+
+# backend
+env
+*private_key*
+*secret_key*
+__pycache__
