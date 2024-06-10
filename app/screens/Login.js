@@ -35,7 +35,8 @@ export default function Login({ navigation }) {
                 >
                     <Text style={
                         {color: 'blue',
-                        textDecorationLine: 'underline'
+                        textDecorationLine: 'underline',
+                        fontFamily: 'EBG-regular'
                         }
                     }>Sign Up!</Text>
                 </TouchableOpacity>
