@@ -16,3 +16,21 @@ A game that deepens your friendship with your classmates by revealing their "sec
 2. You cannot hunt for flower if all of the flowers have been hunted
 
 Have fun and enjoy learning! 
+
+# Getting Started
+
+
+### Frontend
+- Install React Native
+- Install XCode
+- ...
+```
+expo start...
+```
+
+
+### Backend
+```
+pip install fastapi uvinicorn firebase-admin
+unvicorn main.py --port 8001
+```
