@@ -25,7 +25,9 @@ Have fun and enjoy learning!
 - Install XCode
 - ...
 ```
-expo start...
+npx install-expo-modules@latest
+npx expo start
+i 			# to open Apple simulator
 ```
 
 
