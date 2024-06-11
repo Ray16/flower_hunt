@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, Modal, Alert } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, Alert } from "react-native";
 import { globalStyles } from '../globalStyles/globalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Card from '../components/Card';
-import StealInfo from '../components/StealInfo';
-import Question from '../components/Question';
 
 export default function Garden({ navigation }){
   const [modules, setModules] = useState([
@@ -64,90 +62,104 @@ export default function Garden({ navigation }){
    2: stolen
   */
 
-  const [modalOneOpen, setModalOneOpen] = useState('false');
-  const [modalTwoOpen, setModalTwoOpen] = useState('false');
-  const [week, setWeek] = useState(0);
-  const [mode, setMode] = useState(0);
+  const [mode, setMode] = useState(-1);
+  const [modalOpen, setModalOpen] = useState('false');
 
   const handleIcon = ( condition ) => {
-    if(condition == 0) {
-      Alert.alert('Sorry!', 'This module is not open yet.',
-        [{text: 'Understood', onPress: () => console.log('Locked icon clicked on.')}]
-      )
-    } else if (condition == 1) {
+    if (condition == 1) {
       Alert.alert('Relax!', 'This plant was not stolen! You don\'t need to revive it!',
         [{text: 'Got it!', onPress: () => console.log('Flower icon clicked on.')}]
       )
     } else if (condition == 2) {
-      setMode(2);
-      setModalOneOpen(true);
+      setMode(0);
+      navigation.navigate('Question');
     }
-  };
-  const handleSteal = () => {
-    setMode(1);
-    setModalOneOpen(true);
-  }
-  const handleStealInfo = ( week ) => {
-    setWeek(week);
-    setModalTwoOpen(true);
   }
 
+  const handleSteal = ( condition ) => {
+    if(condition != 0) {
+      setMode(1);
+      navigation.navigate('Classmates');
+    }
+  }
+
+  const [isFinalGradeVisible, setIsFinalGradeVisible] = useState(false);
+
+  const [finalGrade, setFinalGrade] = useState('A');
+  
   return (
-    <View style={globalStyles.container}> 
-      <Modal visible={modalOneOpen}>
-        <Question userId='Hanlei' mode={mode} setModalOpen={setModalOneOpen}/>
-      </Modal>
-
-      <Modal visible={modalTwoOpen}>
-        <Ionicons 
-          name='close'
+    <View style={globalStyles.container}>
+      <View style={styles.header}>
+        <Ionicons
+          name='chevron-back'
           size={24}
-          onPress={() => setModalTwoOpen(false)}
-          style={styles.modal}
+          style={{flex: 1}}
+          onPress={() => (navigation.navigate('CoursePage'))}
         />
-        <StealInfo userId='Hanlei' week={week}/>
-      </Modal>
+        <View style={{flex: 10}}></View>
+        <TouchableOpacity style={{backgroundColor: '#AAF0C9',
+                                  padding: 10,
+                                  flex: 5}}
+            onPress={() => (navigation.navigate('StolenFlower'))}>
+          <Text style={{alignSelf: 'center',
+            }}>Stolen Flowers</Text>
+        </TouchableOpacity>
+      </View>
 
-      <Text style = {globalStyles.title}>Welcome to Your Garden!</Text>
+      <View style={styles.body}>
+        <Text style={globalStyles.title}>
+            Welcome to Your Garden!
+        </Text>
+
         <FlatList
           data={modules}
           renderItem={({ item }) => (
-            <Card item={ item }
-                  handleIcon={handleIcon}
-                  handleStealInfo={handleStealInfo}/>
+            <Card item={item} handleIcon={handleIcon} handleSteal={handleSteal}
+            />
           )}
           showsVerticalScrollIndicator={true}
-          style={{ flex: 1, paddingHorizontal: 10, borderWidth: 1, borderColor: 'black' }}
-        />
-        <TouchableOpacity style={{backgroundColor: 'red',
-                                  borderRadius: 7,
-                                  marginVertical: 10,
-                                  paddingHorizontal: 10,
-        }}
-          onPress={() => handleSteal()}
-        >
-          <Text style={{color: 'white', ...globalStyles.title}}> Steal </Text>
-        </TouchableOpacity>
-        <View>
-          <Text style={globalStyles.text}> Click on the icons above to revive your flowers!</Text>
-        </View>
+        /> 
 
-        <TouchableOpacity onPress={() => (
-          navigation.navigate('CoursePage')
-        )}>
-          <Text>Back</Text>
-        </TouchableOpacity>
+        { isFinalGradeVisible && 
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <Text 
+            style={{
+              padding: 10,
+              backgroundColor: '#AAF0C9',
+              marginTop: 10,
+            }}
+          >
+            Final Grade: { finalGrade } 
+          </Text>
+          <TouchableOpacity style={{
+            padding: 10,
+            backgroundColor: '#AAF0C9',
+            marginTop: 10,
+            marginRight: -10,
+            marginLeft: 20,
+            borderRadius: 10,
+          }}
+            onPress={() => navigation.navigate('Secret')}>
+            <Text>Check Stolen Flowers</Text>
+          </TouchableOpacity>
+        </View>}
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  modal: {
-    marginTop: 20,
-    borderWidth: 1, 
-    borderColor: '#f2f2f2',
-    padding: 10,
-    borderRadius: 10,
-    alignSelf: 'center',
+  header: {
+    flex: 2,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  body: {
+    flex: 20,
   }
 })

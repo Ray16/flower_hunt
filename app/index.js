@@ -7,13 +7,23 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
 import Login from './screens/Login';
 import SignUpForm from './screens/Signup';
 import SecretCreation from './screens/Secret';
+
 import Home from './screens/Home';
+
 import Courses from './screens/Courses';
-import Settings from './screens/Settings';
 import Garden from './screens/Garden';
+import StolenFlower from './screens/StolenFlowerInfo';
+import Question from './screens/Question';
+import Classmates from './screens/Classmates';
+import Secrets from './screens/SecretReveal';
+
+import Settings from './screens/Settings';
+import About from './screens/About';
+import Tutorial from './screens/Tutorial';
 
 const getFonts = () => Font.loadAsync({
     'EBG-regular': require('../assets/fonts/EBGaramond-Regular.ttf'),
@@ -21,15 +31,30 @@ const getFonts = () => Font.loadAsync({
     'EBG-italic': require('../assets/fonts/EBGaramond-Italic.ttf')
 });
 
-
 const CourseStack = createNativeStackNavigator();
 
 function CourseStackNavigator() {
     return (
         <CourseStack.Navigator screenOptions={{headerShown: false}}>
-            <RootStack.Screen name="CoursePage" component={Courses} />
-            <RootStack.Screen name="Garden" component={Garden} />
+            <CourseStack.Screen name="CoursePage" component={Courses} />
+            <CourseStack.Screen name="Garden" component={Garden} />
+            <CourseStack.Screen name="StolenFlower" component={StolenFlower} />
+            <CourseStack.Screen name="Classmates" component={Classmates} />
+            <CourseStack.Screen name="Question" component={Question} />
+            <CourseStack.Screen name="Secret" component={Secrets} />
         </CourseStack.Navigator>
+    );
+}
+
+const SettingStack = createNativeStackNavigator();
+
+function SettingStackNavigator() {
+    return (
+        <SettingStack.Navigator screenOptions={{headerShown: false}}>
+            <SettingStack.Screen name="Settings" component={Settings} />
+            <SettingStack.Screen name="About" component={About} />
+            <SettingStack.Screen name="Tutorial" component={Tutorial} />
+        </SettingStack.Navigator>
     );
 }
 
@@ -46,7 +71,7 @@ function HomeTabNavigator() {
                 iconName = focused
                 ? 'home'
                 : 'home-outline';
-            } else if (route.name === 'Settings') {
+            } else if (route.name === 'Setting') {
                 iconName = focused ? 'settings' : 'settings-outline';
             } else if (route.name == 'Courses') {
                 iconName = focused ? 'book' : 'book-outline'
@@ -63,7 +88,7 @@ function HomeTabNavigator() {
         >
         <HomeTab.Screen name='Courses' component={CourseStackNavigator}/>
         <HomeTab.Screen name='Home' component={Home}/>
-        <HomeTab.Screen name='Settings' component={Settings}/>
+        <HomeTab.Screen name='Setting' component={SettingStackNavigator}/>
       </HomeTab.Navigator>
     );
 }
@@ -99,6 +124,5 @@ export default function App(){
 
     return (
         <LoginStackNavigator />
-        // <Garden />
     );
 }

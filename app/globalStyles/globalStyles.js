@@ -9,19 +9,19 @@ export const globalStyles = StyleSheet.create({
         justifyContent: 'center',
     },
     title: {
-        fontFamily: 'EBG-Bold',
+        fontFamily: 'EBG-bold',
         fontSize: 24,
         fontWeight: 'bold',
         padding: 10,
     },
     text: {
-        fontFamily: 'EBG-Regular',
+        fontFamily: 'EBG-regular',
         fontSize: 14,
         padding: 5,
     },
     textInput: {
         marginVertical: 10,
-        fontFamily: 'EBG-Regular',
+        fontFamily: 'EBG-regular',
         fontSize: 16,
         paddingHorizontal: 30,
         paddingVertical: 10,
@@ -39,15 +39,24 @@ export const globalStyles = StyleSheet.create({
         justifyContent: 'center'
     },
     buttonText: {
-        fontFamily: 'EBG-Regular',
+        fontFamily: 'EBG-regular',
         fontSize: 14,
         color: 'white',
+    },
+    header: {
+        flex: 2,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    body: {
+        flex: 20,
     }
 })
 
 export const images = {
     condition: {
-        '0': require('../../assets/images/lock.png'),
+        '0': require('../../assets/images/Invisible.png'),
         '1': require('../../assets/images/Flower.png'),
         '2': require('../../assets/images/Pot.png'),
     }
