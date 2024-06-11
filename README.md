@@ -31,6 +31,6 @@ expo start...
 
 ### Backend
 ```
-pip install fastapi uvinicorn firebase-admin
-unvicorn main.py --port 8001
+pip install fastapi uvicorn
+uvicorn main:app --host 0.0.0.0 --port 8001
 ```
