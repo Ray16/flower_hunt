@@ -26,31 +26,43 @@ curl -X POST "http://129.114.24.200:8001/courses" \
 
 ## Garden screen
 
-### 01 - On page load
+### 01 - On page load (each topic is a row)
+Sort the garden rows based on their id. \\
+Conditions mean how many flowers of each type the user has. \\
 ```
 POST {
   uid: 100
-  course_id: 14100
+  course_id: 101
 }
 
-Response [
-  {
-    week: 1,
-    active: true,
-    conditions: [1,0,1,0],
-    gain: 8
-  },
-  {
-    week: 2,
-    active: false,
-    conditions: [1,0,1,0],
-    gain: 8
-  },
-]
+Response {
+  sunlight: 100,
+  garden_rows: [
+    {
+      id: 1,
+      topic: "array",
+      conditions: {
+        easy: 3,
+        medium: 0,
+        hard: 0,
+      }
+    },
+    {
+      id: 2,
+      topic: "linked list",
+      conditions: {
+        easy: 0,
+        medium: 0,
+        hard: 0,
+      }
+    },
+  ]
+}
+
 
 curl -X POST "http://129.114.24.200:8001/garden/page_load" \
      -H "Content-Type: application/json" \
-     -d '{"uid": 100, "course_id": 14100}'
+     -d '{"uid": 100, "course_id": 101}'
 ```
 
 ### 02 - On clicking steal

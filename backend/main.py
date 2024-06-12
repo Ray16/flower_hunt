@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, RootModel
-from typing import List
+from typing import Dict, List
 
 app = FastAPI()
 
@@ -10,32 +10,44 @@ class GardenLoadRequest(BaseModel):
     uid: int
     course_id: int
 
-class GardenRow(BaseModel):
-    week: int
-    active: bool
-    conditions: List[int]
-    gain: int
+class Condition(BaseModel):
+    easy: int
+    medium: int
+    hard: int
 
-class GardenLoadResponse(RootModel[List[GardenRow]]):
-    pass
+class GardenRow(BaseModel):
+    id: int
+    topic: str
+    conditions: Condition
+
+class GardenLoadResponse(BaseModel):
+    sunlight: int
+    garden_rows: List[GardenRow]
 
 
 @app.post("/garden/page_load", response_model=GardenLoadResponse)
 async def garden_page_load(request: GardenLoadRequest):
     res_arr = [
-        GardenRow(week=1, active=True, conditions=[1, 0, 1, 0], gain=8),
-        GardenRow(week=2, active=False, conditions=[1, 0, 1, 0], gain=0),
-        GardenRow(week=3, active=False, conditions=[1, 0, 1, 0], gain=0),
-        GardenRow(week=4, active=False, conditions=[1, 0, 1, 0], gain=0),
-        GardenRow(week=5, active=False, conditions=[1, 0, 1, 0], gain=0),
-        GardenRow(week=6, active=False, conditions=[1, 0, 1, 0], gain=0),
-        GardenRow(week=7, active=False, conditions=[1, 0, 1, 0], gain=0),
-        GardenRow(week=8, active=False, conditions=[1, 0, 1, 0], gain=0),
-        GardenRow(week=9, active=False, conditions=[1, 0, 1, 0], gain=0),
-        GardenRow(week=10, active=False, conditions=[1, 0, 1, 0], gain=0)
-        
+        GardenRow(id=1, topic="array", conditions=Condition(easy=3, medium=0, hard=0)),
+        GardenRow(id=2, topic="linked list", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(id=3, topic="stack", conditions=Condition(easy=1, medium=1, hard=0)),
+        GardenRow(id=4, topic="queue", conditions=Condition(easy=0, medium=1, hard=0)),
+        GardenRow(id=5, topic="binary tree", conditions=Condition(easy=2, medium=0, hard=1)),
+        GardenRow(id=6, topic="hash table", conditions=Condition(easy=0, medium=0, hard=2)),
+        GardenRow(id=7, topic="graph", conditions=Condition(easy=1, medium=0, hard=0)),
+        GardenRow(id=8, topic="heap", conditions=Condition(easy=0, medium=1, hard=1)),
+        GardenRow(id=9, topic="sorting", conditions=Condition(easy=2, medium=1, hard=0)),
+        GardenRow(id=10, topic="dynamic programming", conditions=Condition(easy=0, medium=2, hard=1))
     ]
-    return GardenLoadResponse(root=res_arr)
+
+    # Sort garden rows by id
+    sorted_res_arr = sorted(res_arr, key=lambda x: x.id)
+
+    response = GardenLoadResponse(
+        sunlight=100,
+        garden_rows=sorted_res_arr
+    )
+    return response
 
 # 02 - On garden steal
 
