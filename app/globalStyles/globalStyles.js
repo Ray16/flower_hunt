@@ -56,8 +56,7 @@ export const globalStyles = StyleSheet.create({
 
 export const images = {
     condition: {
-        '0': require('../../assets/images/Invisible.png'),
+        '0': require('../../assets/images/Pot.png'),
         '1': require('../../assets/images/Flower.png'),
-        '2': require('../../assets/images/Pot.png'),
     }
 }
