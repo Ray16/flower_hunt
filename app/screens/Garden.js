@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, Alert } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
 import { globalStyles } from '../globalStyles/globalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Card from '../components/Card';
@@ -37,104 +37,75 @@ export default function Garden({ navigation }){
   useEffect(() => {
     setTimeout(fetchData, 10);
   }, [])
-
-  const [mode, setMode] = useState(-1);
-  const handleIcon = ( condition ) => {
-    if (condition == 1) {
-      Alert.alert('Relax!', 'This plant was not stolen! You don\'t need to revive it!',
-        [{text: 'Got it!', onPress: () => console.log('Flower icon clicked on.')}]
-      )
-    } else if (condition == 2) {
-      setMode(0);
-      navigation.navigate('Question');
-    }
-  }
-
-  const handleSteal = () => {
-    setMode(1);
-    navigation.navigate('Classmates');
-  }
-
-  const [isFinalGradeVisible, setIsFinalGradeVisible] = useState(false);
-  const [finalGrade, setFinalGrade] = useState('A');
   
   return (
-    <View style={globalStyles.container}>
+     <View style={ { backgroundColor: 'white', ...globalStyles.container} }>
+      { isLoading ? (
+        <ActivityIndicator />
+      ) : ( 
+        <View style={globalStyles.container}>
+          {/* header of the app */}
+          <View style={styles.header}>
 
-      {/* header of the app */}
-      <View style={styles.header}>
+            {/* back button to previous page */}
+            <Ionicons
+              name='chevron-back'
+              size={24}
+              style={{flex: 1}}
+              onPress={() => (navigation.navigate('CoursePage'))}
+            />
 
-        {/* back button to previous page */}
-        <Ionicons
-          name='chevron-back'
-          size={24}
-          style={{flex: 1}}
-          onPress={() => (navigation.navigate('CoursePage'))}
-        />
+            <View></View>
 
-         {/* check stolen flowers */}
-        <View style={{flex: 10}}></View>
-          <TouchableOpacity 
-            style={ {
-              backgroundColor: '#AAF0C9',
-              padding: 10,
-              flex: 5
-            } }
-            onPress={() => (navigation.navigate('StolenFlower'))}
-          >
-            <Text style={{alignSelf: 'center'}}>
-              Stolen Flowers
+            {/* check current sunlight */}
+            <View style={styles.sunlight}>
+              <Text style={styles.sunlightText}>Sunlight: {modules.sunlight}</Text> 
+            </View>
+          </View>
+
+          {/* body of the app */}
+          <View style={styles.body}>
+            <Text style={globalStyles.title}>
+                Flower Collection
             </Text>
-          </TouchableOpacity>
+
+            {/* renders the garden for each topic */}
+            <FlatList
+              style={ { width: '100%' } }
+              data={modules.garden_rows}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <Card item={item}/>
+              )}
+              showsVerticalScrollIndicator={true}
+            />
+            
+            {/* renders the steal button */}
+            <TouchableOpacity
+              style={ {
+                marginTop: 25,
+                marginBottom: -25,
+                backgroundColor: 'red',
+                paddingVertical: 10,
+                paddingHorizontal: 20,
+                borderRadius: 50,
+              } }
+            >
+              <Text 
+                style={{
+                  color: 'white',
+                  fontFamily: 'Nunito-Bold',
+                  fontSize: 16,
+                }}
+              >
+                Steal
+              </Text>
+            </TouchableOpacity>
+
+          </View> 
         </View>
-
-      {/* body of the app */}
-      <View style={styles.body}>
-        <Text style={globalStyles.title}>
-            Welcome to Your Garden!
-        </Text>
-
-        {/* renders the garden for each week */}
-        <FlatList
-          data={modules}
-          keyExtractor={(item) => item.week}
-          renderItem={({ item }) => (
-            <Card item={item} handleIcon={handleIcon} handleSteal={handleSteal}/>
-          )}
-          showsVerticalScrollIndicator={true}
-        />
-        
-        {/* final grade */}
-        { isFinalGradeVisible && 
-        <View style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <Text 
-            style={{
-              padding: 10,
-              backgroundColor: '#AAF0C9',
-              marginTop: 10,
-            }}
-          >
-            Final Grade: { finalGrade } 
-          </Text>
-          <TouchableOpacity style={{
-            padding: 10,
-            backgroundColor: '#AAF0C9',
-            marginTop: 10,
-            marginRight: -10,
-            marginLeft: 20,
-            borderRadius: 10,
-          }}
-            onPress={() => navigation.navigate('Secret')}>
-            <Text>Check Stolen Flowers</Text>
-          </TouchableOpacity>
-        </View> }
-
-      </View>
-    </View>
+      )}
+    </View> 
   )
 }
 
@@ -147,5 +118,19 @@ const styles = StyleSheet.create({
   },
   body: {
     flex: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  sunlight: {
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: '#A9FFA9',
+  },
+  sunlightText: {
+    alignSelf: 'center',
+    fontFamily: 'Nunito-Bold',
+    fontSize: 14,
   }
+
 })

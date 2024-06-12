@@ -10,25 +10,21 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Login from './screens/Login';
 import SignUpForm from './screens/Signup';
-import SecretCreation from './screens/Secret';
 
 import Home from './screens/Home';
 
 import Courses from './screens/Courses';
 import Garden from './screens/Garden';
-import StolenFlower from './screens/StolenFlowerInfo';
 import Question from './screens/Question';
 import Classmates from './screens/Classmates';
-import Secrets from './screens/SecretReveal';
 
 import Settings from './screens/Settings';
 import About from './screens/About';
-import Tutorial from './screens/Tutorial';
 
 const getFonts = () => Font.loadAsync({
-    'EBG-regular': require('../assets/fonts/EBGaramond-Regular.ttf'),
-    'EBG-bold': require('../assets/fonts/EBGaramond-Bold.ttf'),
-    'EBG-italic': require('../assets/fonts/EBGaramond-Italic.ttf')
+    'Nunito-Regular': require('../assets/fonts/Nunito-Regular.ttf'),
+    'Nunito-Bold': require('../assets/fonts/Nunito-Bold.ttf'),
+    'Nunito-Italic': require('../assets/fonts/Nunito-Italic.ttf')
 });
 
 const CourseStack = createNativeStackNavigator();
@@ -38,10 +34,8 @@ function CourseStackNavigator() {
         <CourseStack.Navigator screenOptions={{headerShown: false}}>
             <CourseStack.Screen name="CoursePage" component={Courses} />
             <CourseStack.Screen name="Garden" component={Garden} />
-            <CourseStack.Screen name="StolenFlower" component={StolenFlower} />
             <CourseStack.Screen name="Classmates" component={Classmates} />
             <CourseStack.Screen name="Question" component={Question} />
-            <CourseStack.Screen name="Secret" component={Secrets} />
         </CourseStack.Navigator>
     );
 }
@@ -53,7 +47,6 @@ function SettingStackNavigator() {
         <SettingStack.Navigator screenOptions={{headerShown: false}}>
             <SettingStack.Screen name="Settings" component={Settings} />
             <SettingStack.Screen name="About" component={About} />
-            <SettingStack.Screen name="Tutorial" component={Tutorial} />
         </SettingStack.Navigator>
     );
 }
@@ -100,7 +93,6 @@ function LoginStackNavigator() {
         <RootStack.Navigator>
             <RootStack.Screen name="Login" component={Login} />
             <RootStack.Screen name="Sign Up" component={SignUpForm} />
-            <RootStack.Screen name="Secret Creation" component={SecretCreation} />
             <RootStack.Screen 
                             options={{headerShown: false}} 
                             name="HomeTab" 

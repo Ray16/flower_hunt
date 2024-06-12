@@ -9,19 +9,19 @@ export const globalStyles = StyleSheet.create({
         justifyContent: 'center',
     },
     title: {
-        fontFamily: 'EBG-bold',
+        fontFamily: 'Nunito-Bold',
         fontSize: 24,
         fontWeight: 'bold',
         padding: 10,
     },
     text: {
-        fontFamily: 'EBG-regular',
+        fontFamily: 'Nunito-Regular',
         fontSize: 14,
         padding: 5,
     },
     textInput: {
         marginVertical: 10,
-        fontFamily: 'EBG-regular',
+        fontFamily: 'Nunito-Regular',
         fontSize: 16,
         paddingHorizontal: 30,
         paddingVertical: 10,
@@ -39,7 +39,7 @@ export const globalStyles = StyleSheet.create({
         justifyContent: 'center'
     },
     buttonText: {
-        fontFamily: 'EBG-regular',
+        fontFamily: 'Nunito-Regular',
         fontSize: 14,
         color: 'white',
     },
@@ -53,10 +53,3 @@ export const globalStyles = StyleSheet.create({
         flex: 20,
     }
 })
-
-export const images = {
-    condition: {
-        '0': require('../../assets/images/Pot.png'),
-        '1': require('../../assets/images/Flower.png'),
-    }
-}

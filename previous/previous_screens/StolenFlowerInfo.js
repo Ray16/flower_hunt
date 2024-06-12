@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, FlatList } from 'react-native';
-import { globalStyles } from '../globalStyles/globalStyles';
+import { globalStyles } from '../app/globalStyles/globalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function StolenFlower({ navigation }){

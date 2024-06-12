@@ -37,7 +37,7 @@ export default function Classmates({ navigation }){
                         onPress={() => navigation.navigate('Question')}
                     >
                         <Text style={{
-                            fontFamily: 'EBG-bold',
+                            fontFamily: 'Nunito-Bold',
                             fontSize: 15,
                             marginLeft: 5,
                             flex: 10,

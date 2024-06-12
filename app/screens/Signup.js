@@ -27,7 +27,7 @@ export default function SignUpForm({ navigation }) {
 				initialValues={{ username: '', password: '', confirm: '' }}
                 validationSchema={signUpSchema}
 				onSubmit={(values, actions) => {
-					navigation.navigate('Secret Creation');
+					navigation.navigate('HomeTab');
 				}}
 			>
 			    {(props) => (
@@ -88,7 +88,7 @@ export default function SignUpForm({ navigation }) {
 
 const style = StyleSheet.create({
 	errorText: {
-		fontFamily: 'EBG-Regular',
+		fontFamily: 'Nunito-Regular',
         fontSize: 14,
 		color: 'red',
 		alignSelf: 'center'
