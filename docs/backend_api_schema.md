@@ -2,11 +2,27 @@
 - Check the full API documentation at: http://129.114.24.200:8001/docs.
 
 
-## Part 01: Login screen
+## Course Screen
 ```
+POST /courses {
+  uid: 100
+}
 
+Response [
+  {
+    course_id: 101,
+    course_name: "Software Engineering",
+  },
+  {
+    course_id: 102,
+    course_name: "Data Science",
+  }
+]
 
-
+curl -X POST "http://129.114.24.200:8001/courses" \
+     -H "Content-Type: application/json" \
+     -d '{"uid": 100}'
+```
 
 ## Garden screen
 
@@ -19,18 +35,19 @@ POST {
 
 Response [
   {
+    week: 1,
     active: true,
     conditions: [1,0,1,0],
     gain: 8
   },
   {
+    week: 2,
     active: false,
     conditions: [1,0,1,0],
     gain: 8
   },
 ]
 
-# Call API
 curl -X POST "http://129.114.24.200:8001/garden/page_load" \
      -H "Content-Type: application/json" \
      -d '{"uid": 100, "course_id": 14100}'
@@ -45,7 +62,7 @@ POST {
 }
 
 Response {
-  'question_id': 'week1_q1'
+  'question_id': 'week1_q1',
   'chapter': '1',
   'answer': 'B',
   'difficulty': 'easy',
@@ -53,7 +70,6 @@ Response {
   'options': ['A type of snake', 'A programming language', 'A car brand', 'A music brand']
 }
 
-# Call API
 curl -X POST "http://129.114.24.200:8001/garden/steal" \
      -H "Content-Type: application/json" \
      -d '{"uid": 100, "course_id": 14100, "week": 1}'
@@ -72,9 +88,3 @@ Response {
   'status': 'success'
 }
 ```
-
-### 04 - When user returns to the Garden screen
-Call the same api as 01
-
-
-## How to call the API 

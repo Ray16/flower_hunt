@@ -31,10 +31,15 @@ curl http://129.114.24.200:8001
 
 ### Test API
 ```
-# Post
+# Post 01
 curl -X POST "http://129.114.24.200:8001/garden/page_load" \
      -H "Content-Type: application/json" \
      -d '{"uid": 100, "course_id": 14100}'
+
+# Post 02
+curl -X POST "http://129.114.24.200:8001/garden/steal" \
+     -H "Content-Type: application/json" \
+     -d '{"uid": 100, "course_id": 14100, "week": 1}'
 
 ```
 
