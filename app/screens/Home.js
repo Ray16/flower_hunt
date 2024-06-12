@@ -14,7 +14,7 @@ export default function Home(){
     ])
     
     return (
-        <View style={globalStyles.container}> 
+        <View style={ { backgroundColor: 'white', ...globalStyles.container} }> 
             <View style={globalStyles.header}>
                 <Text style={globalStyles.title}> Welcome to Flower Hunt! </Text>
             </View>
@@ -23,30 +23,14 @@ export default function Home(){
                     source={require('../../assets/images/home_flower.png')}
                     style={{ marginTop: 5, height: '30%' }}
                 />
-                <Text style={{ alignSelf: 'center', marginTop: 20, ...globalStyles.title}}> My Progress </Text>
-                <FlatList 
-                    style={{ alignSelf: 'center' }}
-                    data={courseData}
-                    renderItem={({ item }) => (
-                        <View style={{
-                            padding: 10,
-                            marginHorizontal: 10,
-                        }}>
-                            <Text 
-                                style={{ 
-                                    fontFamily: 'EBG-regular',
-                                    padding: 3,
-                                    fontSize: 16,
-                                }}
-                            
-                            > { item.course }</Text>
-                            <ProgressBar 
-                                progress={(item.finishedWeeks/item.totalWeeks)}
-                                width={0.8*width}
-                            />
-                        </View>
-                    )} 
-                />
+                <Text style={{ 
+                    alignSelf: 'center', 
+                    marginTop: 20, 
+                    ...globalStyles.title
+                }}> 
+                    Become An Experienced Learner!
+                </Text>
+                
             </View>
         </View>
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { globalStyles } from '../globalStyles/globalStyles';
+import { globalStyles } from '../app/globalStyles/globalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function Tutorial({ navigation }){

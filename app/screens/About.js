@@ -19,7 +19,7 @@ export default function About({ navigation }){
                 <Text style={styles.body}>
                     This is a game that deepens your friendship with your classmates by revealing their "secrets". {"\n"}
                 </Text>
-                <Text style={{ ...styles.body, fontFamily: 'EBG-bold', fontWeight: 'bold'  }}>
+                <Text style={{ ...styles.body, fontFamily: 'Nunito-Bold', fontWeight: 'bold'  }}>
                     What To Expect:
                 </Text>
                 <Text style={styles.body}>
@@ -28,7 +28,7 @@ export default function About({ navigation }){
                     3. When the game starts, you can hunt for each other's flowers by going to their garden and hunting for flowers, which reveal one secrete about him/her. 
                     When hunting for flowers, you need to answer multiple choice questions related to the course materials, which will be randomly picked by AI. {"\n"}
                 </Text>
-                <Text style={{ ...styles.body, fontFamily: 'EBG-bold', fontWeight: 'bold'  }}>
+                <Text style={{ ...styles.body, fontFamily: 'Nunito-Bold', fontWeight: 'bold'  }}>
                     Rules:
                 </Text>
                 <Text style={styles.body}>
@@ -44,6 +44,6 @@ export default function About({ navigation }){
 const styles = StyleSheet.create({
     body: {
         marginHorizontal: 30,
-        fontFamily: 'EBG-regular',
+        fontFamily: 'Nunito-Regular',
     }
 })

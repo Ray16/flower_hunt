@@ -36,7 +36,7 @@ export default function Login({ navigation }) {
                     <Text style={
                         {color: 'blue',
                         textDecorationLine: 'underline',
-                        fontFamily: 'EBG-regular'
+                        fontFamily: 'Nunito-Regular'
                         }
                     }>Sign Up!</Text>
                 </TouchableOpacity>

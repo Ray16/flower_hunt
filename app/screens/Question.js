@@ -90,7 +90,7 @@ export default function Question({ navigation }){
                 style={styles.continue}
                 onPress={() => navigation.navigate('Garden')}>
                 <Text style={{
-                    fontFamily: 'EBG-regular', 
+                    fontFamily: 'Nunito-Regular', 
                 }}>Continue</Text>
             </TouchableOpacity>
             ) : (

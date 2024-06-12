@@ -1,113 +1,48 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, ImageBackground, TouchableOpacity } from 'react-native';
-import { globalStyles, images } from '../globalStyles/globalStyles';
+import { StyleSheet, Text, View, Image } from 'react-native';
 
-export default function Card({ item, handleIcon, handleSteal }){
+export default function Card({ item }){
     return (
         <View style={styles.container}>
-
-            {/* Left Week Indicator */}
-            <Text style={styles.label}>Week {item.week}:</Text>
-
-            {/* Background Image */}
-            <ImageBackground 
-                source={require('../../assets/images/GardenBackground.jpg')}
-                imageStyle={{resizeMode: 'contain', opacity: 0.7 }}
-                style={styles.container}
-            >
+            <View style={styles.label}>
+                <Text style={styles.labelText}>{ item.topic }:</Text>
+            </View>
             
-            { item.active ? 
-            
-            (
-                /* Active Week */
-                <View style={{ flexDirection: 'row' }}>
-
-                    {/* Icon 1 */}
-                    <TouchableOpacity 
-                        style={ {
-                            marginLeft: -15,
-                            marginTop: 5,
-                            width: 42, 
-                            height: 45, 
-                        } }
-                        onPress={() => handleIcon(item.conditions[0])}>
-                    <Image source={ images.condition[item.conditions[0]] } style={[
-                        item.conditions[0] == 0 && styles.pot,
-                        item.conditions[0] == 1 && styles.flower,
-                    ]}/>
-                    </TouchableOpacity>
-
-                    {/* Icon 2 */}
-                    <TouchableOpacity 
-                        style={{ 
-                            marginTop: 2, 
-                            width: 42, 
-                            height: 45, 
-                        }}
-                        onPress={() => handleIcon(item.conditions[1])}>
-                    <Image source={ images.condition[item.conditions[1]] } style={[
-                        item.conditions[1] == 0 && styles.pot,
-                        item.conditions[1] == 1 && styles.flower,
-                    ]}/>
-                    </TouchableOpacity>
-
-                    {/* Icon 3 */}
-                    <TouchableOpacity 
-                        style={{ 
-                            marginTop: 5,  
-                            width: 42, 
-                            height: 45, 
-                        }}
-                        onPress={() => handleIcon(item.conditions[2])}>
-                    <Image source={ images.condition[item.conditions[2]] } style={[
-                        item.conditions[2] == 0 && styles.pot,
-                        item.conditions[2] == 1 && styles.flower,
-                    ]}/>
-                    </TouchableOpacity>
-
-                    {/* Icon 4 */}
-                    <TouchableOpacity 
-                        style={{    
-                            marginTop: 5, 
-                            width: 42, 
-                            height: 45, 
-                        }}
-                        onPress={() => handleIcon(item.conditions[3])}>
+            <View style={{ flexDirection: 'row' }}>
+                <View style={ { 
+                    backgroundColor: '#A9FFA9',
+                    ...styles.box 
+                    } }
+                >
                     <Image 
-                        source={ images.condition[item.conditions[3]] } 
-                        style={[
-                            item.conditions[3] == 0 && styles.pot,
-                            item.conditions[3] == 1 && styles.flower,
-                        ]}/>
-                    </TouchableOpacity>
-
-                    {/* Steal Icon */}
-                    <TouchableOpacity 
-                        style={ {  
-                            marginLeft: 15, 
-                            marginTop: 5, 
-                            width: 30, 
-                            height: 30 
-                        } }
-                        onPress={() => handleSteal()}
-                    >
-                        <Image 
-                            source={ require('../../assets/images/Bucket.png') } 
-                            style={ styles.steal }
-                        />
-                    </TouchableOpacity>
-
+                        style={styles.flower}
+                        source={require('../../assets/images/Easy_Flower.png')}
+                    />
+                    <Text style={styles.flowerCount}>{ item.conditions.easy }</Text>
                 </View>
-            ) 
-            : 
-            (
-                /* Inactive Week */
-                <View style={ styles.placeholder }>  
+                <View style={ { 
+                    backgroundColor: '#FDFDB2', 
+                    ...styles.box 
+                    } }
+                >
+                    <Image 
+                        style={styles.flower}
+                        source={require('../../assets/images/Medium_Flower.png')}
+                    />
+                    <Text style={styles.flowerCount}>{ item.conditions.medium }</Text>
                 </View>
-            )
-            }
-
-            </ImageBackground>
+                <View style={ { 
+                    backgroundColor: '#FECEB1', 
+                    ...styles.box 
+                    } }
+                >
+                    <Image 
+                        style={styles.flower}
+                        source={require('../../assets/images/Hard_Flower.png')}
+                    />
+                    <Text style={styles.flowerCount}>{ item.conditions.hard }</Text>
+                </View>
+            </View>
         </View>
     )
 }
@@ -116,37 +51,36 @@ const styles = StyleSheet.create({
     container: {
         marginTop: 5,
         flex: 1,
-        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+        width: '100%',
     },
+
     label: {
-        fontFamily: 'EBG-bold',
-        fontSize: 15,
-        marginRight: 10,
+        margin: 5,
+    },
+    labelText: {
+        fontFamily: 'Nunito-Bold',
+        fontSize: 20,
     },
 
-
+    box: {
+        borderRadius: 20,
+        margin: 5,
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: 100,
+        height: 70,
+    },
     flower: {
-        marginTop: -15,
-        width: 50,
         height: 50,
+        width: 50,
+        marginLeft: 10,
     },
-    pot: {
-        marginLeft: 15,
-        marginTop: 5,
-        width: 20,
-        height: 20,
-    },
-
-    steal: {
-        marginLeft: 3,
-        marginTop: 2,
-        width: 30,
-        height: 30,
-    },
-
-    placeholder: {
-        height: 50
+    flowerCount: {
+        color: '#333333',
+        fontFamily: 'Nunito-Bold',
+        fontSize: 18,
+        marginLeft: 12,
     }
 })
