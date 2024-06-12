@@ -1,70 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, Alert } from "react-native";
 import { globalStyles } from '../globalStyles/globalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Card from '../components/Card';
 
 export default function Garden({ navigation }){
-  const [modules, setModules] = useState([
-    { 
-      key: '1', 
-      condition1: '1', 
-      condition2: '1', 
-      condition3: '2', 
-      condition4: '2', 
-      stolen: '4'
-    }, 
-    { 
-      key: '2', 
-      condition1: '1', 
-      condition2: '1', 
-      condition3: '1', 
-      condition4: '1', 
-      stolen: '2'
-    }, 
-    { 
-      key: '3', 
-      condition1: '1', 
-      condition2: '2', 
-      condition3: '2', 
-      condition4: '1', 
-      stolen: '0'
-    }, 
-    { 
-      key: '4', 
-      condition1: '0', 
-      condition2: '0', 
-      condition3: '0', 
-      condition4: '0', 
-      stolen: '0'
-    }, 
-    { 
-      key: '5', 
-      condition1: '0', 
-      condition2: '0', 
-      condition3: '0', 
-      condition4: '0', 
-      stolen: '0'
-    }, 
-    { 
-      key: '6', 
-      condition1: '0', 
-      condition2: '0', 
-      condition3: '0', 
-      condition4: '0', 
-      stolen: '0'
-    }, 
-  ])
+  const [isLoading, setIsLoading] = useState(true);
+  const [modules, setModules] = useState([]);
 
-  /*
-   0: locked
-   1: not stolen
-   2: stolen
-  */
+  const fetchData = async () => {
+    try {
+      const response = await fetch(
+        'http://129.114.24.200:8001/garden/page_load', {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            uid: 100,
+            course_id: 14100
+          }),
+        }
+      );
+
+      const data = await response.json();
+      setModules(data)
+      console.log('Response Data: ', data);
+
+    } catch(error) {
+      console.log('Error fetching data: ', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    setTimeout(fetchData, 10);
+  }, [])
 
   const [mode, setMode] = useState(-1);
-  const [modalOpen, setModalOpen] = useState('false');
-
   const handleIcon = ( condition ) => {
     if (condition == 1) {
       Alert.alert('Relax!', 'This plant was not stolen! You don\'t need to revive it!',
@@ -76,50 +50,61 @@ export default function Garden({ navigation }){
     }
   }
 
-  const handleSteal = ( condition ) => {
-    if(condition != 0) {
-      setMode(1);
-      navigation.navigate('Classmates');
-    }
+  const handleSteal = () => {
+    setMode(1);
+    navigation.navigate('Classmates');
   }
 
   const [isFinalGradeVisible, setIsFinalGradeVisible] = useState(false);
-
   const [finalGrade, setFinalGrade] = useState('A');
   
   return (
     <View style={globalStyles.container}>
+
+      {/* header of the app */}
       <View style={styles.header}>
+
+        {/* back button to previous page */}
         <Ionicons
           name='chevron-back'
           size={24}
           style={{flex: 1}}
           onPress={() => (navigation.navigate('CoursePage'))}
         />
-        <View style={{flex: 10}}></View>
-        <TouchableOpacity style={{backgroundColor: '#AAF0C9',
-                                  padding: 10,
-                                  flex: 5}}
-            onPress={() => (navigation.navigate('StolenFlower'))}>
-          <Text style={{alignSelf: 'center',
-            }}>Stolen Flowers</Text>
-        </TouchableOpacity>
-      </View>
 
+         {/* check stolen flowers */}
+        <View style={{flex: 10}}></View>
+          <TouchableOpacity 
+            style={ {
+              backgroundColor: '#AAF0C9',
+              padding: 10,
+              flex: 5
+            } }
+            onPress={() => (navigation.navigate('StolenFlower'))}
+          >
+            <Text style={{alignSelf: 'center'}}>
+              Stolen Flowers
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+      {/* body of the app */}
       <View style={styles.body}>
         <Text style={globalStyles.title}>
             Welcome to Your Garden!
         </Text>
 
+        {/* renders the garden for each week */}
         <FlatList
           data={modules}
+          keyExtractor={(item) => item.week}
           renderItem={({ item }) => (
-            <Card item={item} handleIcon={handleIcon} handleSteal={handleSteal}
-            />
+            <Card item={item} handleIcon={handleIcon} handleSteal={handleSteal}/>
           )}
           showsVerticalScrollIndicator={true}
-        /> 
-
+        />
+        
+        {/* final grade */}
         { isFinalGradeVisible && 
         <View style={{
           flexDirection: 'row',
@@ -146,7 +131,8 @@ export default function Garden({ navigation }){
             onPress={() => navigation.navigate('Secret')}>
             <Text>Check Stolen Flowers</Text>
           </TouchableOpacity>
-        </View>}
+        </View> }
+
       </View>
     </View>
   )
