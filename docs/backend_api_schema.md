@@ -1,6 +1,33 @@
 # Dcoumentation of Backend API
 - Check the full API documentation at: http://129.114.24.200:8001/docs.
 
+## Login Screen
+```
+POST /login {
+  username: "Faradawn",
+  password: "12345"
+}
+
+Response {
+  status: "success"
+}
+
+POST /create_user {
+  username: "Faradawn",
+  password: "12345"
+}
+
+Response {
+  status: "success",
+  uid: "xyz123",
+}
+
+or {
+  status: "already created",
+  uid: "none",
+}
+```
+
 
 ## Course Screen
 ```
