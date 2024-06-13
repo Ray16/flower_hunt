@@ -28,16 +28,16 @@ class GardenLoadResponse(BaseModel):
 @app.post("/garden/page_load", response_model=GardenLoadResponse)
 async def garden_page_load(request: GardenLoadRequest):
     res_arr = [
-        GardenRow(id=1, topic="array", conditions=Condition(easy=3, medium=0, hard=0)),
-        GardenRow(id=2, topic="linked list", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id=3, topic="stack", conditions=Condition(easy=1, medium=1, hard=0)),
-        GardenRow(id=4, topic="queue", conditions=Condition(easy=0, medium=1, hard=0)),
-        GardenRow(id=5, topic="binary tree", conditions=Condition(easy=2, medium=0, hard=1)),
-        GardenRow(id=6, topic="hash table", conditions=Condition(easy=0, medium=0, hard=2)),
-        GardenRow(id=7, topic="graph", conditions=Condition(easy=1, medium=0, hard=0)),
-        GardenRow(id=8, topic="heap", conditions=Condition(easy=0, medium=1, hard=1)),
-        GardenRow(id=9, topic="sorting", conditions=Condition(easy=2, medium=1, hard=0)),
-        GardenRow(id=10, topic="dynamic programming", conditions=Condition(easy=0, medium=2, hard=1))
+        GardenRow(id=1, topic="Array", conditions=Condition(easy=3, medium=0, hard=0)),
+        GardenRow(id=2, topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(id=3, topic="Stack", conditions=Condition(easy=1, medium=1, hard=0)),
+        GardenRow(id=4, topic="Queue", conditions=Condition(easy=0, medium=1, hard=0)),
+        GardenRow(id=5, topic="Binary Tree", conditions=Condition(easy=2, medium=0, hard=1)),
+        GardenRow(id=6, topic="Hash Table", conditions=Condition(easy=0, medium=0, hard=2)),
+        GardenRow(id=7, topic="Graph", conditions=Condition(easy=1, medium=0, hard=0)),
+        GardenRow(id=8, topic="Heap", conditions=Condition(easy=0, medium=1, hard=1)),
+        GardenRow(id=9, topic="Sorting", conditions=Condition(easy=2, medium=1, hard=0)),
+        GardenRow(id=10, topic="Dynamic Programming", conditions=Condition(easy=0, medium=2, hard=1))
     ]
 
     # Sort garden rows by id
@@ -76,6 +76,25 @@ async def garden_steal(request: GardenStealRequest):
     )
     return response_data
 
+# Receive answer
+class SubmitAnswerRequest(BaseModel):
+    uid: int
+    question_id: str
+    response_time: float
+    user_answer: str
+    correct_answer: str
+
+class SubmitAnswerResponse(BaseModel):
+    status: str
+
+@app.post("/garden/submit_answer", response_model=SubmitAnswerResponse)
+async def submit_answer(request: SubmitAnswerRequest):
+    response_data = SubmitAnswerResponse(
+        status='success'
+    )
+    return response_data
+
+
 # Courses Screen
 class CoursesRequest(BaseModel):
     uid: int
@@ -95,3 +114,27 @@ async def courses_page(request: CoursesRequest):
         CoursesItem(course_id=102, course_name='Data Science'),
     ]
     return CoursesResponse(root=res_arr)
+
+
+## Select Neighbor Screen
+
+class SelectNeighborRequest(BaseModel):
+    uid: int
+    course_id: int
+
+class SelectNeighborItem(BaseModel):
+    uid: int
+    username: str
+    total_flowers: int
+
+class SelectNeighborResponse(RootModel[List[SelectNeighborItem]]):
+    pass
+
+@app.post("/select_neighbor", response_model=SelectNeighborResponse)
+async def courses_page(request: SelectNeighborRequest):
+    res_arr = [
+        SelectNeighborItem(uid=102, username='Faradawn', total_flowers=100),
+        SelectNeighborItem(uid=102, username='Mike', total_flowers=10),
+        SelectNeighborItem(uid=102, username='Ray', total_flowers=5),
+    ]
+    return SelectNeighborResponse(root=res_arr)
