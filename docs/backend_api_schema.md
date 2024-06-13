@@ -97,9 +97,10 @@ curl -X POST "http://129.114.24.200:8001/garden/page_load" \
 ### 02 - On clicking steal
 ```
 POST {
-  uid: 100
-  course_id: 14100
-  week: 1
+  uid: '100'
+  course_id: '14100'
+  row_id: '1'
+  difficulty: 'easy'
 }
 
 Response {
@@ -113,7 +114,7 @@ Response {
 
 curl -X POST "http://129.114.24.200:8001/garden/steal" \
      -H "Content-Type: application/json" \
-     -d '{"uid": 100, "course_id": 101, "week": 1}'
+     -d '{"uid": "100", "course_id": "101", "row_id": "1", "difficulty": "easy"}'
 ```
 
 ### 03 - When user submits an answer
@@ -134,6 +135,19 @@ curl -X POST "http://129.114.24.200:8001/garden/submit_answer" \
      -H "Content-Type: application/json" \
      -d '{"uid": 100, "question_id": "q1", "response_time": 10, "user_answer": "A", "correct_answer": "B"}'
 ```
+
+### 04 - Create Garden
+```
+POST /garden/create_garden {
+  uid
+}
+
+Response {
+  status: 'success'
+}
+```
+
+
 
 ## Select Neighbor Screen
 ```
