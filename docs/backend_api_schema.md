@@ -5,21 +5,22 @@
 ```
 POST /login {
   username: "Faradawn",
-  password: "12345"
-}
-
-Response {
-  status: "success"
-}
-
-POST /create_user {
-  username: "Faradawn",
-  password: "12345"
+  password: "12345678"
 }
 
 Response {
   status: "success",
-  uid: "xyz123",
+  uid: "xyz123"
+}
+
+POST /create_user {
+  username: "Faradawn",
+  password: "12345678"
+}
+
+Response {
+  status: "success",
+  uid: "xyz123"
 }
 
 or {

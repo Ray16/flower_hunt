@@ -5,6 +5,11 @@ import uuid
 
 app = FastAPI()
 
+# Login Screen
+
+
+
+
 # 01 - On page load
 
 class GardenLoadRequest(BaseModel):
@@ -27,7 +32,7 @@ class GardenLoadResponse(BaseModel):
 
 @app.post("/garden/page_load", response_model=GardenLoadResponse)
 async def garden_page_load(request: GardenLoadRequest):
-    # If the garden for the course is not found, create an initial garden
+    # Initial garden rows with all conditions set to 0
     init_garden_rows = [
         GardenRow(id="1", topic="Array", conditions=Condition(easy=0, medium=0, hard=0)),
         GardenRow(id="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0)),
@@ -41,14 +46,34 @@ async def garden_page_load(request: GardenLoadRequest):
         GardenRow(id="10", topic="Dynamic Programming", conditions=Condition(easy=0, medium=0, hard=0))
     ]
 
-    # TODO: else, fetch from firebase 
+    # Sample garden rows with specific conditions for the first row
+    sample_garden_rows = [
+        GardenRow(id="1", topic="Array", conditions=Condition(easy=3, medium=2, hard=1)),
+        GardenRow(id="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(id="3", topic="Stack", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(id="4", topic="Queue", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(id="5", topic="Binary Tree", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(id="6", topic="Hash Table", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(id="7", topic="Graph", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(id="8", topic="Heap", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(id="9", topic="Sorting", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(id="10", topic="Dynamic Programming", conditions=Condition(easy=0, medium=0, hard=0))
+    ]
 
+    if request.uid == "100":
+        response = GardenLoadResponse(
+            sunlight=100,
+            garden_rows=init_garden_rows
+        )
+    else:
+        response = GardenLoadResponse(
+            sunlight=50,  # Assuming a default sunlight value for other users
+            garden_rows=sample_garden_rows
+        )
 
-    response = GardenLoadResponse(
-        sunlight=100,
-        garden_rows=init_garden_rows
-    )
     return response
+
+
 
 # 02 - On garden steal
 
