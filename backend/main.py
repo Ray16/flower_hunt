@@ -6,8 +6,28 @@ import uuid
 app = FastAPI()
 
 # Login Screen
+class User(BaseModel):
+    username: str
+    password: str
 
+class LoginResponse(BaseModel):
+    status: str
+    uid: str
 
+class CreateUserResponse(BaseModel):
+    status: str
+    uid: str
+
+@app.post("/create_user", response_model=CreateUserResponse)
+async def create_user(user: User):
+    return CreateUserResponse(status="success", uid="100")
+
+@app.post("/login", response_model=LoginResponse)
+async def login(user: User):
+    if user.password == "12345678":
+        return LoginResponse(status="success", uid="100")
+    else:
+        return LoginResponse(status="failed", uid="none")
 
 
 # 01 - On page load
