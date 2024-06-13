@@ -1,13 +1,14 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, RootModel
 from typing import Dict, List
+import uuid
 
 app = FastAPI()
 
 # 01 - On page load
 
 class GardenLoadRequest(BaseModel):
-    uid: int
+    uid: str
     course_id: int
 
 class Condition(BaseModel):
@@ -52,7 +53,7 @@ async def garden_page_load(request: GardenLoadRequest):
 # 02 - On garden steal
 
 class GardenStealRequest(BaseModel):
-    uid: int
+    uid: str
     course_id: int
     week: int
 
@@ -78,7 +79,7 @@ async def garden_steal(request: GardenStealRequest):
 
 # Receive answer
 class SubmitAnswerRequest(BaseModel):
-    uid: int
+    uid: str
     question_id: str
     response_time: float
     user_answer: str
@@ -97,7 +98,7 @@ async def submit_answer(request: SubmitAnswerRequest):
 
 # Courses Screen
 class CoursesRequest(BaseModel):
-    uid: int
+    uid: str
 
 class CoursesItem(BaseModel):
     course_id: int
@@ -119,11 +120,11 @@ async def courses_page(request: CoursesRequest):
 ## Select Neighbor Screen
 
 class SelectNeighborRequest(BaseModel):
-    uid: int
+    uid: str
     course_id: int
 
 class SelectNeighborItem(BaseModel):
-    uid: int
+    uid: str
     username: str
     total_flowers: int
 
@@ -133,8 +134,17 @@ class SelectNeighborResponse(RootModel[List[SelectNeighborItem]]):
 @app.post("/select_neighbor", response_model=SelectNeighborResponse)
 async def courses_page(request: SelectNeighborRequest):
     res_arr = [
-        SelectNeighborItem(uid=102, username='Faradawn', total_flowers=100),
-        SelectNeighborItem(uid=102, username='Mike', total_flowers=10),
-        SelectNeighborItem(uid=102, username='Ray', total_flowers=5),
+        SelectNeighborItem(uid=str(uuid.uuid4()), username='Faradawn', total_flowers=100),
+        SelectNeighborItem(uid=str(uuid.uuid4()), username='Mike', total_flowers=10),
+        SelectNeighborItem(uid=str(uuid.uuid4()), username='Ray', total_flowers=5),
+        SelectNeighborItem(uid=str(uuid.uuid4()), username='Alice', total_flowers=15),
+        SelectNeighborItem(uid=str(uuid.uuid4()), username='Bob', total_flowers=20),
+        SelectNeighborItem(uid=str(uuid.uuid4()), username='Charlie', total_flowers=25),
+        SelectNeighborItem(uid=str(uuid.uuid4()), username='David', total_flowers=30),
+        SelectNeighborItem(uid=str(uuid.uuid4()), username='Eve', total_flowers=35),
+        SelectNeighborItem(uid=str(uuid.uuid4()), username='Frank', total_flowers=40),
+        SelectNeighborItem(uid=str(uuid.uuid4()), username='Grace', total_flowers=45),
     ]
     return SelectNeighborResponse(root=res_arr)
+
+
