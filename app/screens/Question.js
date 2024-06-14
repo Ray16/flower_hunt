@@ -1,27 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { globalStyles } from '../globalStyles/globalStyles';
+import { useUser } from '../components/UserContext';
 
-const questionSet = {
-    question: 'What is the runtime complexity of binary search?',
-    answer1: 'A: O(1)',
-    answer2: 'B: O(logn)',        
-    answer3: 'C: O(n)',
-    answer4: 'D: O(nlogn)',
-    correct: 2,
-}
+export default function Question({ navigation, route }){
+    const { course_id, topic, difficulty } = route.params;
 
-export default function Question({ navigation }){
-    const [submit, setSubmit] = useState(-1);
-    const [continueVisible, setContinueVisible] = useState(false);
+    const [question, setQuestion] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
 
-    const pressHandler = (pressed) => {
-        if(submit == -1){
-            setSubmit(pressed);
-            setContinueVisible(true);
-            setIsRunning(false);
+    const { userState } = useUser();
+
+    const fetchQuestions = async () => {
+        try {
+            const response = await fetch(
+              'http://129.114.24.200:8001/garden/steal', {
+                method: 'POST',
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  uid: userState.userId,
+                  course_id: course_id,
+                  topic: topic,
+                  difficulty: difficulty,
+                }),
+              }
+            );
+      
+            const data = await response.json();
+            setQuestion(data)
+            console.log(data)
+      
+          } catch(error) {
+            console.log('Error fetching data: ', error);
+          } finally {
+            setIsLoading(false);
         }
     }
+
+    useEffect(() => {
+        setTimeout(fetchQuestions, 10)
+    }, [])
+
+    const [submit, setSubmit] = useState("Not Submitted");
+    const [continueVisible, setContinueVisible] = useState(false);
 
     const [seconds, setSeconds] = useState(0);
     const [isRunning, setIsRunning] = useState(true);
@@ -37,64 +60,97 @@ export default function Question({ navigation }){
         return () => clearInterval(interval);
     }, [isRunning]);
 
-    const formatTime = (seconds) => {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-    };
+
+    const pressHandler = async (answer) => {
+        if(submit == "Not Submitted"){
+            setSubmit(answer);
+            setContinueVisible(true);
+            await setIsRunning(false);
+            
+            try {
+                const response = await fetch(
+                    'http://129.114.24.200:8001/garden/submit_answer', {
+                        method: 'POST',
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            uid: userState.userId,
+                            question_id: question.question_id,
+                            response_time: seconds,
+                            user_answer: answer,
+                            correct_answer: question.answer,
+                        })
+                    }
+                )
+
+            } catch(error) {
+                console.log('Error fetching data: ', error)
+            }
+        }
+    }
 
     return (
         <View style={globalStyles.container}>
-            <Text style={ { 
-                alignSelf: 'flex-end', 
-                padding: 10,
-                width: 140,
-                backgroundColor: '#AAF0C9',
-                marginTop: -30,
-                marginBottom: 30,
-            } }
-            >
-                Time Taken: {formatTime(seconds)}
-            </Text>
-            <Text style={ { marginBottom: 10, ...globalStyles.title } }>{ questionSet.question }</Text>
-            <TouchableOpacity style={ [styles.card,
-                submit != -1 && questionSet.correct == 1 ? styles.right :
-                (submit == 1 && questionSet.correct != 1 ? styles.wrong : styles.inactive )
-            ] }
-            onPress={() => pressHandler(1)}>
-                <Text style={ { marginLeft: 10, ...globalStyles.text } }>{ questionSet.answer1 }</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.card,
-                submit != -1 && questionSet.correct == 2 ? styles.right :
-                (submit == 2 && questionSet.correct != 2 ? styles.wrong : styles.inactive )
-            ]}
-            onPress={() => pressHandler(2)}>
-                <Text style={ { marginLeft: 10, ...globalStyles.text } }>{ questionSet.answer2 }</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={ [styles.card,
-                submit != -1 && questionSet.correct == 3 ? styles.right :
-                (submit == 3 && questionSet.correct != 3 ? styles.wrong : styles.inactive )
-            ]}
-            onPress={() => pressHandler(3)}>
-                <Text style={ { marginLeft: 10, ...globalStyles.text } }>{ questionSet.answer3 }</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.card,
-                submit != -1 && questionSet.correct == 4 ? styles.right :
-                (submit == 4 && questionSet.correct != 4 ? styles.wrong : styles.inactive )
-            ]}
-            onPress={() => pressHandler(4)}>
-                <Text style={ { marginLeft: 10, ...globalStyles.text } }>{ questionSet.answer4 }</Text>
-            </TouchableOpacity>
-            {continueVisible ? (
-            <TouchableOpacity 
-                style={styles.continue}
-                onPress={() => navigation.navigate('Garden')}>
-                <Text style={{
-                    fontFamily: 'Nunito-Regular', 
-                }}>Continue</Text>
-            </TouchableOpacity>
-            ) : (
-                <View style={styles.placeholder}></View>
+
+            { isLoading ? <ActivityIndicator /> 
+                :
+            (
+                <View style={{ width: '100%', ...globalStyles.container }}>
+
+                    {/* Question */}
+                    <Text style={ { marginBottom: 10, ...globalStyles.title } }>{ question.question }</Text>
+
+                    {/* First Answer */}
+                    <TouchableOpacity style={ [styles.card,
+                        submit != "Not Submitted" && question.answer == "A" ? styles.right :
+                        (submit == "A" && question.answer != "A" ? styles.wrong : styles.inactive )
+                    ] }
+                    onPress={() => pressHandler('A')}>
+                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>A: { question.options[0] }</Text>
+                    </TouchableOpacity>
+
+                    {/* Second Answer */}
+                    <TouchableOpacity style={[styles.card,
+                        submit != "Not Submitted" && question.answer == "B" ? styles.right :
+                        (submit == "B" && question.answer != "B" ? styles.wrong : styles.inactive )
+                    ]}
+                    onPress={() => pressHandler('B')}>
+                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>B: { question.options[1] }</Text>
+                    </TouchableOpacity>
+
+                    {/* Third Answer */}
+                    <TouchableOpacity style={ [styles.card,
+                        submit != "Not Submitted" && question.answer == "C" ? styles.right :
+                        (submit == "C" && question.answer != "C" ? styles.wrong : styles.inactive )
+                    ]}
+                    onPress={() => pressHandler('C')}>
+                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>C: { question.options[2] }</Text>
+                    </TouchableOpacity>
+
+                    {/* Fourth Answer*/}
+                    <TouchableOpacity style={[styles.card,
+                        submit != "Not Submitted" && question.answer == "D" ? styles.right :
+                        (submit == "D" && question.answer != "D" ? styles.wrong : styles.inactive )
+                    ]}
+                    onPress={() => pressHandler('D')}>
+                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>D: { question.options[3] }</Text>
+                    </TouchableOpacity>
+                    
+                    {/* Continue Button */}
+                    {continueVisible ? (
+                    <TouchableOpacity 
+                        style={styles.continue}
+                        onPress={() => navigation.navigate('Garden', { course_id: course_id })}>
+                        <Text style={{
+                            fontFamily: 'Nunito-Regular', 
+                        }}>Continue</Text>
+                    </TouchableOpacity>
+                    ) : (
+                        <View style={styles.placeholder}></View>
+                    )}
+
+                </View>
             )}
         </View>
     )
@@ -130,7 +186,6 @@ const styles = StyleSheet.create({
     },
     placeholder: {
         marginTop: 30,
-        height: 38,
-        width: 30,
+        height: 40,
     }
 })
