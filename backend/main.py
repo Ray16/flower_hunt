@@ -1,11 +1,18 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, RootModel
-from typing import Dict, List
+import firebase_admin
+from firebase_admin import credentials, firestore
 import uuid
+from typing import Dict, List
 
 app = FastAPI()
 
-# Login Screen
+# Initialize Firebase
+cred = credentials.Certificate('faradawn_private_key.json')
+firebase_admin.initialize_app(cred)
+db = firestore.client()
+
+# Models
 class User(BaseModel):
     username: str
     password: str
@@ -20,15 +27,27 @@ class CreateUserResponse(BaseModel):
 
 @app.post("/create_user", response_model=CreateUserResponse)
 async def create_user(user: User):
-    return CreateUserResponse(status="success", uid="100")
+    user_ref = db.collection('users').document(user.username)
+    doc = user_ref.get()
+    if doc.exists:
+        return CreateUserResponse(status="already created", uid="none")
+    else:
+        uid = str(uuid.uuid4())
+        user_ref.set({
+            'username': user.username,
+            'password': user.password,
+            'uid': uid
+        })
+        return CreateUserResponse(status="success", uid=uid)
 
 @app.post("/login", response_model=LoginResponse)
 async def login(user: User):
-    if user.password == "12345678":
-        return LoginResponse(status="success", uid="100")
+    user_ref = db.collection('users').document(user.username)
+    doc = user_ref.get()
+    if doc.exists and doc.to_dict().get('password') == user.password:
+        return LoginResponse(status="success", uid=doc.to_dict().get('uid'))
     else:
         return LoginResponse(status="failed", uid="none")
-
 
 # 01 - On page load
 
