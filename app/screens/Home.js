@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
-import { Image, Text, View, FlatList, Dimensions } from "react-native";
+import { Image, Text, View } from "react-native";
 import { globalStyles } from '../globalStyles/globalStyles';
+import { useUser } from '../components/UserContext';
 import ProgressBar from '../components/ProgressBar';
 
-const { width, height } = Dimensions.get('screen');
-
 export default function Home(){
-    const [courseData, setCourseData] = useState([
-        { key: '1', course: 'Algebra', totalWeeks: 8, finishedWeeks: 2 },
-        { key: '2', course: 'Analysis', totalWeeks: 8, finishedWeeks: 4 },
-        { key: '3', course: 'Theory of Algorithms', totalWeeks: 8, finishedWeeks: 1 },
-        { key: '4', course: 'Discrete Maths', totalWeeks: 8, finishedWeeks: 7 }
-    ])
-    
+    const { userId } = useUser();
+
     return (
-        <View style={ { backgroundColor: 'white', ...globalStyles.container} }> 
+        <View style={globalStyles.container}> 
             <View style={globalStyles.header}>
-                <Text style={globalStyles.title}> Welcome to Flower Hunt! </Text>
+                <Text style={globalStyles.title}> Welcome, { userId }! </Text>
             </View>
             <View style={globalStyles.body}>
                 <Image 

@@ -16,14 +16,13 @@ export default function Courses({ navigation }){
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        uid: 100,
+                        uid: '100',
                     }),
                 }
             )
 
             const data = await response.json();
             setCourses(data);
-            console.log('Response Data: ', data);
 
         } catch(error) {
             console.log('Error fetching data: ', error)
@@ -36,8 +35,14 @@ export default function Courses({ navigation }){
         setTimeout(fetchCourses, 10);
     }, [])
 
+    const pressHandler = (course_id) => {
+        navigation.navigate('Garden', {
+            course_id: course_id,
+        });
+    }
+
     return (
-        <View style={ { backgroundColor: 'white', ...globalStyles.container} }> 
+        <View style={globalStyles.container}> 
             { isLoading ? (
                 <ActivityIndicator />
                 ) : (
@@ -62,7 +67,7 @@ export default function Courses({ navigation }){
                                         justifycontent: 'space-between',
                                     }
                                 }
-                                    onPress={() => navigation.navigate('Garden')}
+                                    onPress={() => pressHandler(item.course_id)}
                                 >
                                     <Text 
                                         style={ {

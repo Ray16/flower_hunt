@@ -1,33 +1,105 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from "react-native";
 import { globalStyles } from '../globalStyles/globalStyles';
+import { useUser } from '../components/UserContext';
 
 export default function Login({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [isPasswordWrong, setIsPasswordWrong] = useState(false);
+    const [trigger, setTrigger] = useState(0);
 
-    const loginHandler = () => {
-        if(username == 'Tester' && password == '12345678'){
-            navigation.navigate('HomeTab');
-        } else {
-            console.log('incorrect!');
+    const [loginData, setLoginData] = useState([]); 
+    const { updateState } = useUser();
+
+    {/* input checking */}
+    const handleSubmit = () => {
+        setTrigger(prevTrigger => prevTrigger + 1);
+    };
+
+    const fetchLogin = async () => {
+        console.log("Username is: ", username);
+        console.log("Password is: ", password);
+        try {
+          const response = await fetch(
+            'http://129.114.24.200:8001/garden/login', {
+              method: 'POST',
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                username: username,
+                password: password,
+              }),
+            }
+          );
+    
+          const data = await response.json();
+          console.log('Data received: ', data);
+          setLoginData(data);
+    
+        } catch(error) {
+          console.log('Error fetching data: ', error);
         }
     }
 
+    useEffect(() => {
+        console.log('Fetching Data...')
+        setTimeout(fetchLogin, 10);
+
+        console.log('Data Fetched: ', loginData)
+
+        if(loginData.status == 'Success'){
+            updateState( userId, loginData.userId )
+            updateState( username, username)
+            setIsPasswordWrong(false)
+            navigation.navigate('HomeTab')
+        } else if(loginData.status == 'Fail'){
+            setIsPasswordWrong(true)
+        }
+
+    }, [trigger])
+
     return (
         <View style={globalStyles.container}>
-            <Text style={globalStyles.title}>Welcome to Flower Hunt!</Text>             
+
+            {/* rendering title */}
+            <Text style={globalStyles.title}>Welcome to Flower Hunt!</Text> 
+
+            {/* username input */}         
             <TextInput
                 style={{ width: '75%', ...globalStyles.textInput}}
                 placeholder='Username'
                 onChangeText={(val) => setUsername(val)}
             />
+
+            {/* password input */}    
             <TextInput
                 style={{ width: '75%', ...globalStyles.textInput}}
                 placeholder='Password'    
                 onChangeText={(val) => setPassword(val)}            
                 secureTextEntry={true}
             />
+
+            { isPasswordWrong ? (
+                <Text style={passwordStyle.incorrect}>
+                    Invalid username or wrong password
+                </Text>
+            ) : (
+                <View style={passwordStyle.placeholder}></View>
+            )}
+
+            {/* login button */}  
+            <TouchableOpacity 
+                style={globalStyles.button} 
+                onPress={() => handleSubmit()}
+            >
+                <Text style={globalStyles.buttonText}>
+                    Login
+                </Text>
+            </TouchableOpacity>
+
+            {/* sign up option */}    
             <View style={style.container}>
                 <Text style={globalStyles.text}>Don't have an account yet?</Text>
                 <TouchableOpacity 
@@ -41,11 +113,6 @@ export default function Login({ navigation }) {
                     }>Sign Up!</Text>
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity style={globalStyles.button} onPress={loginHandler}>
-                <Text style={globalStyles.buttonText}>
-                    Login
-                </Text>
-            </TouchableOpacity>
         </View>
     );
 }
@@ -56,12 +123,13 @@ const style = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center'
     },
-    modalClose: {
-        marginTop: 20,
-        borderWidth: 1,
-        borderColor: '#f2f2f2',
-        padding: 10,
-        borderRadius: 10,
-        alignSelf: 'center',
+})
+
+const passwordStyle = StyleSheet.create({
+    incorrect: {
+        color: 'red',
+    },
+    placeholder: {
+        height: 17,
     }
 })

@@ -15,11 +15,14 @@ import Home from './screens/Home';
 
 import Courses from './screens/Courses';
 import Garden from './screens/Garden';
+import NeighbourGarden from './screens/NeighbourGarden';
 import Question from './screens/Question';
 import Classmates from './screens/Classmates';
 
 import Settings from './screens/Settings';
 import About from './screens/About';
+
+import { UserProvider } from './components/UserContext';
 
 const getFonts = () => Font.loadAsync({
     'Nunito-Regular': require('../assets/fonts/Nunito-Regular.ttf'),
@@ -35,6 +38,7 @@ function CourseStackNavigator() {
             <CourseStack.Screen name="CoursePage" component={Courses} />
             <CourseStack.Screen name="Garden" component={Garden} />
             <CourseStack.Screen name="Classmates" component={Classmates} />
+            <CourseStack.Screen name="NeighbourGarden" component={NeighbourGarden} />
             <CourseStack.Screen name="Question" component={Question} />
         </CourseStack.Navigator>
     );
@@ -54,6 +58,7 @@ function SettingStackNavigator() {
 const HomeTab = createBottomTabNavigator();
 
 function HomeTabNavigator() {
+    
     return (
         <HomeTab.Navigator
           screenOptions={({ route }) => ({
@@ -94,9 +99,10 @@ function LoginStackNavigator() {
             <RootStack.Screen name="Login" component={Login} />
             <RootStack.Screen name="Sign Up" component={SignUpForm} />
             <RootStack.Screen 
-                            options={{headerShown: false}} 
-                            name="HomeTab" 
-                            component={HomeTabNavigator} />
+                options={{headerShown: false}} 
+                name="HomeTab" 
+                component={HomeTabNavigator}
+            />
         </RootStack.Navigator>
     );
 }
@@ -115,6 +121,8 @@ export default function App(){
     }
 
     return (
-        <LoginStackNavigator />
+        <UserProvider>
+            <LoginStackNavigator />
+        </UserProvider>
     );
 }
