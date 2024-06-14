@@ -1,47 +1,62 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, ImageBackground } from 'react-native';
 
 export default function Card({ item }){
     return (
         <View style={styles.container}>
-            <View style={styles.label}>
+
+            <View>
                 <Text style={styles.labelText}>{ item.topic }:</Text>
             </View>
             
             <View style={{ flexDirection: 'row' }}>
-                <View style={ { 
-                    backgroundColor: '#A9FFA9',
-                    ...styles.box 
-                    } }
-                >
-                    <Image 
-                        style={styles.flower}
-                        source={require('../../assets/images/Easy_Flower.png')}
-                    />
+                <ImageBackground 
+                    style={ styles.box }
+                    source={require('../../assets/sprites/grass_01.png')}
+                > 
+                    { item.conditions.easy != 0 ? 
+                    (
+                        <Image 
+                            style={ styles.plant }
+                            source={require('../../assets/sprites/plant_01.png')}
+                        />
+                    ) : ( 
+                        <View style={ styles.plant }></View>
+                    ) }
                     <Text style={styles.flowerCount}>{ item.conditions.easy }</Text>
-                </View>
-                <View style={ { 
-                    backgroundColor: '#FDFDB2', 
-                    ...styles.box 
-                    } }
+                </ImageBackground>
+
+                <ImageBackground 
+                    style={ styles.box }
+                    source={require('../../assets/sprites/grass_02.png')}
                 >
-                    <Image 
-                        style={styles.flower}
-                        source={require('../../assets/images/Medium_Flower.png')}
-                    />
+                    { item.conditions.medium != 0 ? 
+                    (
+                        <Image 
+                            style={ styles.plant }
+                            source={require('../../assets/sprites/plant_02.png')}
+                        />
+                    ) : ( 
+                        <View style={ styles.plant }></View>
+                    ) }
                     <Text style={styles.flowerCount}>{ item.conditions.medium }</Text>
-                </View>
-                <View style={ { 
-                    backgroundColor: '#FECEB1', 
-                    ...styles.box 
-                    } }
+                </ImageBackground>
+
+                <ImageBackground 
+                    style={ styles.box }
+                    source={require('../../assets/sprites/grass_03.png')}
                 >
-                    <Image 
-                        style={styles.flower}
-                        source={require('../../assets/images/Hard_Flower.png')}
-                    />
+                    { item.conditions.hard != 0 ? 
+                    (
+                        <Image 
+                            style={ styles.plant }
+                            source={require('../../assets/sprites/plant_03.png')}
+                        />
+                    ) : ( 
+                        <View style={ styles.plant }></View>
+                    ) }
                     <Text style={styles.flowerCount}>{ item.conditions.hard }</Text>
-                </View>
+                </ImageBackground>
             </View>
         </View>
     )
@@ -51,36 +66,28 @@ const styles = StyleSheet.create({
     container: {
         marginTop: 5,
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
         width: '100%',
     },
 
-    label: {
-        margin: 5,
-    },
     labelText: {
         fontFamily: 'Nunito-Bold',
-        fontSize: 20,
+        fontSize: 15,
     },
 
     box: {
-        borderRadius: 20,
-        margin: 5,
-        flexDirection: 'row',
+        height: 80, 
+        width: 80,
         alignItems: 'center',
-        width: 100,
-        height: 70,
     },
-    flower: {
+    plant: {
         height: 50,
         width: 50,
-        marginLeft: 10,
+        marginTop: 5,
     },
     flowerCount: {
-        color: '#333333',
         fontFamily: 'Nunito-Bold',
-        fontSize: 18,
-        marginLeft: 12,
+        color: 'white'
     }
 })

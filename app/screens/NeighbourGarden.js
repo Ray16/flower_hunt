@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, ImageBackground, TouchableOpacity } from "react-native";
 import { globalStyles } from '../globalStyles/globalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import NeighbourCard from '../components/NeighbourCard';
@@ -8,7 +8,7 @@ export default function NeighbourGarden({ route, navigation }){
   const { course_id, neighbour_id, neighbour_user } = route.params;
 
   const [isLoading, setIsLoading] = useState(true);
-  const [modules, setModules] = useState([]);
+  const [userData, setUserData] = useState([]);
 
   const fetchData = async () => {
     try {
@@ -26,7 +26,7 @@ export default function NeighbourGarden({ route, navigation }){
       );
 
       const data = await response.json();
-      setModules(data)
+      setUserData(data)
 
     } catch(error) {
       console.log('Error fetching data: ', error);
@@ -48,50 +48,61 @@ export default function NeighbourGarden({ route, navigation }){
   }
 
   return (
-    <View style={globalStyles.container}>
+    <ImageBackground 
+      source={require('../../assets/images/GardenBackground.jpg')}
+      style={{ width: '100%', height: '100%' }}
+    >
       { isLoading ? (
         <ActivityIndicator />
       ) : ( 
-        <View style={globalStyles.container}>
-          {/* header of the app */}
-          <View style={styles.header}>
+          <View>
+            <View 
+              style={{ 
+                flexDirection: 'row',
+                marginTop: 82,
+                marginRight: 15, 
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  marginTop: 30,
+                  marginLeft: 67,
+                }}
+                onPress={() => navigation.navigate('Classmates', 
+                  { course_id: course_id })}
+              >
+                <Text style={{
+                  fontFamily: 'Nunito-Bold',
+                  fontSize: 13,
+                  color: '#0062ff',
+                  alignSelf: 'center',
+                }}>
+                  Back
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-            {/* back button to previous page */}
-            <Ionicons
-              name='chevron-back'
-              size={24}
-              style={ { marginTop: 4 } }
-              onPress={() => (navigation.navigate('Classmates', {
-                course_id: course_id
-              }))}
-            />
-
-            <Text style={globalStyles.title}>
-                { neighbour_user }'s Garden
-            </Text>
+            {/* body of the app */}
+            <View 
+              style={ { 
+                height: 420,
+                alignItems: 'center',
+              } }
+            >
+              <FlatList 
+                style={ { width: '100%', marginBottom: 20 } }
+                data={userData.garden_rows}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <NeighbourCard item={item} iconHandler={iconHandler} course_id={course_id}/>
+                )}
+                showsVerticalScrollIndicator={true}
+              />
+            </View>
           </View>
-
-          {/* body of the app */}
-          <View style={styles.body}>
-
-            {/* renders the garden for each topic */}
-            <FlatList
-              style={ { width: '100%' } }
-              data={modules.garden_rows}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <NeighbourCard 
-                    item={item} 
-                    iconHandler={iconHandler}
-                    course_id={course_id}
-                />
-              )}
-              showsVerticalScrollIndicator={true}
-            />
-          </View> 
-        </View>
-      )}
-    </View> 
+          )
+      }
+    </ImageBackground> 
   )
 }
 

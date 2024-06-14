@@ -5,12 +5,12 @@ import { useUser } from '../components/UserContext';
 import ProgressBar from '../components/ProgressBar';
 
 export default function Home(){
-    const { userId } = useUser();
+    const { userState } = useUser();
 
     return (
         <View style={globalStyles.container}> 
             <View style={globalStyles.header}>
-                <Text style={globalStyles.title}> Welcome, { userId }! </Text>
+                <Text style={globalStyles.title}> Welcome, { userState.username }! </Text>
             </View>
             <View style={globalStyles.body}>
                 <Image 

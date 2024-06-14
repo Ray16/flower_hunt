@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { globalStyles } from '../globalStyles/globalStyles';
+import { useUser } from '../components/UserContext';
 
 export default function Question({ navigation, route }){
     const { course_id, topic, difficulty } = route.params;
 
     const [question, setQuestion] = useState([])
     const [isLoading, setIsLoading] = useState(true)
+
+    const { userState } = useUser();
 
     const fetchQuestions = async () => {
         try {
@@ -17,7 +20,7 @@ export default function Question({ navigation, route }){
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                  uid: '100',
+                  uid: userState.userId,
                   course_id: course_id,
                   topic: topic,
                   difficulty: difficulty,
@@ -27,6 +30,7 @@ export default function Question({ navigation, route }){
       
             const data = await response.json();
             setQuestion(data)
+            console.log(data)
       
           } catch(error) {
             console.log('Error fetching data: ', error);
@@ -42,14 +46,6 @@ export default function Question({ navigation, route }){
     const [submit, setSubmit] = useState("Not Submitted");
     const [continueVisible, setContinueVisible] = useState(false);
 
-    const pressHandler = (answer) => {
-        if(submit == "Not Submitted"){
-            setSubmit(answer);
-            setContinueVisible(true);
-            setIsRunning(false);
-        }
-    }
-
     const [seconds, setSeconds] = useState(0);
     const [isRunning, setIsRunning] = useState(true);
 
@@ -64,52 +60,38 @@ export default function Question({ navigation, route }){
         return () => clearInterval(interval);
     }, [isRunning]);
 
-    const formatTime = (seconds) => {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-    };
 
-    const submitAnswer = async () => {
-        try {
-            const response = await fetch(
-                'http://129.114.24.200:8001/garden/submit_answer', {
-                    method: 'POST',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        uid: '100',
-                        question_id: question.question_id,
-                        response_time: seconds,
-                        user_answer: submit,
-                        correct_answer: question.answer,
-                    })
-                }
-            )
-        } catch(error) {
-            console.log('Error fetching data: ', error)
+    const pressHandler = async (answer) => {
+        if(submit == "Not Submitted"){
+            setSubmit(answer);
+            setContinueVisible(true);
+            await setIsRunning(false);
+            
+            try {
+                const response = await fetch(
+                    'http://129.114.24.200:8001/garden/submit_answer', {
+                        method: 'POST',
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            uid: userState.userId,
+                            question_id: question.question_id,
+                            response_time: seconds,
+                            user_answer: answer,
+                            correct_answer: question.answer,
+                        })
+                    }
+                )
+
+            } catch(error) {
+                console.log('Error fetching data: ', error)
+            }
         }
     }
 
-    useEffect(() => {
-        setTimeout(submitAnswer, 10)
-    }, [submit != 'Not Submitted'])
-
     return (
         <View style={globalStyles.container}>
-
-            { /*<Text style={ { 
-                alignSelf: 'flex-end', 
-                padding: 10,
-                width: 140,
-                backgroundColor: '#AAF0C9',
-                marginTop: -30,
-                marginBottom: 30,
-            } }
-            >
-                Time Taken: {formatTime(seconds)}
-            </Text>*/ }
 
             { isLoading ? <ActivityIndicator /> 
                 :

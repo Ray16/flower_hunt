@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, TouchableOpacity, FlatList, ImageBackground, ActivityIndicator } from 'react-native';
 import { globalStyles } from '../globalStyles/globalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useUser } from '../components/UserContext';
 
 export default function Classmates({ navigation, route }){
     const { course_id } = route.params;
 
     const [isLoading, setIsLoading] = useState(true);
     const [classmates, setClassmates] = useState([]);
+
+    const { userState } = useUser();
 
     const fetchClassmates = async () => {
         try {
@@ -18,7 +21,7 @@ export default function Classmates({ navigation, route }){
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        uid: '100',
+                        uid: userState.userId,
                         course_id: course_id,
                     })
                 }

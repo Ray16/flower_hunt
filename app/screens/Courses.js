@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
 import { globalStyles } from '../globalStyles/globalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useUser } from '../components/UserContext';
 
 export default function Courses({ navigation }){
     const [isLoading, setIsLoading] = useState(true);
     const [courses, setCourses] = useState([])
+
+    const { userState } = useUser();
 
     const fetchCourses = async () => {
         try {
@@ -16,7 +19,7 @@ export default function Courses({ navigation }){
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        uid: '100',
+                        uid: userState.userId,
                     }),
                 }
             )
