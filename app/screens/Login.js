@@ -7,58 +7,45 @@ export default function Login({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordWrong, setIsPasswordWrong] = useState(false);
-    const [trigger, setTrigger] = useState(0);
 
-    const [loginData, setLoginData] = useState([]); 
     const { updateState } = useUser();
 
     {/* input checking */}
-    const handleSubmit = () => {
-        setTrigger(prevTrigger => prevTrigger + 1);
-    };
-
-    const fetchLogin = async () => {
+    const handleSubmit = async () => {
         console.log("Username is: ", username);
         console.log("Password is: ", password);
         try {
-          const response = await fetch(
-            'http://129.114.24.200:8001/garden/login', {
-              method: 'POST',
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                username: username,
-                password: password,
-              }),
-            }
-          );
+            const response = await fetch(
+                'http://129.114.24.200:8001/login', {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                    }),
+                }
+            );
     
-          const data = await response.json();
-          console.log('Data received: ', data);
-          setLoginData(data);
+            const data = await response.json();
+            console.log(data);
+
+            if(data.status == "success"){
+                
+                updateState( 'userId', data.uid )
+                updateState( 'username', username )
+                setIsPasswordWrong(false)
+                navigation.navigate('HomeTab')
+
+            } else if(data.status == 'failed'){
+                setIsPasswordWrong(true)
+            }
     
         } catch(error) {
-          console.log('Error fetching data: ', error);
+            console.log('Error fetching data: ', error);
         }
-    }
-
-    useEffect(() => {
-        console.log('Fetching Data...')
-        setTimeout(fetchLogin, 10);
-
-        console.log('Data Fetched: ', loginData)
-
-        if(loginData.status == 'Success'){
-            updateState( userId, loginData.userId )
-            updateState( username, username)
-            setIsPasswordWrong(false)
-            navigation.navigate('HomeTab')
-        } else if(loginData.status == 'Fail'){
-            setIsPasswordWrong(true)
-        }
-
-    }, [trigger])
+    };
 
     return (
         <View style={globalStyles.container}>

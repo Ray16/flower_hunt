@@ -4,72 +4,78 @@ import { globalStyles } from '../globalStyles/globalStyles';
 import { useUser } from '../components/UserContext';
 
 export default function SignUpForm({ navigation }) {
-	const [profileData, setProfileData] = useState([]);
-
 	const [username, setUsername] = useState('');
-	const [userErrorText, setUserErrorText] = useState('');
-	const [uw, setUW] = useState(false);
-
 	const [password, setPassword] = useState('');
-	const [pw, setPW] = useState(false);
-
 	const [confirmPassword, setConfirmPassword] = useState('');
-	const [cpw, setCPW] = useState(false);
 
-	const [trigger, setTrigger] = useState(0);
+	const [existError, setExistError] = useState(false);
+	const [errorText, setErrorText] = useState('');
 
 	const { updateState } = useUser();
 
-	const handleSubmit = () => {
-		if(username == ""){ 
-			setUW(true); 
-			setUserErrorText('This field is required');
-		} 
-		else { setUW(false); }
+	const handleSubmit = async () => {
+		if(username == "" || password == ""){
+			console.log("Ran first validation");
 
-		if(password == "" || password.length < 8){ setPW(true); } 
-		else { setPW(false); }	
-		
-		if(confirmPassword != password){ setCPW(true); } 
-		else { setCPW(false); }
+			setExistError(true);
+			setErrorText("All fields are required");
+			return;
+		}
 
-		if(!(uw && pw && cpw)) { setTrigger(prevTrigger => prevTrigger + 1); }
-	}
+		if(password.length < 8){
+			console.log("Ran second validation");
 
-	const fetchData = async () => {
+			setExistError(true);
+			setErrorText("Password must be at least 8 characters");
+			return;
+		}
+
+		if(password != confirmPassword){
+			console.log("Ran third validation");
+
+			setExistError(true);
+			setErrorText("Passwords do not match");
+			return;
+		}
+
+		setExistError(false);
+		setErrorText("");
+
+		console.log("Passing data.... ")
+
 		try {
 			const response = await fetch(
-			'http://129.114.24.200:8001/garden/create_user', {
-				method: 'POST',
-				headers: {
-				"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					username: username,
-					password: password,
-				}),
-			}
+				'http://129.114.24.200:8001/create_user', {
+					method: 'POST',
+					headers: {
+					"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						username: username,
+						password: password,
+					}),
+				}
 			);
-	
+
 			const data = await response.json();
-			setProfileData(data)
-	
+
+			if(data.status == "success"){
+
+				updateState( 'userId', data.uid )
+            	updateState( 'username', username )
+				navigation.navigate('HomeTab')
+
+			} else if(data.status == "already created"){
+
+				setExistError(true);
+				setErrorText("Username already taken");
+
+			}
+
 		} catch(error) {
 			console.log('Error fetching data: ', error);
 		}
 	}
-
-	useEffect(() => {
-		setTimeout(fetchData, 10);
-		console.log("Data fetched: ", profileData)
-		if(profileData.status == 'success'){
-			updateState(userId, profileData.uid);
-			updateState(username, username);
-			navigation.navigate('HomeTab')
-		} else if(profileData.status == 'already created'){
-			setUserErrorText('Username already taken')
-		}
-	}, [trigger])
 
 	return (
         <View style={globalStyles.container}>
@@ -84,14 +90,6 @@ export default function SignUpForm({ navigation }) {
                 onChangeText={(val) => setUsername(val)}
             />
 
-			{ uw ? (
-                <Text style={passwordStyle.incorrect}>
-					{ userErrorText }
-                </Text>
-            ) : (
-                <View style={passwordStyle.placeholder}></View>
-            )}
-
             {/* password input */}    
             <TextInput
                 style={{ width: '75%', ...globalStyles.textInput}}
@@ -99,14 +97,6 @@ export default function SignUpForm({ navigation }) {
                 onChangeText={(val) => setPassword(val)}            
                 secureTextEntry={true}
             />
-
-			{ pw ? (
-                <Text style={passwordStyle.incorrect}>
-					Password should be at least 8 characters
-                </Text>
-            ) : (
-                <View style={passwordStyle.placeholder}></View>
-            )}
 
 			{/* confirm password input */}    
             <TextInput
@@ -116,9 +106,9 @@ export default function SignUpForm({ navigation }) {
                 secureTextEntry={true}
             />
 
-			{ cpw ? (
+			{ existError ? (
                 <Text style={passwordStyle.incorrect}>
-					Passwords do not match
+					{ errorText }
                 </Text>
             ) : (
                 <View style={passwordStyle.placeholder}></View>
