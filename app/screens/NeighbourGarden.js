@@ -1,23 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator,
-  ImageBackground } from "react-native";
-
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, ImageBackground, TouchableOpacity } from "react-native";
 import { globalStyles } from '../globalStyles/globalStyles';
-import Card from '../components/Card';
-import { useUser } from '../components/UserContext';
-import SunlightBar from '../components/SunlightBar';
-
 import Ionicons from '@expo/vector-icons/Ionicons';
+import NeighbourCard from '../components/NeighbourCard';
 
-
-
-export default function Garden({ route, navigation }){
-  const { course_id } = route.params;
+export default function NeighbourGarden({ route, navigation }){
+  const { course_id, neighbour_id, neighbour_user } = route.params;
 
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState([]);
-
-  const { userState } = useUser();
 
   const fetchData = async () => {
     try {
@@ -28,7 +19,7 @@ export default function Garden({ route, navigation }){
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            uid: userState.userId,
+            uid: neighbour_id,
             course_id: course_id,
           }),
         }
@@ -46,14 +37,16 @@ export default function Garden({ route, navigation }){
 
   useEffect(() => {
     setTimeout(fetchData, 10);
-  }, [])
+  }, []);
 
-  const stealHandler = (course_id) => {
-    navigation.navigate('Classmates', {
-      course_id: course_id,
+  const iconHandler = (course_id, topic, difficulty) => {
+    navigation.navigate('Question', {
+        course_id: course_id,
+        topic: topic,
+        difficulty: difficulty,
     })
   }
-  
+
   return (
     <ImageBackground 
       source={require('../../assets/images/GardenBackground.jpg')}
@@ -73,10 +66,9 @@ export default function Garden({ route, navigation }){
               <TouchableOpacity
                 style={{
                   marginTop: 30,
-                  marginLeft: -23,
-                  flex: 1
+                  marginLeft: 67,
                 }}
-                onPress={() => navigation.navigate('CoursePage', 
+                onPress={() => navigation.navigate('Classmates', 
                   { course_id: course_id })}
               >
                 <Text style={{
@@ -88,10 +80,6 @@ export default function Garden({ route, navigation }){
                   Back
                 </Text>
               </TouchableOpacity>
-
-              <SunlightBar 
-                sunlight={ userData.sunlight }
-              />
             </View>
 
             {/* body of the app */}
@@ -106,31 +94,10 @@ export default function Garden({ route, navigation }){
                 data={userData.garden_rows}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                  <Card item={item}/>
+                  <NeighbourCard item={item} iconHandler={iconHandler} course_id={course_id}/>
                 )}
                 showsVerticalScrollIndicator={true}
               />
-              
-              {/* renders the steal button */}
-              <TouchableOpacity
-                style={ {
-                  backgroundColor: 'red',
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  borderRadius: 50,
-                } }
-                onPress={() => stealHandler(course_id)}
-              >
-                <Text 
-                  style={{
-                    color: 'white',
-                    fontFamily: 'Nunito-Bold',
-                    fontSize: 16,
-                  }}
-                >
-                  Steal
-                </Text>
-              </TouchableOpacity>
             </View>
           </View>
           )
@@ -140,16 +107,27 @@ export default function Garden({ route, navigation }){
 }
 
 const styles = StyleSheet.create({
-  top: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  body: {
-    flex: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-})
+    header: {
+      flex: 2,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    body: {
+      flex: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  
+    sunlight: {
+      padding: 10,
+      borderRadius: 50,
+      backgroundColor: '#A9FFA9',
+    },
+    sunlightText: {
+      alignSelf: 'center',
+      fontFamily: 'Nunito-Bold',
+      fontSize: 14,
+    }
+  
+  })

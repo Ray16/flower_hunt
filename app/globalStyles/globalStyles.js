@@ -7,6 +7,7 @@ export const globalStyles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: 'white',
     },
     title: {
         fontFamily: 'Nunito-Bold',
@@ -26,8 +27,11 @@ export const globalStyles = StyleSheet.create({
         paddingHorizontal: 30,
         paddingVertical: 10,
         borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#006a00',
         backgroundColor: '#F4FFF4',
         textAlign: 'left',
+
     },
     button: {
         backgroundColor: '#228b22',
