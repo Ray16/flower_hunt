@@ -4,7 +4,9 @@ import { globalStyles } from '../globalStyles/globalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Card from '../components/Card';
 
-export default function Garden({ navigation }){
+export default function Garden({ route, navigation }){
+  const { course_id } = route.params;
+
   const [isLoading, setIsLoading] = useState(true);
   const [modules, setModules] = useState([]);
 
@@ -17,15 +19,14 @@ export default function Garden({ navigation }){
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            uid: 100,
-            course_id: 14100
+            uid: '100',
+            course_id: course_id,
           }),
         }
       );
 
       const data = await response.json();
       setModules(data)
-      console.log('Response Data: ', data);
 
     } catch(error) {
       console.log('Error fetching data: ', error);
@@ -37,9 +38,15 @@ export default function Garden({ navigation }){
   useEffect(() => {
     setTimeout(fetchData, 10);
   }, [])
+
+  const stealHandler = (course_id) => {
+    navigation.navigate('Classmates', {
+      course_id: course_id,
+    })
+  }
   
   return (
-     <View style={ { backgroundColor: 'white', ...globalStyles.container} }>
+     <View style={globalStyles.container}>
       { isLoading ? (
         <ActivityIndicator />
       ) : ( 
@@ -90,6 +97,7 @@ export default function Garden({ navigation }){
                 paddingHorizontal: 20,
                 borderRadius: 50,
               } }
+              onPress={() => stealHandler(course_id)}
             >
               <Text 
                 style={{

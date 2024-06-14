@@ -1,89 +1,140 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, TextInput, View, Text, TouchableOpacity } from 'react-native';
 import { globalStyles } from '../globalStyles/globalStyles';
-
-import { Formik } from 'formik';
-import * as yup from 'yup';
-
-const signUpSchema = yup.object({
-	username: yup.string()
-		.required('This field is required')
-		.min(6, 'Minimum 6 characters'),
-	password: yup.string()
-		.required('This field is required')
-		.min(8, 'Minimum 8 characters'),
-	confirm: yup.string()
-		.required('This field is required')
-		.oneOf([yup.ref('password')], "Passwords do not match"),
-})
+import { useUser } from '../components/UserContext';
 
 export default function SignUpForm({ navigation }) {
-	return ( 
-		<View style={globalStyles.container}>
-            <View>
-                <Text style={globalStyles.title}>Create Your Profile</Text>
-            </View>
-			<Formik
-				initialValues={{ username: '', password: '', confirm: '' }}
-                validationSchema={signUpSchema}
-				onSubmit={(values, actions) => {
-					navigation.navigate('HomeTab');
-				}}
-			>
-			    {(props) => (
-			    <View style={{ ...globalStyles.containers, width: '100%'}}>
-				    <TextInput
-					    style={{ alignSelf: 'center', width: '85%', 
-								...globalStyles.textInput}}
-					    placeholder='Username'
-					    onChangeText={props.handleChange('username')}
-					    value={props.values.username}
-						onBlur={props.handleBlur('username')}
-			        />
-					{props.touched.username && props.errors.username ? (
-						<Text style={style.errorText}>{props.errors.username}</Text>
-					) : null}
-							
-			        <TextInput
-				        style={{ alignSelf: 'center', width: '85%', 
-								...globalStyles.textInput}}
-				        placeholder='Password'
-				        onChangeText={props.handleChange('password')}
-				        value={props.values.password}
-						onBlur={props.handleBlur('password')}
-						secureTextEntry={true}
-		            />
-					{props.touched.password && props.errors.password ? (
-						<Text style={style.errorText}>{props.errors.password}</Text>
-					) : null}
-							
-			        <TextInput
-			            style={{ alignSelf: 'center', width: '85%', 
-								...globalStyles.textInput}}
-				        placeholder='Confirm Password'
-                        onChangeText={props.handleChange('confirm')}
-                        value={props.values.confirm}
-						onBlur={props.handleBlur('confirm')}
-						secureTextEntry={true}
-                    />
-					{props.touched.confirm && props.errors.confirm ? (
-						<Text style={style.errorText}>{props.errors.confirm}</Text>
-					) : null}
-							
-                    <TouchableOpacity 
-						style={{
-								alignSelf: 'center', width: '57%', 
-								...globalStyles.button
-						}} 
-						onPress={props.handleSubmit}
-					>
-                        <Text style={globalStyles.buttonText}>Next</Text>
-                    </TouchableOpacity>
-                </View>
-			    )}
-		    </Formik>
-		</View>
-	)
+	const [profileData, setProfileData] = useState([]);
+
+	const [username, setUsername] = useState('');
+	const [userErrorText, setUserErrorText] = useState('');
+	const [uw, setUW] = useState(false);
+
+	const [password, setPassword] = useState('');
+	const [pw, setPW] = useState(false);
+
+	const [confirmPassword, setConfirmPassword] = useState('');
+	const [cpw, setCPW] = useState(false);
+
+	const [trigger, setTrigger] = useState(0);
+
+	const { updateState } = useUser();
+
+	const handleSubmit = () => {
+		if(username == ""){ 
+			setUW(true); 
+			setUserErrorText('This field is required');
+		} 
+		else { setUW(false); }
+
+		if(password == "" || password.length < 8){ setPW(true); } 
+		else { setPW(false); }	
+		
+		if(confirmPassword != password){ setCPW(true); } 
+		else { setCPW(false); }
+
+		if(!(uw && pw && cpw)) { setTrigger(prevTrigger => prevTrigger + 1); }
+	}
+
+	const fetchData = async () => {
+		try {
+			const response = await fetch(
+			'http://129.114.24.200:8001/garden/create_user', {
+				method: 'POST',
+				headers: {
+				"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					username: username,
+					password: password,
+				}),
+			}
+			);
+	
+			const data = await response.json();
+			setProfileData(data)
+	
+		} catch(error) {
+			console.log('Error fetching data: ', error);
+		}
+	}
+
+	useEffect(() => {
+		setTimeout(fetchData, 10);
+		console.log("Data fetched: ", profileData)
+		if(profileData.status == 'success'){
+			updateState(userId, profileData.uid);
+			updateState(username, username);
+			navigation.navigate('HomeTab')
+		} else if(profileData.status == 'already created'){
+			setUserErrorText('Username already taken')
+		}
+	}, [trigger])
+
+	return (
+        <View style={globalStyles.container}>
+
+            {/* rendering title */}
+            <Text style={{ marginBottom: 20, ...globalStyles.title }}>Create Your Account</Text> 
+
+            {/* username input */}         
+            <TextInput
+                style={{ width: '75%', ...globalStyles.textInput}}
+                placeholder='Username'
+                onChangeText={(val) => setUsername(val)}
+            />
+
+			{ uw ? (
+                <Text style={passwordStyle.incorrect}>
+					{ userErrorText }
+                </Text>
+            ) : (
+                <View style={passwordStyle.placeholder}></View>
+            )}
+
+            {/* password input */}    
+            <TextInput
+                style={{ width: '75%', ...globalStyles.textInput}}
+                placeholder='Password'    
+                onChangeText={(val) => setPassword(val)}            
+                secureTextEntry={true}
+            />
+
+			{ pw ? (
+                <Text style={passwordStyle.incorrect}>
+					Password should be at least 8 characters
+                </Text>
+            ) : (
+                <View style={passwordStyle.placeholder}></View>
+            )}
+
+			{/* confirm password input */}    
+            <TextInput
+                style={{ width: '75%', ...globalStyles.textInput}}
+                placeholder='Confirm Password'    
+                onChangeText={(val) => setConfirmPassword(val)}            
+                secureTextEntry={true}
+            />
+
+			{ cpw ? (
+                <Text style={passwordStyle.incorrect}>
+					Passwords do not match
+                </Text>
+            ) : (
+                <View style={passwordStyle.placeholder}></View>
+            )}	
+
+            {/* sign up button */}  
+            <TouchableOpacity 
+                style={globalStyles.button} 
+                onPress={() => handleSubmit()}
+            >
+                <Text style={globalStyles.buttonText}>
+                    Sign Up
+                </Text>
+            </TouchableOpacity>
+        </View>
+    )
 }
 
 const style = StyleSheet.create({
@@ -93,4 +144,13 @@ const style = StyleSheet.create({
 		color: 'red',
 		alignSelf: 'center'
 	}
+})
+
+const passwordStyle = StyleSheet.create({
+    incorrect: {
+        color: 'red',
+    },
+    placeholder: {
+        height: 17,
+    }
 })

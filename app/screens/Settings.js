@@ -4,7 +4,7 @@ import { globalStyles } from '../globalStyles/globalStyles';
 
 export default function Settings({ navigation }){
     return (
-        <View style={ { backgroundColor: 'white', ...globalStyles.container} }> 
+        <View style={globalStyles.container}> 
 
             <TouchableOpacity 
                 onPress={() => navigation.navigate('About')}

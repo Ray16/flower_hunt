@@ -1,23 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { globalStyles } from '../globalStyles/globalStyles';
 
-const questionSet = {
-    question: 'What is the runtime complexity of binary search?',
-    answer1: 'A: O(1)',
-    answer2: 'B: O(logn)',        
-    answer3: 'C: O(n)',
-    answer4: 'D: O(nlogn)',
-    correct: 2,
-}
+export default function Question({ navigation, route }){
+    const { course_id, topic, difficulty } = route.params;
 
-export default function Question({ navigation }){
-    const [submit, setSubmit] = useState(-1);
+    const [question, setQuestion] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+
+    const fetchQuestions = async () => {
+        try {
+            const response = await fetch(
+              'http://129.114.24.200:8001/garden/steal', {
+                method: 'POST',
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  uid: '100',
+                  course_id: course_id,
+                  topic: topic,
+                  difficulty: difficulty,
+                }),
+              }
+            );
+      
+            const data = await response.json();
+            setQuestion(data)
+      
+          } catch(error) {
+            console.log('Error fetching data: ', error);
+          } finally {
+            setIsLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        setTimeout(fetchQuestions, 10)
+    }, [])
+
+    const [submit, setSubmit] = useState("Not Submitted");
     const [continueVisible, setContinueVisible] = useState(false);
 
-    const pressHandler = (pressed) => {
-        if(submit == -1){
-            setSubmit(pressed);
+    const pressHandler = (answer) => {
+        if(submit == "Not Submitted"){
+            setSubmit(answer);
             setContinueVisible(true);
             setIsRunning(false);
         }
@@ -43,9 +70,36 @@ export default function Question({ navigation }){
         return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     };
 
+    const submitAnswer = async () => {
+        try {
+            const response = await fetch(
+                'http://129.114.24.200:8001/garden/submit_answer', {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        uid: '100',
+                        question_id: question.question_id,
+                        response_time: seconds,
+                        user_answer: submit,
+                        correct_answer: question.answer,
+                    })
+                }
+            )
+        } catch(error) {
+            console.log('Error fetching data: ', error)
+        }
+    }
+
+    useEffect(() => {
+        setTimeout(submitAnswer, 10)
+    }, [submit != 'Not Submitted'])
+
     return (
         <View style={globalStyles.container}>
-            <Text style={ { 
+
+            { /*<Text style={ { 
                 alignSelf: 'flex-end', 
                 padding: 10,
                 width: 140,
@@ -55,46 +109,66 @@ export default function Question({ navigation }){
             } }
             >
                 Time Taken: {formatTime(seconds)}
-            </Text>
-            <Text style={ { marginBottom: 10, ...globalStyles.title } }>{ questionSet.question }</Text>
-            <TouchableOpacity style={ [styles.card,
-                submit != -1 && questionSet.correct == 1 ? styles.right :
-                (submit == 1 && questionSet.correct != 1 ? styles.wrong : styles.inactive )
-            ] }
-            onPress={() => pressHandler(1)}>
-                <Text style={ { marginLeft: 10, ...globalStyles.text } }>{ questionSet.answer1 }</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.card,
-                submit != -1 && questionSet.correct == 2 ? styles.right :
-                (submit == 2 && questionSet.correct != 2 ? styles.wrong : styles.inactive )
-            ]}
-            onPress={() => pressHandler(2)}>
-                <Text style={ { marginLeft: 10, ...globalStyles.text } }>{ questionSet.answer2 }</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={ [styles.card,
-                submit != -1 && questionSet.correct == 3 ? styles.right :
-                (submit == 3 && questionSet.correct != 3 ? styles.wrong : styles.inactive )
-            ]}
-            onPress={() => pressHandler(3)}>
-                <Text style={ { marginLeft: 10, ...globalStyles.text } }>{ questionSet.answer3 }</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.card,
-                submit != -1 && questionSet.correct == 4 ? styles.right :
-                (submit == 4 && questionSet.correct != 4 ? styles.wrong : styles.inactive )
-            ]}
-            onPress={() => pressHandler(4)}>
-                <Text style={ { marginLeft: 10, ...globalStyles.text } }>{ questionSet.answer4 }</Text>
-            </TouchableOpacity>
-            {continueVisible ? (
-            <TouchableOpacity 
-                style={styles.continue}
-                onPress={() => navigation.navigate('Garden')}>
-                <Text style={{
-                    fontFamily: 'Nunito-Regular', 
-                }}>Continue</Text>
-            </TouchableOpacity>
-            ) : (
-                <View style={styles.placeholder}></View>
+            </Text>*/ }
+
+            { isLoading ? <ActivityIndicator /> 
+                :
+            (
+                <View style={{ width: '100%', ...globalStyles.container }}>
+
+                    {/* Question */}
+                    <Text style={ { marginBottom: 10, ...globalStyles.title } }>{ question.question }</Text>
+
+                    {/* First Answer */}
+                    <TouchableOpacity style={ [styles.card,
+                        submit != "Not Submitted" && question.answer == "A" ? styles.right :
+                        (submit == "A" && question.answer != "A" ? styles.wrong : styles.inactive )
+                    ] }
+                    onPress={() => pressHandler('A')}>
+                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>A: { question.options[0] }</Text>
+                    </TouchableOpacity>
+
+                    {/* Second Answer */}
+                    <TouchableOpacity style={[styles.card,
+                        submit != "Not Submitted" && question.answer == "B" ? styles.right :
+                        (submit == "B" && question.answer != "B" ? styles.wrong : styles.inactive )
+                    ]}
+                    onPress={() => pressHandler('B')}>
+                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>B: { question.options[1] }</Text>
+                    </TouchableOpacity>
+
+                    {/* Third Answer */}
+                    <TouchableOpacity style={ [styles.card,
+                        submit != "Not Submitted" && question.answer == "C" ? styles.right :
+                        (submit == "C" && question.answer != "C" ? styles.wrong : styles.inactive )
+                    ]}
+                    onPress={() => pressHandler('C')}>
+                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>C: { question.options[2] }</Text>
+                    </TouchableOpacity>
+
+                    {/* Fourth Answer*/}
+                    <TouchableOpacity style={[styles.card,
+                        submit != "Not Submitted" && question.answer == "D" ? styles.right :
+                        (submit == "D" && question.answer != "D" ? styles.wrong : styles.inactive )
+                    ]}
+                    onPress={() => pressHandler('D')}>
+                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>D: { question.options[3] }</Text>
+                    </TouchableOpacity>
+                    
+                    {/* Continue Button */}
+                    {continueVisible ? (
+                    <TouchableOpacity 
+                        style={styles.continue}
+                        onPress={() => navigation.navigate('Garden', { course_id: course_id })}>
+                        <Text style={{
+                            fontFamily: 'Nunito-Regular', 
+                        }}>Continue</Text>
+                    </TouchableOpacity>
+                    ) : (
+                        <View style={styles.placeholder}></View>
+                    )}
+
+                </View>
             )}
         </View>
     )
@@ -130,7 +204,6 @@ const styles = StyleSheet.create({
     },
     placeholder: {
         marginTop: 30,
-        height: 38,
-        width: 30,
+        height: 40,
     }
 })
