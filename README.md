@@ -21,11 +21,11 @@ Have fun and enjoy learning!
 
 
 ### Frontend
-- Install React Native
+- Install React Native 
+- Install Expo with `npx install-expo-modules@latest`
 - Install XCode
-- ...
 ```
-npx install-expo-modules@latest
+npx npm install
 npx expo start
 i 			# to open Apple simulator
 ```
