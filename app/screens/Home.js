@@ -14,7 +14,7 @@ export default function Home(){
             </View>
             <View style={globalStyles.body}>
                 <Image 
-                    source={require('../../assets/images/home_flower.png')}
+                    source={require('../../assets/images/home_flower_01.png')}
                     style={{ marginTop: 5, height: '30%' }}
                 />
                 <Text style={{ 
