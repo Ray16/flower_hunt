@@ -56,7 +56,7 @@ export default function Garden({ route, navigation }){
   
   return (
     <ImageBackground 
-      source={require('../../assets/images/GardenBackground.jpg')}
+      source={require('../../assets/images/garden_gold_01.png')}
       style={{ width: '100%', height: '100%' }}
     >
       { isLoading ? (
