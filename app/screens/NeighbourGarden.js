@@ -39,17 +39,18 @@ export default function NeighbourGarden({ route, navigation }){
     setTimeout(fetchData, 10);
   }, []);
 
-  const iconHandler = (course_id, topic, difficulty) => {
+  const iconHandler = (course_id, topic, difficulty, neighbour_id) => {
     navigation.navigate('Question', {
         course_id: course_id,
         topic: topic,
         difficulty: difficulty,
+        neighbour_id: neighbour_id,
     })
   }
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/GardenBackground.jpg')}
+      source={require('../../assets/images/garden_gold_no_home.png')}
       style={{ width: '100%', height: '100%' }}
     >
       { isLoading ? (
@@ -65,27 +66,40 @@ export default function NeighbourGarden({ route, navigation }){
             >
               <TouchableOpacity
                 style={{
-                  marginTop: 30,
-                  marginLeft: 67,
+                  height: 150,
+                  width: 150,
                 }}
                 onPress={() => navigation.navigate('Classmates', 
                   { course_id: course_id })}
               >
-                <Text style={{
-                  fontFamily: 'Nunito-Bold',
-                  fontSize: 13,
-                  color: '#0062ff',
-                  alignSelf: 'center',
-                }}>
-                  Back
-                </Text>
+                <ImageBackground source={require('../../assets/images/farm_home.png')}
+                  style={{
+                    marginTop: '-40%',
+                    marginBottom: '-40%',
+                    height: '100%',
+                    width: '100%',
+                  }}
+                >
+                  <Text style={{
+                    fontFamily: 'Nunito-Bold',
+                    fontSize: 30,
+                    alignSelf: 'center',
+                    color: 'white',
+
+                    marginTop: 95,
+                    marginLeft: 7,
+                  }}>
+                    Back
+                  </Text>
+                </ImageBackground>
               </TouchableOpacity>
             </View>
 
             {/* body of the app */}
             <View 
               style={ { 
-                height: 420,
+                marginTop: '-20%',
+                height: '70%',
                 alignItems: 'center',
               } }
             >
@@ -94,7 +108,7 @@ export default function NeighbourGarden({ route, navigation }){
                 data={userData.garden_rows}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                  <NeighbourCard item={item} iconHandler={iconHandler} course_id={course_id}/>
+                  <NeighbourCard item={item} iconHandler={iconHandler} course_id={course_id} neighbour_id={neighbour_id}/>
                 )}
                 showsVerticalScrollIndicator={true}
               />

@@ -56,7 +56,7 @@ export default function Garden({ route, navigation }){
   
   return (
     <ImageBackground 
-      source={require('../../assets/images/garden_gold_01.png')}
+      source={require('../../assets/images/garden_green_no_home_v2.png')}
       style={{ width: '100%', height: '100%' }}
     >
       { isLoading ? (
@@ -72,21 +72,32 @@ export default function Garden({ route, navigation }){
             >
               <TouchableOpacity
                 style={{
-                  marginTop: 30,
-                  marginLeft: -23,
-                  flex: 1
+                  height: 150,
+                  width: 150,
                 }}
-                onPress={() => navigation.navigate('CoursePage', 
+                onPress={() => navigation.navigate('Courses', 
                   { course_id: course_id })}
               >
-                <Text style={{
-                  fontFamily: 'Nunito-Bold',
-                  fontSize: 13,
-                  color: '#0062ff',
-                  alignSelf: 'center',
-                }}>
-                  Back
-                </Text>
+                <ImageBackground source={require('../../assets/images/farm_home.png')}
+                  style={{
+                    marginTop: '-40%',
+                    marginBottom: '-40%',
+                    height: '100%',
+                    width: '100%',
+                  }}
+                >
+                  <Text style={{
+                    fontFamily: 'Nunito-Bold',
+                    fontSize: 30,
+                    alignSelf: 'center',
+                    color: 'white',
+
+                    marginTop: 95,
+                    marginLeft: 7,
+                  }}>
+                    Back
+                  </Text>
+                </ImageBackground>
               </TouchableOpacity>
 
               <SunlightBar 
@@ -97,7 +108,8 @@ export default function Garden({ route, navigation }){
             {/* body of the app */}
             <View 
               style={ { 
-                height: 420,
+                marginTop: '-20%',
+                height: '70%',
                 alignItems: 'center',
               } }
             >
