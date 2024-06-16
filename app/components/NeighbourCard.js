@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, ImageBackground } from 'react-native';
 
-export default function NeighbourCard({ item, iconHandler, course_id }){
+export default function NeighbourCard({ item, iconHandler, course_id, neighbour_id }){
     return (
         <View style={styles.container}>
             <View>
@@ -11,7 +11,7 @@ export default function NeighbourCard({ item, iconHandler, course_id }){
             <View style={{ flexDirection: 'row' }}>
                 <TouchableOpacity
                     style={ styles.box }
-                    onPress={() => iconHandler(course_id, item.topic, "easy")}
+                    onPress={() => iconHandler(course_id, item.topic, "easy", neighbour_id)}
                 >
                     <ImageBackground 
                         style={{ 
@@ -36,7 +36,7 @@ export default function NeighbourCard({ item, iconHandler, course_id }){
 
                 <TouchableOpacity
                     style={ styles.box }
-                    onPress={() => iconHandler(course_id, item.topic, "easy")}
+                    onPress={() => iconHandler(course_id, item.topic, "easy", neighbour_id)}
                 >
                     <ImageBackground 
                         style={{ 
@@ -61,7 +61,7 @@ export default function NeighbourCard({ item, iconHandler, course_id }){
                 
                 <TouchableOpacity
                     style={ styles.box }
-                    onPress={() => iconHandler(course_id, item.topic, "hard")}
+                    onPress={() => iconHandler(course_id, item.topic, "hard", neighbour_id)}
                 >
                     <ImageBackground 
                         style={{ 

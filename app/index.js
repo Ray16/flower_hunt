@@ -10,14 +10,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Login from './screens/Login';
 import SignUpForm from './screens/Signup';
-
-import Home from './screens/Home';
-
-import Courses from './screens/Courses';
 import Garden from './screens/Garden';
 import NeighbourGarden from './screens/NeighbourGarden';
 import Question from './screens/Question';
 import Classmates from './screens/Classmates';
+
+import Home from './screens/Home';
+import Courses from './screens/Courses';
 
 import Settings from './screens/Settings';
 import About from './screens/About';
@@ -30,19 +29,6 @@ const getFonts = () => Font.loadAsync({
     'Nunito-Italic': require('../assets/fonts/Nunito-Italic.ttf')
 });
 
-const CourseStack = createNativeStackNavigator();
-
-function CourseStackNavigator() {
-    return (
-        <CourseStack.Navigator screenOptions={{headerShown: false}}>
-            <CourseStack.Screen name="CoursePage" component={Courses} />
-            <CourseStack.Screen name="Garden" component={Garden} />
-            <CourseStack.Screen name="Classmates" component={Classmates} />
-            <CourseStack.Screen name="NeighbourGarden" component={NeighbourGarden} />
-            <CourseStack.Screen name="Question" component={Question} />
-        </CourseStack.Navigator>
-    );
-}
 
 const SettingStack = createNativeStackNavigator();
 
@@ -78,13 +64,15 @@ function HomeTabNavigator() {
             // You can return any component that you like here!
             return <Ionicons name={iconName} size={size} color={color} />;
             },
+
             tabBarActiveTintColor: '#5bb450',
             tabBarInactiveTintColor: 'gray',
             headerShown: false,
+
           })}
           initialRouteName='Home'
         >
-        <HomeTab.Screen name='Courses' component={CourseStackNavigator}/>
+        <HomeTab.Screen name='Courses' component={Courses}/>
         <HomeTab.Screen name='Home' component={Home}/>
         <HomeTab.Screen name='Setting' component={SettingStackNavigator}/>
       </HomeTab.Navigator>
@@ -102,6 +90,18 @@ function LoginStackNavigator() {
                 options={{headerShown: false}} 
                 name="HomeTab" 
                 component={HomeTabNavigator}
+            />
+            <RootStack.Screen name="Garden" component={Garden} 
+                options={{headerShown: false}}
+            />
+            <RootStack.Screen name="Classmates" component={Classmates} 
+                options={{headerShown: false}}
+            />
+            <RootStack.Screen name="NeighbourGarden" component={NeighbourGarden} 
+                options={{headerShown: false}}
+            />
+            <RootStack.Screen name="Question" component={Question} 
+                options={{headerShown: false}}
             />
         </RootStack.Navigator>
     );
