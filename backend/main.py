@@ -69,9 +69,13 @@ class GardenLoadResponse(BaseModel):
     sunlight: int
     garden_rows: List[GardenRow]
 
+# TODO 01: return a garden matching {uid, course_id}
 @app.post("/garden/page_load", response_model=GardenLoadResponse)
 async def garden_page_load(request: GardenLoadRequest):
-    # Initial garden rows with all conditions set to 0
+    # If no corresponding garden, create a new one.
+    # If found a garden, reutnr the garden.
+
+    # a sample initial garden with all 0
     init_garden_rows = [
         GardenRow(id="1", topic="Array", conditions=Condition(easy=0, medium=0, hard=0)),
         GardenRow(id="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0)),
@@ -85,7 +89,7 @@ async def garden_page_load(request: GardenLoadRequest):
         GardenRow(id="10", topic="Dynamic Programming", conditions=Condition(easy=0, medium=0, hard=0))
     ]
 
-    # Sample garden rows with specific conditions for the first row
+    # another sample garden
     sample_garden_rows = [
         GardenRow(id="1", topic="Array", conditions=Condition(easy=3, medium=2, hard=1)),
         GardenRow(id="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0)),
@@ -99,6 +103,7 @@ async def garden_page_load(request: GardenLoadRequest):
         GardenRow(id="10", topic="Dynamic Programming", conditions=Condition(easy=0, medium=0, hard=0))
     ]
 
+    # delete this below 
     if request.uid == "100":
         response = GardenLoadResponse(
             sunlight=100,
@@ -130,6 +135,7 @@ class GardenStealResponse(BaseModel):
     question: str
     options: List[str]
 
+# TODO 02: return a question (for now, just put some random questions in firebase)
 @app.post("/garden/steal", response_model=GardenStealResponse)
 async def garden_steal(request: GardenStealRequest):
     response_data = GardenStealResponse(
@@ -145,6 +151,8 @@ async def garden_steal(request: GardenStealRequest):
 # Receive answer
 class SubmitAnswerRequest(BaseModel):
     uid: str
+    neighbor_uid: str
+    course_id: str
     question_id: str
     response_time: float
     user_answer: str
@@ -153,6 +161,8 @@ class SubmitAnswerRequest(BaseModel):
 class SubmitAnswerResponse(BaseModel):
     status: str
 
+# TODO 03: put this record into Firebase. 
+# If user is correct, deduct the neighbor's plant and add to user's garden.
 @app.post("/garden/submit_answer", response_model=SubmitAnswerResponse)
 async def submit_answer(request: SubmitAnswerRequest):
     response_data = SubmitAnswerResponse(

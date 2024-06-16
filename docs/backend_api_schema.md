@@ -129,7 +129,9 @@ curl -X POST "http://129.114.24.200:8001/garden/steal" \
 ### 03 - When user submits an answer
 ```
 POST /garden/submit_answer {
-  uid: 100,
+  uid: '100',
+  neighbor_uid: '101',
+  course_id: '10001',
   question_id: 'q1',
   response_time: 10,
   user_answer: 'A',
@@ -142,7 +144,7 @@ Response {
 
 curl -X POST "http://129.114.24.200:8001/garden/submit_answer" \
      -H "Content-Type: application/json" \
-     -d '{"uid": 100, "question_id": "q1", "response_time": 10, "user_answer": "A", "correct_answer": "B"}'
+     -d '{"uid": "100", "neighbor_uid": "102", "course_id": "101", "question_id": "q1", "response_time": 10, "user_answer": "A", "correct_answer": "B"}'
 ```
 
 ### 04 - Create Garden
