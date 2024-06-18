@@ -25,29 +25,49 @@ class CreateUserResponse(BaseModel):
     status: str
     uid: str
 
+class DeleteAccountResponse(BaseModel):
+    status: str
+
+class UIDModel(BaseModel):
+    uid: str
+
 @app.post("/create_user", response_model=CreateUserResponse)
 async def create_user(user: User):
-    user_ref = db.collection('users').document(user.username)
-    doc = user_ref.get()
-    if doc.exists:
+    users_ref = db.collection('users')
+    # Check if the username already exists
+    query = users_ref.where('username', '==', user.username).stream()
+    for doc in query:
         return CreateUserResponse(status="already created", uid="none")
-    else:
-        uid = str(uuid.uuid4())
-        user_ref.set({
-            'username': user.username,
-            'password': user.password,
-            'uid': uid
-        })
-        return CreateUserResponse(status="success", uid=uid)
+    
+    # Create new user with username_uuid as document ID
+    uid = f"{user.username}_{uuid.uuid4()}"
+    users_ref.document(uid).set({
+        'username': user.username,
+        'password': user.password
+    })
+    return CreateUserResponse(status="success", uid=uid)
 
 @app.post("/login", response_model=LoginResponse)
 async def login(user: User):
-    user_ref = db.collection('users').document(user.username)
+    users_ref = db.collection('users')
+    # Find the user by username
+    query = users_ref.where('username', '==', user.username).stream()
+    for doc in query:
+        user_data = doc.to_dict()
+        if user_data['password'] == user.password:
+            return LoginResponse(status="success", uid=doc.id)
+    
+    return LoginResponse(status="failed", uid="none")
+
+@app.post("/delete_account", response_model=DeleteAccountResponse)
+async def delete_account(uid: UIDModel):
+    user_ref = db.collection('users').document(uid.uid)
     doc = user_ref.get()
-    if doc.exists and doc.to_dict().get('password') == user.password:
-        return LoginResponse(status="success", uid=doc.to_dict().get('uid'))
+    if doc.exists:
+        user_ref.delete()
+        return DeleteAccountResponse(status="success")
     else:
-        return LoginResponse(status="failed", uid="none")
+        return DeleteAccountResponse(status="failed: user not found")
 
 # 01 - On page load
 
@@ -223,5 +243,5 @@ async def courses_page(request: SelectNeighborRequest):
     return SelectNeighborResponse(root=res_arr)
 
 
-# gardens
+# delete account 
 

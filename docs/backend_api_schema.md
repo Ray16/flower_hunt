@@ -28,6 +28,14 @@ or {
   uid: "none",
 }
 
+POST /delete_account {
+  uid: "xxx"
+}
+
+Response {
+  status: "success" or "failed: user not found"
+}
+
 curl -X POST "http://129.114.24.200:8001/create_user" \
      -H "Content-Type: application/json" \
      -d '{"username": "Faradawn", "password": "12345678"}'
@@ -35,6 +43,10 @@ curl -X POST "http://129.114.24.200:8001/create_user" \
 curl -X POST "http://129.114.24.200:8001/login" \
      -H "Content-Type: application/json" \
      -d '{"username": "Faradawn", "password": "12345678"}'
+
+curl -X POST "http://129.114.24.200:8001/delete_account" \
+     -H "Content-Type: application/json" \
+     -d '{"uid": "xxx"}'
 ```
 
 
@@ -123,7 +135,7 @@ Response {
 
 curl -X POST "http://129.114.24.200:8001/garden/steal" \
      -H "Content-Type: application/json" \
-     -d '{"uid": "100", "course_id": "101", "row_id": "1", "difficulty": "easy"}'
+     -d '{"uid": "100", "course_id": "101", "topic": "1", "difficulty": "easy"}'
 ```
 
 ### 03 - When user submits an answer
