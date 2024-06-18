@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator,
-  ImageBackground } from "react-native";
+  ImageBackground, Dimensions } from "react-native";
 
 import { globalStyles } from '../globalStyles/globalStyles';
 import Card from '../components/Card';
@@ -9,7 +9,7 @@ import SunlightBar from '../components/SunlightBar';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-
+const { width, height } = Dimensions.get('screen');
 
 export default function Garden({ route, navigation }){
   const { course_id } = route.params;
@@ -65,9 +65,11 @@ export default function Garden({ route, navigation }){
           <View>
             <View 
               style={{ 
+                marginTop: height > 1000 ? 50 : 0,
+                marginLeft: width > 500 ? 50 : 0,
+                marginRight: width > 500 ? 50 : 0,
                 flexDirection: 'row',
-                marginTop: 82,
-                marginRight: 15, 
+                justifyContent: 'space-between',
               }}
             >
               <TouchableOpacity
@@ -80,8 +82,6 @@ export default function Garden({ route, navigation }){
               >
                 <ImageBackground source={require('../../assets/images/farm_home.png')}
                   style={{
-                    marginTop: '-40%',
-                    marginBottom: '-40%',
                     height: '100%',
                     width: '100%',
                   }}
@@ -100,15 +100,19 @@ export default function Garden({ route, navigation }){
                 </ImageBackground>
               </TouchableOpacity>
 
-              <SunlightBar 
-                sunlight={ userData.sunlight }
-              />
+              <View style={ { 
+                marginTop: 80,
+              } }>
+                <SunlightBar 
+                  sunlight={ userData.sunlight }
+                />
+              </View>
+        
             </View>
 
             {/* body of the app */}
             <View 
               style={ { 
-                marginTop: '-20%',
                 height: '70%',
                 alignItems: 'center',
               } }
