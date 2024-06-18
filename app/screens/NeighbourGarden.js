@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, ActivityIndicator, ImageBackground, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, 
+  ImageBackground, TouchableOpacity, Dimensions } from "react-native";
 import { globalStyles } from '../globalStyles/globalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import NeighbourCard from '../components/NeighbourCard';
+
+const { width, height } = Dimensions.get('screen');
 
 export default function NeighbourGarden({ route, navigation }){
   const { course_id, neighbour_id, neighbour_user } = route.params;
@@ -59,9 +62,10 @@ export default function NeighbourGarden({ route, navigation }){
           <View>
             <View 
               style={{ 
+                marginTop: height > 1000 ? 50 : 0,
+                marginLeft: width > 500 ? 50 : 0,
+                marginRight: width > 500 ? 50 : 0,
                 flexDirection: 'row',
-                marginTop: 82,
-                marginRight: 15, 
               }}
             >
               <TouchableOpacity
@@ -74,8 +78,6 @@ export default function NeighbourGarden({ route, navigation }){
               >
                 <ImageBackground source={require('../../assets/images/farm_home.png')}
                   style={{
-                    marginTop: '-40%',
-                    marginBottom: '-40%',
                     height: '100%',
                     width: '100%',
                   }}
@@ -98,7 +100,6 @@ export default function NeighbourGarden({ route, navigation }){
             {/* body of the app */}
             <View 
               style={ { 
-                marginTop: '-20%',
                 height: '70%',
                 alignItems: 'center',
               } }
