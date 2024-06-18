@@ -3,8 +3,10 @@ import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'rea
 import { globalStyles } from '../globalStyles/globalStyles';
 import { useUser } from '../components/UserContext';
 
+import Ionicons from '@expo/vector-icons/Ionicons';
+
 export default function Question({ navigation, route }){
-    const { course_id, topic, difficulty } = route.params;
+    const { course_id, topic, difficulty, neighbour_id } = route.params;
 
     const [question, setQuestion] = useState([])
     const [isLoading, setIsLoading] = useState(true)
@@ -77,6 +79,8 @@ export default function Question({ navigation, route }){
                         // TOOD: add neighbor_uid, course_id
                         body: JSON.stringify({
                             uid: userState.userId,
+                            neighbor_uid: neighbour_id,
+                            course_id: course_id,
                             question_id: question.question_id,
                             response_time: seconds,
                             user_answer: answer,
@@ -99,58 +103,85 @@ export default function Question({ navigation, route }){
             (
                 <View style={{ width: '100%', ...globalStyles.container }}>
 
-                    {/* Question */}
-                    <Text style={ { marginBottom: 10, ...globalStyles.title } }>{ question.question }</Text>
+                    <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginTop: '40%',
+                        height: '20%',
+                        marginBottom: '10%',
+                        ...globalStyles.header
+                    }}>
+                        <Ionicons
+                            name='chevron-back'
+                            size={24}
+                            style={ { 
+                                marginTop: 14,
+                                alignSelf: 'flex-start' 
+                            } }
+                            onPress={() => (navigation.navigate('NeighbourGarden', {
+                                course_id: course_id
+                            }))}
+                        />
 
-                    {/* First Answer */}
-                    <TouchableOpacity style={ [styles.card,
-                        submit != "Not Submitted" && question.answer == "A" ? styles.right :
-                        (submit == "A" && question.answer != "A" ? styles.wrong : styles.inactive )
-                    ] }
-                    onPress={() => pressHandler('A')}>
-                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>A: { question.options[0] }</Text>
-                    </TouchableOpacity>
+                        {/* Question */}
+                        <Text style={ { ...globalStyles.title } }>{ question.question }</Text>
+                    </View>
 
-                    {/* Second Answer */}
-                    <TouchableOpacity style={[styles.card,
-                        submit != "Not Submitted" && question.answer == "B" ? styles.right :
-                        (submit == "B" && question.answer != "B" ? styles.wrong : styles.inactive )
-                    ]}
-                    onPress={() => pressHandler('B')}>
-                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>B: { question.options[1] }</Text>
-                    </TouchableOpacity>
+                    <View style={ { 
+                        width: '100%', 
+                        alignItems: 'center',
+                        ...globalStyles.body
+                    } }>
+                        {/* First Answer */}
+                        <TouchableOpacity style={ [styles.card,
+                            submit != "Not Submitted" && question.answer == "A" ? styles.right :
+                            (submit == "A" && question.answer != "A" ? styles.wrong : styles.inactive )
+                        ] }
+                        onPress={() => pressHandler('A')}>
+                            <Text style={ { marginLeft: 10, ...globalStyles.text } }>A: { question.options[0] }</Text>
+                        </TouchableOpacity>
 
-                    {/* Third Answer */}
-                    <TouchableOpacity style={ [styles.card,
-                        submit != "Not Submitted" && question.answer == "C" ? styles.right :
-                        (submit == "C" && question.answer != "C" ? styles.wrong : styles.inactive )
-                    ]}
-                    onPress={() => pressHandler('C')}>
-                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>C: { question.options[2] }</Text>
-                    </TouchableOpacity>
+                        {/* Second Answer */}
+                        <TouchableOpacity style={[styles.card,
+                            submit != "Not Submitted" && question.answer == "B" ? styles.right :
+                            (submit == "B" && question.answer != "B" ? styles.wrong : styles.inactive )
+                        ]}
+                        onPress={() => pressHandler('B')}>
+                            <Text style={ { marginLeft: 10, ...globalStyles.text } }>B: { question.options[1] }</Text>
+                        </TouchableOpacity>
 
-                    {/* Fourth Answer*/}
-                    <TouchableOpacity style={[styles.card,
-                        submit != "Not Submitted" && question.answer == "D" ? styles.right :
-                        (submit == "D" && question.answer != "D" ? styles.wrong : styles.inactive )
-                    ]}
-                    onPress={() => pressHandler('D')}>
-                        <Text style={ { marginLeft: 10, ...globalStyles.text } }>D: { question.options[3] }</Text>
-                    </TouchableOpacity>
-                    
-                    {/* Continue Button */}
-                    {continueVisible ? (
-                    <TouchableOpacity 
-                        style={styles.continue}
-                        onPress={() => navigation.navigate('Garden', { course_id: course_id })}>
-                        <Text style={{
-                            fontFamily: 'Nunito-Regular', 
-                        }}>Continue</Text>
-                    </TouchableOpacity>
-                    ) : (
-                        <View style={styles.placeholder}></View>
-                    )}
+                        {/* Third Answer */}
+                        <TouchableOpacity style={ [styles.card,
+                            submit != "Not Submitted" && question.answer == "C" ? styles.right :
+                            (submit == "C" && question.answer != "C" ? styles.wrong : styles.inactive )
+                        ]}
+                        onPress={() => pressHandler('C')}>
+                            <Text style={ { marginLeft: 10, ...globalStyles.text } }>C: { question.options[2] }</Text>
+                        </TouchableOpacity>
 
+                        {/* Fourth Answer*/}
+                        <TouchableOpacity style={[styles.card,
+                            submit != "Not Submitted" && question.answer == "D" ? styles.right :
+                            (submit == "D" && question.answer != "D" ? styles.wrong : styles.inactive )
+                        ]}
+                        onPress={() => pressHandler('D')}>
+                            <Text style={ { marginLeft: 10, ...globalStyles.text } }>D: { question.options[3] }</Text>
+                        </TouchableOpacity>
+                        
+                        {/* Continue Button */}
+                        {continueVisible ? (
+                        <TouchableOpacity 
+                            style={styles.continue}
+                            onPress={() => navigation.navigate('NeighbourGarden', { course_id: course_id })}>
+                            <Text style={{
+                                fontFamily: 'Nunito-Regular', 
+                            }}>Continue</Text>
+                        </TouchableOpacity>
+                        ) : (
+                            <View style={styles.placeholder}></View>
+                        )}
+                    </View>
                 </View>
             )}
         </View>
