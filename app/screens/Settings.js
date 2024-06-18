@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Modal, Button } from "react-native";
 import { globalStyles } from '../globalStyles/globalStyles';
 import { useUser } from '../components/UserContext';
 
 export default function Settings({ navigation }){
     const { userState } = useUser();
+    const [modalVisible, setModalVisible] = useState(false);
 
     const handleDelete = async () => {
         try {
@@ -25,32 +26,10 @@ export default function Settings({ navigation }){
         } catch(error) {
             console.log('Error fetching data: ', error);
         } finally {
+            setModalVisible(false);
             navigation.navigate('Login');
         }
     }
-
-    const alertDelete = () => {
-        Alert.alert('Warning!', 'Are you sure you want to delete your account?', [
-            {
-                text: 'No',
-            },
-            {
-                text: 'Yes',
-                onPress: () => handleDelete(),
-            },
-        ]
-        )
-    }
-
-    const createTwoButtonAlert = () =>
-        Alert.alert('Alert Title', 'My Alert Msg', [
-          {
-            text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          {text: 'OK', onPress: () => console.log('OK Pressed')},
-        ]);
 
     return (
         <View style={globalStyles.container}> 
@@ -70,12 +49,37 @@ export default function Settings({ navigation }){
             </TouchableOpacity>
 
             <TouchableOpacity 
-                onPress={() => alertDelete()}
+                onPress={() => setModalVisible(true)}
                 style={styles.redirect}
             >
                 <Text style={styles.text}> Delete Account </Text>
             </TouchableOpacity>
             
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                }}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalView}>
+                        <Text style={styles.modalText}>Are you sure you want to delete your account?</Text>
+                        <View style={styles.modalButtons}>
+                            <Button
+                                title="No"
+                                onPress={() => setModalVisible(!modalVisible)}
+                            />
+                            <Button
+                                title="Yes"
+                                onPress={handleDelete}
+                                color="red"
+                            />
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     )
 }
@@ -90,6 +94,36 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontFamily: 'Nunito-Bold',
         fontSize: 20,
-    }
-})
-
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: 'center',
+        fontSize: 18,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+});

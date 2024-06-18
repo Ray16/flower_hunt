@@ -36,3 +36,10 @@ i 			# to open Apple simulator
 pip install fastapi uvicorn
 uvicorn main:app --host 0.0.0.0 --port 8001
 ```
+
+
+### App submission 
+```
+eas build --platform ios 
+eas submit -p ios --latest 
+```
