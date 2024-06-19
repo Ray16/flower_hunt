@@ -136,9 +136,14 @@ class GardenLoadResponse(BaseModel):
 async def garden_page_load(request: GardenLoadRequest):
     # grad the topics from course to prepare the initial garden
     # knowing the topics, we can pick some questions
-    gard_ref = db.collection('101').document(request.course_id)
+
+    # for now just let it be document('Software_Engineer_123'), later use 
+    # request.course_id
+    gard_ref = db.collection('courses').document('Software_Engineer_123')
     doc_g = gard_ref.get()
     # if the user
+    if doc_g.exists:
+
 
     # Sample initial garden with all 0
     init_garden_rows = [
