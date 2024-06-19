@@ -104,7 +104,7 @@ class GardenLoadRequest(BaseModel):
 
 # How many points you got? 
 class Condition(BaseModel):
-    easy: int
+    easy: int       # how many flowers I stole
     medium: int
     hard: int
 
@@ -142,16 +142,16 @@ async def garden_page_load(request: GardenLoadRequest):
 
     # Sample initial garden with all 0
     init_garden_rows = [
-        GardenRow(row_num="1", topic="Array", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(row_num="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(row_num="3", topic="Stack", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(row_num="4", topic="Queue", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(row_num="5", topic="Binary Tree", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(row_num="6", topic="Hash Table", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(row_num="7", topic="Graph", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(row_num="8", topic="Heap", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(row_num="9", topic="Sorting", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(row_num="10", topic="Dynamic Programming", conditions=Condition(easy=0, medium=0, hard=0))
+        GardenRow(row_num="1", topic="Array", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
+        GardenRow(row_num="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
+        GardenRow(row_num="3", topic="Stack", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
+        GardenRow(row_num="4", topic="Queue", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
+        GardenRow(row_num="5", topic="Binary Tree", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
+        GardenRow(row_num="6", topic="Hash Table", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
+        GardenRow(row_num="7", topic="Graph", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
+        GardenRow(row_num="8", topic="Heap", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
+        GardenRow(row_num="9", topic="Sorting", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
+        GardenRow(row_num="10", topic="Dynamic Programming", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none"))
     ]
     # actually, since we know id and we know topics, we 
 
@@ -206,7 +206,8 @@ async def garden_page_load(request: GardenLoadRequest):
 # 02 - On garden steal
 
 class GardenStealRequest(BaseModel):
-    uid: str        # whose uid you are stealing from? 
+    my_uid: str        # whose uid you are stealing from? 
+    his_uid: str
     course_id: str  # 
     topic: str
     difficulty: str
@@ -288,8 +289,8 @@ async def courses_page(request: CoursesRequest):
 ## Select Neighbor Screen
 
 class SelectNeighborRequest(BaseModel):
-    uid: str
-    course_id: str
+    uid: str        # Me
+    course_id: str  # The course I'm in 
 
 class SelectNeighborItem(BaseModel):
     uid: str
@@ -315,6 +316,4 @@ async def courses_page(request: SelectNeighborRequest):
     ]
     return SelectNeighborResponse(root=res_arr)
 
-
-# delete account 
 
