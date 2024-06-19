@@ -162,9 +162,14 @@ async def garden_steal(request: GardenStealRequest):
         question_id='week1_q1',
         difficulty='easy',
         topic='Array',
-        answer='B',
-        question='What is Python?',
-        options=['A type of snake', 'A programming language', 'A car brand', 'A music brand']
+        answer='A',
+        question='1768. You are given two strings word1 and word2. Merge the strings by adding letters in alternating order, starting with word1. If a string is longer than the other, append the additional letters onto the end of the merged string. Return the merged string.',
+        options=[
+            'Use two pointers, one for each string, to iterate through the strings in alternating order.',
+            'Convert the strings to lists, concatenate the lists, and then convert back to a string.',
+            'Use a single loop to iterate through the shorter string and append the remaining characters of the longer string.',
+            'Use recursion to merge the strings, with each recursive call merging one character from each string.'
+        ]
     )
     return response_data
 
@@ -201,6 +206,7 @@ class CoursesItem(BaseModel):
 
 class CoursesResponse(RootModel[List[CoursesItem]]):
     pass
+
 
 # 03 - Courses
 @app.post("/courses", response_model=CoursesResponse)
