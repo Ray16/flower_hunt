@@ -242,6 +242,5 @@ async def courses_page(request: SelectNeighborRequest):
     ]
     return SelectNeighborResponse(root=res_arr)
 
-
 # delete account 
 
