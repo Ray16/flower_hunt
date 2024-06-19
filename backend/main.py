@@ -222,7 +222,7 @@ async def garden_page_load(request: GardenLoadRequest):
 
 class GardenStealRequest(BaseModel):
     my_uid: str        # who am I
-    his_uid: str        # who I'm stealing form 
+    his_uid: str        # who I'm stealing from 
     course_id: str  
     topic: str
     difficulty: str
@@ -238,6 +238,8 @@ class GardenStealResponse(BaseModel):
 # TODO 02: return a question (for now, just put some random questions in firebase)
 @app.post("/garden/steal", response_model=GardenStealResponse)
 async def garden_steal(request: GardenStealRequest):
+    # More specifically we want to know what the other person's question_id is
+    # at that exact slot, what question was assigned to this person. 
     # below is just an example
     response_data = GardenStealResponse(
         question_id='week1_q1',
