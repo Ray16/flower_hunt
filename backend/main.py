@@ -222,12 +222,13 @@ async def garden_page_load(request: GardenLoadRequest):
 
 class GardenStealRequest(BaseModel):
     my_uid: str        # who am I
-    his_uid: str        # who I'm stealing from 
+    neighbor_uid: str        # who I'm stealing from 
     course_id: str  
     topic: str
     difficulty: str
 
 class GardenStealResponse(BaseModel):
+    status: str
     question_id: str    
     difficulty: str
     topic: str
@@ -242,6 +243,7 @@ async def garden_steal(request: GardenStealRequest):
     # at that exact slot, what question was assigned to this person. 
     # below is just an example
     response_data = GardenStealResponse(
+        status = "Got the question",
         question_id='week1_q1',
         difficulty='easy',
         topic='Array',
@@ -254,11 +256,41 @@ async def garden_steal(request: GardenStealRequest):
             'Use recursion to merge the strings, with each recursive call merging one character from each string.'
         ]
     )
-
+    # Actually when we do this, we probably already see the other person's garden
+    question_id = None
     # try fetch a question from the questions database and return
-    user_ref = db.collection('questions').document(request.uid)
-    doc = user_ref.get()
+    garden_ref = db.collection('gardens').document(request.neighbor_uid)
+    doc_g = garden_ref.get()
     
+    # got the person's doc
+    neighbor_garden = doc_g.to_dict()
+    courses = neighbor_garden.get('courses', {})
+    course_data = courses[request.course_id]
+    garden_rows = course_data['garden_rows']
+    
+    for row in garden_rows:
+        if row['topic']==request.topic:
+            if request.difficulty=="easy":
+                question_id = row['q1_id']
+            if request.difficulty=="medium":
+                question_id = row['q2_id']
+            if request.difficulty=="hard":
+                question_id = row['q3_id']
+
+    question_ref = db.collection('questions').document(question_id)
+    doc_q = question_ref.get()
+    
+    if doc_q.exists:
+        question_data = doc_q.to_dict()
+        response_data = GardenStealResponse(
+        status = "Got the question",
+        question_id=question_id,
+        difficulty=question_data['difficulty'],
+        topic=question_data['topic'],
+        answer=question_data['answer'],
+        question=question_data['question'],
+        options=question_data['options']
+    )
 
     return response_data
 
@@ -289,9 +321,11 @@ async def submit_answer(request: SubmitAnswerRequest):
         garden_ref = db.collection('gardens').document(request.uid)
         doc_my_g = garden_ref.get()
         user_data = doc_my_g.to_dict()
+
         courses = user_data.get('courses', {})
         course_data = courses[request.course_id]
         garden_rows = course_data['garden_rows']
+
         for row in garden_rows:
             if row['questions']['q1_id']== request.question_id:
                 row['conditions']['easy'] += 1
