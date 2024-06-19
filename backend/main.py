@@ -8,12 +8,17 @@ from typing import Dict, List
 app = FastAPI()
 
 # Initialize Firebase
-cred = credentials.Certificate('faradawn_private_key.json')
+cred = credentials.Certificate('mike-secret-key.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 # Models
 class User(BaseModel):
+    username: str
+    password: str
+    user_email: str
+
+class UserLogin(BaseModel):
     username: str
     password: str
 
@@ -25,6 +30,8 @@ class CreateUserResponse(BaseModel):
     status: str
     uid: str
 
+# Just use Status so frontend can save time instead of interpreting
+# what's going on. 
 class DeleteAccountResponse(BaseModel):
     status: str
 
@@ -41,114 +48,171 @@ async def create_user(user: User):
     
     # Create new user with username_uuid as document ID
     uid = f"{user.username}_{uuid.uuid4()}"
+    # set is "add" 
     users_ref.document(uid).set({
         'username': user.username,
-        'password': user.password
+        'password': user.password,
+        'user_email': user.user_email
     })
     return CreateUserResponse(status="success", uid=uid)
 
 @app.post("/login", response_model=LoginResponse)
-async def login(user: User):
+async def login(userlog: UserLogin):
     users_ref = db.collection('users')
-    # Find the user by username
-    query = users_ref.where('username', '==', user.username).stream()
+    # Find the user by username, stream can let it go over the collection. 
+    query = users_ref.where('username', '==', userlog.username).stream()
     for doc in query:
         user_data = doc.to_dict()
-        if user_data['password'] == user.password:
-            return LoginResponse(status="success", uid=doc.id)
+        if user_data['password'] == userlog.password:
+            return LoginResponse(status="Successfully logged in", uid=doc.id)
+        else:
+            # Don't let them know the uid at all
+            return LoginResponse(status="Wrong Password", uid="none")
     
-    return LoginResponse(status="failed", uid="none")
+    return LoginResponse(status="Please create an account first", uid="none")
 
 @app.post("/delete_account", response_model=DeleteAccountResponse)
 async def delete_account(uid: UIDModel):
+    # try delete everything else along, and only if you are a user you can delete
+
+    # delete from users
     user_ref = db.collection('users').document(uid.uid)
     doc = user_ref.get()
+
+    #delete from gardens
+    gard_ref = db.collection('gardens').document(uid.uid)
+    doc_g = gard_ref.get()
+
+    # It must first exist in users
     if doc.exists:
         user_ref.delete()
-        return DeleteAccountResponse(status="success")
+        # now check if user has a garden record
+        if doc_g.exists:
+            gard_ref.delete()
+            return DeleteAccountResponse(status="Deleted both user and user's garden")
+        else:
+            return DeleteAccountResponse(status="Deleted user yet the user has no garden at all")
     else:
         return DeleteAccountResponse(status="failed: user not found")
 
 # 01 - On page load
-
+# The user wants to get the garden that recorded what he did, the progress
+# It might have records in several courses. 
 class GardenLoadRequest(BaseModel):
     uid: str
     course_id: str
 
+# How many points you got? 
 class Condition(BaseModel):
     easy: int
     medium: int
     hard: int
 
+class Questions(BaseModel):
+    q1_id: str
+    q2_id: str
+    q3_id: str
+
+# the information of each row
 class GardenRow(BaseModel):
-    id: str
-    topic: str
+    row_num: str 
+    topic: str      
     conditions: Condition
+    questions: Questions
+
+# A user has many gardens, depending on how many courses the user is taking
+class Garden(BaseModel):
+    course_id: str
+    sunlight: int   # this is important because we want more sunlight. 
+    garden_rows: List[GardenRow]
+
 
 class GardenLoadResponse(BaseModel):
-    sunlight: int
-    garden_rows: List[GardenRow]
+    status: str
+    garden: Garden
 
 # TODO 01: return a garden matching {uid, course_id}
 @app.post("/garden/page_load", response_model=GardenLoadResponse)
 async def garden_page_load(request: GardenLoadRequest):
-    # If no corresponding garden, create a new one.
-    # If found a garden, reutnr the garden.
+    # grad the topics from course to prepare the initial garden
+    # knowing the topics, we can pick some questions
+    gard_ref = db.collection('101').document(request.course_id)
+    doc_g = gard_ref.get()
+    # if the user
 
-    # a sample initial garden with all 0
+    # Sample initial garden with all 0
     init_garden_rows = [
-        GardenRow(id="1", topic="Array", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="3", topic="Stack", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="4", topic="Queue", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="5", topic="Binary Tree", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="6", topic="Hash Table", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="7", topic="Graph", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="8", topic="Heap", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="9", topic="Sorting", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="10", topic="Dynamic Programming", conditions=Condition(easy=0, medium=0, hard=0))
+        GardenRow(row_num="1", topic="Array", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(row_num="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(row_num="3", topic="Stack", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(row_num="4", topic="Queue", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(row_num="5", topic="Binary Tree", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(row_num="6", topic="Hash Table", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(row_num="7", topic="Graph", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(row_num="8", topic="Heap", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(row_num="9", topic="Sorting", conditions=Condition(easy=0, medium=0, hard=0)),
+        GardenRow(row_num="10", topic="Dynamic Programming", conditions=Condition(easy=0, medium=0, hard=0))
     ]
+    # actually, since we know id and we know topics, we 
 
-    # another sample garden
-    sample_garden_rows = [
-        GardenRow(id="1", topic="Array", conditions=Condition(easy=3, medium=2, hard=1)),
-        GardenRow(id="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="3", topic="Stack", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="4", topic="Queue", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="5", topic="Binary Tree", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="6", topic="Hash Table", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="7", topic="Graph", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="8", topic="Heap", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="9", topic="Sorting", conditions=Condition(easy=0, medium=0, hard=0)),
-        GardenRow(id="10", topic="Dynamic Programming", conditions=Condition(easy=0, medium=0, hard=0))
-    ]
+    # Get the reference to the user's document
+    user_ref = db.collection('gardens').document(request.uid)
+    doc = user_ref.get()
 
-    # delete this below 
-    if request.uid == "100":
-        response = GardenLoadResponse(
-            sunlight=100,
+    # Check if the user document exists
+    if doc.exists:
+        user_data = doc.to_dict()
+        courses = user_data.get('courses', {})
+
+        if request.course_id in courses:
+            # The user already has this course, return the existing garden
+            course_data = courses[request.course_id]
+            garden = Garden(
+                course_id=request.course_id,
+                sunlight=course_data['sunlight'],
+                garden_rows=course_data['garden_rows']
+            )
+            return GardenLoadResponse(status="Old user, old course", garden=garden)
+        else:
+            # The user does not have this course yet, add a new garden for the course
+            courses[request.course_id] = {
+                'sunlight': 50,
+                'garden_rows': [row.dict() for row in init_garden_rows]
+            }
+            user_ref.update({'courses': courses})
+            garden = Garden(
+                course_id=request.course_id,
+                sunlight=50,
+                garden_rows=init_garden_rows
+            )
+            return GardenLoadResponse(status="Old user, new course", garden=garden)
+    else:
+        # The user has no gardens at all, create a brand new one for the user
+        user_ref.set({
+            'courses': {
+                request.course_id: {
+                    'sunlight': 50,
+                    'garden_rows': [row.dict() for row in init_garden_rows]
+                }
+            }
+        })
+        garden = Garden(
+            course_id=request.course_id,
+            sunlight=50,
             garden_rows=init_garden_rows
         )
-    else:
-        response = GardenLoadResponse(
-            sunlight=50,  # Assuming a default sunlight value for other users
-            garden_rows=sample_garden_rows
-        )
-
-    return response
-
-
+        return GardenLoadResponse(status="New user, new course", garden=garden)
 
 # 02 - On garden steal
 
 class GardenStealRequest(BaseModel):
-    uid: str
-    course_id: str
+    uid: str        # whose uid you are stealing from? 
+    course_id: str  # 
     topic: str
     difficulty: str
 
 class GardenStealResponse(BaseModel):
-    question_id: str
+    question_id: str    
     difficulty: str
     topic: str
     answer: str
@@ -158,6 +222,7 @@ class GardenStealResponse(BaseModel):
 # TODO 02: return a question (for now, just put some random questions in firebase)
 @app.post("/garden/steal", response_model=GardenStealResponse)
 async def garden_steal(request: GardenStealRequest):
+    # below is just an example
     response_data = GardenStealResponse(
         question_id='week1_q1',
         difficulty='easy',
@@ -171,6 +236,12 @@ async def garden_steal(request: GardenStealRequest):
             'Use recursion to merge the strings, with each recursive call merging one character from each string.'
         ]
     )
+
+    # try fetch a question from the questions database and return
+    user_ref = db.collection('questions').document(request.uid)
+    doc = user_ref.get()
+    
+
     return response_data
 
 # Receive answer
@@ -190,9 +261,11 @@ class SubmitAnswerResponse(BaseModel):
 # If user is correct, deduct the neighbor's plant and add to user's garden.
 @app.post("/garden/submit_answer", response_model=SubmitAnswerResponse)
 async def submit_answer(request: SubmitAnswerRequest):
+    
     response_data = SubmitAnswerResponse(
         status='success'
     )
+
     return response_data
 
 
@@ -247,6 +320,7 @@ async def courses_page(request: SelectNeighborRequest):
         SelectNeighborItem(uid=str(uuid.uuid4()), username='Grace', total_flowers=45),
     ]
     return SelectNeighborResponse(root=res_arr)
+
 
 # delete account 
 
