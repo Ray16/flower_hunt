@@ -1,5 +1,10 @@
 # Backend Setup
 
+## SSH to server
+```
+ssh -i my_private_key cc@129.114.24.200
+```
+
 ## Setup FastAPI
 ```
 # update the environment
@@ -13,8 +18,8 @@ source env/bin/activate
 pip install fastapi uvicorn
 pip install --upgrade firebase-admin
 
-# put firebase key inside the folder and name it as
-mike_private_key.json
+# put firebase key inside /backend folder and name it as
+faradawn_private_key.json
 
 # launch the app on port 8001
 tmux
