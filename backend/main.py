@@ -137,17 +137,10 @@ async def garden_page_load(request: GardenLoadRequest):
     # grad the topics from course to prepare the initial garden
     # knowing the topics, we can pick some questions
 
-    # for now just let it be document('Software_Engineer_123'), later use 
-    # request.course_id
-    gard_ref = db.collection('courses').document('Software_Engineer_123')
-    doc_g = gard_ref.get()
-    # if the user
-    if doc_g.exists:
-
-
     # Sample initial garden with all 0
     init_garden_rows = [
-        GardenRow(row_num="1", topic="Array", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
+        # Haoran; just hard coded the first row, so I can test with it later. 
+        GardenRow(row_num="1", topic="Array", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "SxGy1eypKa7Wq31BXuPd", q2_id = "PaUxnUASEMQueBuFH1BR", q3_id = "tEehF1V0svY8Hi8jkt24")),
         GardenRow(row_num="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
         GardenRow(row_num="3", topic="Stack", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
         GardenRow(row_num="4", topic="Queue", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
@@ -158,9 +151,26 @@ async def garden_page_load(request: GardenLoadRequest):
         GardenRow(row_num="9", topic="Sorting", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none")),
         GardenRow(row_num="10", topic="Dynamic Programming", conditions=Condition(easy=0, medium=0, hard=0), questions = Questions(q1_id = "none", q2_id = "none", q3_id = "none"))
     ]
-    # actually, since we know id and we know topics, we 
+
+    # Haoran: for now just let it be document('Software_Engineer_123'), later use 
+    # request.course_id once we can add courses with course_id
+    # course_ref = db.collection('courses').document('Software_Engineer_123')
+    # doc_c = course_ref.get()
+    # # if the user
+    # if doc_c.exists:
+    #     # we have such course, iterate through the 
+    #     course_data = doc_c.to_dict()
+    #     course_data['course_topics']
+    #     # TODO: write a for loop to fill out the information and randomly pick 
+    #     # some questions for each level condition
+    # else:
+    #     return GardenLoadResponse(status="We don't have the course", garden=None)
+    # And remember, we only start the rest if the course exists for the user. 
+    # For now we assume we have the course and only 1 course
 
     # Get the reference to the user's document
+    # Mike_9809229e-f7e1-4499-aa96-a43baa058572
+    # Software_Engineer_123
     user_ref = db.collection('gardens').document(request.uid)
     doc = user_ref.get()
 
@@ -211,9 +221,9 @@ async def garden_page_load(request: GardenLoadRequest):
 # 02 - On garden steal
 
 class GardenStealRequest(BaseModel):
-    my_uid: str        # whose uid you are stealing from? 
-    his_uid: str
-    course_id: str  # 
+    my_uid: str        # who am I
+    his_uid: str        # who I'm stealing form 
+    course_id: str  
     topic: str
     difficulty: str
 
@@ -254,11 +264,10 @@ async def garden_steal(request: GardenStealRequest):
 class SubmitAnswerRequest(BaseModel):
     uid: str
     neighbor_uid: str
-    course_id: str
-    question_id: str
-    response_time: float
-    user_answer: str
-    correct_answer: str
+    course_id: str          
+    question_id: str        
+    user_answer: str        
+    correct_answer: str     # we probably know this when user asked for a question
 
 class SubmitAnswerResponse(BaseModel):
     status: str
@@ -267,12 +276,49 @@ class SubmitAnswerResponse(BaseModel):
 # If user is correct, deduct the neighbor's plant and add to user's garden.
 @app.post("/garden/submit_answer", response_model=SubmitAnswerResponse)
 async def submit_answer(request: SubmitAnswerRequest):
-    
-    response_data = SubmitAnswerResponse(
-        status='success'
-    )
+    # 2 cases, 
+    # 1st we got it right, we want to add a flower to us and deduct
+    # a flower from the neighbor. 
+    # 2nd we got it wrong, nothing changes, just return
 
-    return response_data
+    if request.correct_answer==request.user_answer:
+        # now we got it right, need to update the garden of both
+        # first add 1 to our garden
+        garden_ref = db.collection('gardens').document(request.uid)
+        doc_my_g = garden_ref.get()
+        user_data = doc_my_g.to_dict()
+        courses = user_data.get('courses', {})
+        course_data = courses[request.course_id]
+        garden_rows = course_data['garden_rows']
+        for row in garden_rows:
+            if row['questions']['q1_id']== request.question_id:
+                row['conditions']['easy'] += 1
+            if row['questions']['q2_id']== request.question_id:
+                row['conditions']['medium'] += 1
+            if row['questions']['q3_id']== request.question_id:
+                row['conditions']['hard'] += 1
+        garden_ref.update({'courses': courses})
+
+        # now deduct 1 from the neighbor, same thing
+        garden_ref = db.collection('gardens').document(request.neighbor_uid)
+        doc_my_g = garden_ref.get()
+        user_data = doc_my_g.to_dict()
+        courses = user_data.get('courses', {})
+        course_data = courses[request.course_id]
+        garden_rows = course_data['garden_rows']
+        for row in garden_rows:
+            if row['questions']['q1_id']== request.question_id:
+                row['conditions']['easy'] -= 1
+            if row['questions']['q2_id']== request.question_id:
+                row['conditions']['medium'] -= 1
+            if row['questions']['q3_id']== request.question_id:
+                row['conditions']['hard'] -= 1
+        garden_ref.update({'courses': courses})
+        
+        # now you got it right, and you should have 1 extra point in your garden now. 
+        return SubmitAnswerResponse(status = "You got it right!")
+    else:
+        return SubmitAnswerResponse(status = "You got it wrong!")
 
 
 # Courses Screen
