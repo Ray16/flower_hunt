@@ -338,11 +338,18 @@ class CoursesResponse(RootModel[List[CoursesItem]]):
 # 03 - Courses
 @app.post("/courses", response_model=CoursesResponse)
 async def courses_page(request: CoursesRequest):
-    res_arr = [
-        CoursesItem(course_id="101", course_name='Software Engineering'),
-        CoursesItem(course_id="102", course_name='Data Science'),
-    ]
-    return CoursesResponse(root=res_arr)
+    # res_arr = [
+    #     CoursesItem(course_id="101", course_name='Software Engineering'),
+    #     CoursesItem(course_id="102", course_name='Data Science'),
+    # ]
+    # return CoursesResponse(root=res_arr)
+    courses_ref = db.collection('courses')
+    query = courses_ref.stream()
+    res_arr = []
+    for doc in query:
+        course_data = doc.to_dict()
+        res_arr.append(CoursesItem(course_id=course_data['course_id'], course_name=course_data['course_name']))
+    return CoursesResponse(root=res_arr)  # Return the list of courses
 
 
 ## Select Neighbor Screen
