@@ -131,7 +131,7 @@ class GardenLoadResponse(BaseModel):
     status: str
     garden: Garden
 
-# TODO 01: return a garden matching {uid, course_id}
+# return a garden matching {uid, course_id}
 @app.post("/garden/page_load", response_model=GardenLoadResponse)
 async def garden_page_load(request: GardenLoadRequest):
     # grad the topics from course to prepare the initial garden
@@ -236,7 +236,7 @@ class GardenStealResponse(BaseModel):
     question: str
     options: List[str]
 
-# TODO 02: return a question (for now, just put some random questions in firebase)
+# return a question
 @app.post("/garden/steal", response_model=GardenStealResponse)
 async def garden_steal(request: GardenStealRequest):
     # More specifically we want to know what the other person's question_id is
@@ -271,7 +271,7 @@ async def garden_steal(request: GardenStealRequest):
     for row in garden_rows:
         if row['topic']==request.topic:
             if request.difficulty=="easy":
-                question_id = row['q1_id']
+                question_id = row["questions"]['q1_id'] # TODO (Faradawn): change to this, also add a break to the loop. Thanks. 
             if request.difficulty=="medium":
                 question_id = row['q2_id']
             if request.difficulty=="hard":
@@ -306,7 +306,6 @@ class SubmitAnswerRequest(BaseModel):
 class SubmitAnswerResponse(BaseModel):
     status: str
 
-# TODO 03: put this record into Firebase. 
 # If user is correct, deduct the neighbor's plant and add to user's garden.
 @app.post("/garden/submit_answer", response_model=SubmitAnswerResponse)
 async def submit_answer(request: SubmitAnswerRequest):
@@ -326,6 +325,7 @@ async def submit_answer(request: SubmitAnswerRequest):
         course_data = courses[request.course_id]
         garden_rows = course_data['garden_rows']
 
+        # TODO (Faradawn): please add a break to the loop, thanks. 
         for row in garden_rows:
             if row['questions']['q1_id']== request.question_id:
                 row['conditions']['easy'] += 1
@@ -342,6 +342,7 @@ async def submit_answer(request: SubmitAnswerRequest):
         courses = user_data.get('courses', {})
         course_data = courses[request.course_id]
         garden_rows = course_data['garden_rows']
+        # TODO (Faradawn): please add a break to the loop and let flower count not go below 0 thanks.
         for row in garden_rows:
             if row['questions']['q1_id']== request.question_id:
                 row['conditions']['easy'] -= 1

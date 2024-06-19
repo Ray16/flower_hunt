@@ -38,7 +38,7 @@ Response {
 
 curl -X POST "http://129.114.24.200:8001/create_user" \
      -H "Content-Type: application/json" \
-     -d '{"username": "Faradawn", "password": "12345678"}'
+     -d '{"username": "Faradawn_2", "password": "12345678", "user_email": "111"}'
 
 curl -X POST "http://129.114.24.200:8001/login" \
      -H "Content-Type: application/json" \
@@ -112,7 +112,11 @@ Response {
 
 curl -X POST "http://129.114.24.200:8001/garden/page_load" \
      -H "Content-Type: application/json" \
-     -d '{"uid": 100, "course_id": 101}'
+     -d '{"uid": "100", "course_id": "101"}'
+
+curl -X POST "http://129.114.24.200:8001/garden/page_load" \
+     -H "Content-Type: application/json" \
+     -d '{"uid": "Faradawn_2_a19480c7-d365-415b-a50d-bc71de51776c", "course_id": "101"}'
 ```
 
 ### 02 - On clicking steal
@@ -133,9 +137,10 @@ Response {
   'options': ['A type of snake', 'A programming language', 'A car brand', 'A music brand']
 }
 
-curl -X POST "http://129.114.24.200:8001/garden/steal" \
+
+curl -X POST "http://0.0.0.0:8001/garden/steal" \
      -H "Content-Type: application/json" \
-     -d '{"uid": "100", "course_id": "101", "topic": "1", "difficulty": "easy"}'
+     -d '{"my_uid": "100", "neighbor_uid": "Faradawn_2_a19480c7-d365-415b-a50d-bc71de51776c", "course_id": "101", "topic": "Array", "difficulty": "easy"}'
 ```
 
 ### 03 - When user submits an answer
@@ -156,7 +161,7 @@ Response {
 
 curl -X POST "http://129.114.24.200:8001/garden/submit_answer" \
      -H "Content-Type: application/json" \
-     -d '{"uid": "100", "neighbor_uid": "102", "course_id": "101", "question_id": "q1", "response_time": 10, "user_answer": "A", "correct_answer": "B"}'
+     -d '{"uid": "100", "neighbor_uid": "Faradawn_2_a19480c7-d365-415b-a50d-bc71de51776c", "course_id": "101", "question_id": "SxGy1eypKa7Wq31BXuPd", "response_time": 10, "user_answer": "B", "correct_answer": "B"}'
 ```
 
 ### 04 - Create Garden

@@ -18,6 +18,9 @@ source env/bin/activate
 pip install fastapi uvicorn
 pip install --upgrade firebase-admin
 
+# (optional) for baidu qianfan (requires creating venv python3.9)
+pip install --upgrade appbuilder-sdk
+
 # put firebase key inside /backend folder and name it as
 faradawn_private_key.json
 
@@ -37,15 +40,9 @@ curl http://129.114.24.200:8001
 ### Test API
 ```
 # Post 01
-curl -X POST "http://129.114.24.200:8001/garden/page_load" \
+curl -X POST "http://129.114.24.200:8001/courses" \
      -H "Content-Type: application/json" \
-     -d '{"uid": 100, "course_id": 14100}'
-
-# Post 02
-curl -X POST "http://129.114.24.200:8001/garden/steal" \
-     -H "Content-Type: application/json" \
-     -d '{"uid": 100, "course_id": 14100, "week": 1}'
-
+     -d '{"uid": "100"}'
 ```
 
 ### Trouble shoot

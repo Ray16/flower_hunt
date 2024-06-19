@@ -23,4 +23,5 @@ expo-env.d.ts
 env
 *private_key*
 *secret_key*
+*secret-key*
 __pycache__
