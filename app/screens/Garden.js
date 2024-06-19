@@ -35,7 +35,12 @@ export default function Garden({ route, navigation }){
       );
 
       const data = await response.json();
-      setUserData(data)
+      console.log("Garden data", data);
+      if(data.status == "success"){
+        setUserData(data.garden);
+      }else{
+        console.log(data.message);
+      }
 
     } catch(error) {
       console.log('Error fetching data: ', error);
@@ -120,7 +125,7 @@ export default function Garden({ route, navigation }){
               <FlatList 
                 style={ { width: '100%', marginBottom: 20 } }
                 data={userData.garden_rows}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.row_num}
                 renderItem={({ item }) => (
                   <Card item={item}/>
                 )}
@@ -144,7 +149,7 @@ export default function Garden({ route, navigation }){
                     fontSize: 16,
                   }}
                 >
-                  Steal
+                  Select Neighbours
                 </Text>
               </TouchableOpacity>
             </View>
