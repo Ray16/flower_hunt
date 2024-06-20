@@ -247,7 +247,9 @@ async def get_question(request: GetQuestionRequest):
 class SubmitAnswerRequest(BaseModel):
     uid: str
     neighbor_uid: str
-    course_id: str          
+    course_id: str    
+    topic: str
+    difficulty: str      
     question_id: str        
     user_answer: str        
     correct_answer: str     
@@ -256,51 +258,79 @@ class SubmitAnswerResponse(BaseModel):
     status: str
     message: str
 
+def update_flower_count(garden_rows, topic, difficulty, increment):
+    for row in garden_rows:
+        if row['topic'] == topic:
+            row['conditions'][difficulty] += increment
+            return
+
+# If answer is correct, add 1 flower to the my garden at the location {topic, difficulty}
+# Also deduct 1 flower at the neighbor's garden's position
+# If answer incorrect, do nothing. 
+# If neighbor's username is OG, don't deduct 
 @app.post("/garden/submit_answer", response_model=SubmitAnswerResponse)
 async def submit_answer(request: SubmitAnswerRequest):
-    if request.correct_answer == request.user_answer:
-        garden_ref = db.collection('gardens').document(request.uid)
-        doc_my_g = garden_ref.get()
-        user_data = doc_my_g.to_dict()
+    gardens_ref = db.collection('gardens')
+    
+    # Check if the answer is correct
+    if request.user_answer == request.correct_answer:
+        try:
+            # Fetch the user's garden
+            user_garden_query = gardens_ref.where('uid', '==', request.uid).where('course_id', '==', request.course_id).stream()
+            user_garden_data = None
+            user_garden_doc_id = None
 
-        courses = user_data.get('courses', {})
-        course_data = courses[request.course_id]
-        garden_rows = course_data['garden_rows']
+            for doc in user_garden_query:
+                user_garden_data = doc.to_dict()
+                user_garden_doc_id = doc.id
+                break
 
-        for row in garden_rows:
-            if row['questions']['q1_id'] == request.question_id:
-                row['conditions']['easy'] += 1
-                break
-            if row['questions']['q2_id'] == request.question_id:
-                row['conditions']['medium'] += 1
-                break
-            if row['questions']['q3_id'] == request.question_id:
-                row['conditions']['hard'] += 1
-                break
-        garden_ref.update({'courses': courses})
+            if not user_garden_data:
+                raise HTTPException(status_code=404, detail="User's garden not found")
 
-        garden_ref = db.collection('gardens').document(request.neighbor_uid)
-        doc_my_g = garden_ref.get()
-        user_data = doc_my_g.to_dict()
-        courses = user_data.get('courses', {})
-        course_data = courses[request.course_id]
-        garden_rows = course_data['garden_rows']
+            # Fetch the neighbor's garden
+            neighbor_garden_query = gardens_ref.where('uid', '==', request.neighbor_uid).where('course_id', '==', request.course_id).stream()
+            neighbor_garden_data = None
+            neighbor_garden_doc_id = None
 
-        for row in garden_rows:
-            if row['questions']['q1_id'] == request.question_id:
-                row['conditions']['easy'] = max(0, row['conditions']['easy'] - 1)
+            for doc in neighbor_garden_query:
+                neighbor_garden_data = doc.to_dict()
+                neighbor_garden_doc_id = doc.id
                 break
-            if row['questions']['q2_id'] == request.question_id:
-                row['conditions']['medium'] = max(0, row['conditions']['medium'] - 1)
-                break
-            if row['questions']['q3_id'] == request.question_id:
-                row['conditions']['hard'] = max(0, row['conditions']['hard'] - 1)
-                break
-        garden_ref.update({'courses': courses})
-        
-        return SubmitAnswerResponse(status="success", message="You got it right!")
+
+            if not neighbor_garden_data:
+                raise HTTPException(status_code=404, detail="Neighbor's garden not found")
+
+            # Add 1 flower to the user's garden
+            update_flower_count(user_garden_data['garden_rows'], request.topic, request.difficulty, 1)
+
+            # Deduct 1 flower from the neighbor's garden
+            if neighbor_garden_data['username'] != 'OG':
+                update_flower_count(neighbor_garden_data['garden_rows'], request.topic, request.difficulty, -1)
+
+            # Update the gardens in Firestore
+            gardens_ref.document(user_garden_doc_id).set(user_garden_data)
+            gardens_ref.document(neighbor_garden_doc_id).set(neighbor_garden_data)
+
+            return SubmitAnswerResponse(
+                status="success",
+                message="Answer is correct. Garden updated successfully."
+            )
+        except Exception as e:
+            return SubmitAnswerResponse(
+                status="error",
+                message=f"An error occurred: {str(e)}"
+            )
     else:
-        return SubmitAnswerResponse(status="failed", message="You got it wrong!")
+        return SubmitAnswerResponse(
+            status="success",
+            message="Answer is incorrect. No changes made."
+        )
+
+
+
+# === Courses Section 
+
 
 class CoursesRequest(BaseModel):
     uid: str
