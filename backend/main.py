@@ -153,13 +153,13 @@ async def garden_page_load(request: GardenLoadRequest):
             return GardenLoadResponse(status="success", message="Old user, old course", garden=garden)
         else:
             courses[request.course_id] = {
-                'sunlight': 50,
+                'sunlight': 0,
                 'garden_rows': [row.dict() for row in init_garden_rows]
             }
             user_ref.update({'courses': courses})
             garden = Garden(
                 course_id=request.course_id,
-                sunlight=50,
+                sunlight=0,
                 garden_rows=init_garden_rows
             )
             return GardenLoadResponse(status="success", message="Old user, new course", garden=garden)
@@ -167,14 +167,14 @@ async def garden_page_load(request: GardenLoadRequest):
         user_ref.set({
             'courses': {
                 request.course_id: {
-                    'sunlight': 50,
+                    'sunlight': 0,
                     'garden_rows': [row.dict() for row in init_garden_rows]
                 }
             }
         })
         garden = Garden(
             course_id=request.course_id,
-            sunlight=50,
+            sunlight=0,
             garden_rows=init_garden_rows
         )
         return GardenLoadResponse(status="success", message="New user, new course", garden=garden)
