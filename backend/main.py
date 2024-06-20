@@ -136,22 +136,30 @@ async def garden_page_load(request: GardenLoadRequest):
         courses = user_data.get('courses', {})
 
         if request.course_id in courses:
+            # only in this case we need to recalculate the total sunlight because
+            # our flower might have been stolen, all other cases just get a new garden
             course_data = courses[request.course_id]
+
+            # let's calculate the total sum of sunlight here
+            total_sunlight = 0
+            for row in course_data['garden_rows']:
+                total_sunlight += row['conditions']['easy']*50+row['conditions']['medium']*100+row['conditions']['hard']*200            
+
             garden = Garden(
                 course_id=request.course_id,
-                sunlight=course_data['sunlight'],
+                sunlight=total_sunlight,
                 garden_rows=course_data['garden_rows']
             )
             return GardenLoadResponse(status="success", message="Old user, old course", garden=garden)
         else:
             courses[request.course_id] = {
-                'sunlight': 50,
+                'sunlight': 0,
                 'garden_rows': [row.dict() for row in init_garden_rows]
             }
             user_ref.update({'courses': courses})
             garden = Garden(
                 course_id=request.course_id,
-                sunlight=50,
+                sunlight=0,
                 garden_rows=init_garden_rows
             )
             return GardenLoadResponse(status="success", message="Old user, new course", garden=garden)
@@ -159,14 +167,14 @@ async def garden_page_load(request: GardenLoadRequest):
         user_ref.set({
             'courses': {
                 request.course_id: {
-                    'sunlight': 50,
+                    'sunlight': 0,
                     'garden_rows': [row.dict() for row in init_garden_rows]
                 }
             }
         })
         garden = Garden(
             course_id=request.course_id,
-            sunlight=50,
+            sunlight=0,
             garden_rows=init_garden_rows
         )
         return GardenLoadResponse(status="success", message="New user, new course", garden=garden)
@@ -323,6 +331,7 @@ async def courses_page(request: CoursesRequest):
         res_arr.append(CoursesItem(course_id=course_data['course_id'], course_name=course_data['course_name']))
     return CoursesResponse(root=res_arr)
 
+# Select Neighbor
 class SelectNeighborRequest(BaseModel):
     uid: str        
     course_id: str  
@@ -339,16 +348,42 @@ class SelectNeighborResponse(RootModel[List[SelectNeighborItem]]):
 async def select_neighbor(request: SelectNeighborRequest):
     # TODO: 1) fetch from firebase gardens collection and garden_id, include the ones with matching course_id
     # 2) for each item, change total_flowers to sunlight, also add neighbor_id field
-    res_arr = [
-        SelectNeighborItem(uid=str(uuid.uuid4()), username='Fara_1', total_flowers=100),
-        SelectNeighborItem(uid=str(uuid.uuid4()), username='Mike', total_flowers=10),
-        SelectNeighborItem(uid=str(uuid.uuid4()), username='Ray', total_flowers=5),
-        SelectNeighborItem(uid=str(uuid.uuid4()), username='Alice', total_flowers=15),
-        SelectNeighborItem(uid=str(uuid.uuid4()), username='Bob', total_flowers=20),
-        SelectNeighborItem(uid=str(uuid.uuid4()), username='Charlie', total_flowers=25),
-        SelectNeighborItem(uid=str(uuid.uuid4()), username='David', total_flowers=30),
-        SelectNeighborItem(uid=str(uuid.uuid4()), username='Eve', total_flowers=35),
-        SelectNeighborItem(uid=str(uuid.uuid4()), username='Frank', total_flowers=40),
-        SelectNeighborItem(uid=str(uuid.uuid4()), username='Grace', total_flowers=45),
-    ]
+    # res_arr = [
+    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Fara_1', total_flowers=100),
+    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Mike', total_flowers=10),
+    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Ray', total_flowers=5),
+    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Alice', total_flowers=15),
+    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Bob', total_flowers=20),
+    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Charlie', total_flowers=25),
+    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='David', total_flowers=30),
+    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Eve', total_flowers=35),
+    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Frank', total_flowers=40),
+    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Grace', total_flowers=45),
+    # ]
+    res_arr = []
+
+    # Fetch users from the 'gardens' collection
+    gardens_ref = db.collection('gardens')
+    query = gardens_ref.stream()
+
+    for doc in query:
+        garden_data = doc.to_dict()
+        uid = doc.id
+
+        # Check if the garden has the requested course
+        if request.course_id in garden_data.get('courses', {}):
+            course_data = garden_data['courses'][request.course_id]
+            total_flowers = course_data['sunlight']
+            
+            # Fetch the username from the 'users' collection
+            user_ref = db.collection('users').document(uid)
+            user_doc = user_ref.get()
+            if user_doc.exists:
+                user_data = user_doc.to_dict()
+                username = user_data['username']
+                
+                res_arr.append(
+                    SelectNeighborItem(uid=uid, username=username, total_flowers=total_flowers)
+                )
+
     return SelectNeighborResponse(root=res_arr)
