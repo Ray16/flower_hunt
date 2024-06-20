@@ -8,6 +8,7 @@ export const globalStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'white',
+        width: '100%',
     },
     title: {
         fontFamily: 'Nunito-Bold',
