@@ -22,7 +22,8 @@ export default function Question({ navigation, route }){
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                  uid: userState.userId,
+                    my_uid: userState.userId,
+                    neighbor_uid: neighbour_id,
                   course_id: course_id,
                   topic: topic,
                   difficulty: difficulty,
