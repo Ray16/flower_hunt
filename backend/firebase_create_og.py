@@ -69,9 +69,15 @@ def create_new_course(course_name, course_topics):
 
 def delete_all_questions(course_id):
     questions_ref = db.collection('questions')
-    query = questions_ref.where('course_id', '==', course_id).stream()
+    if course_id is None:
+        print("Deleting all questions")
+        query = questions_ref.stream()
+    else:
+        print("Deleting questions with course id", course_id)
+        query = questions_ref.where('course_id', '==', course_id).stream()
     for doc in query:
         questions_ref.document(doc.id).delete()
+        
 
 def add_questions(questions_data, course_id):
     questions_ref = db.collection('questions')
@@ -87,6 +93,16 @@ def add_questions(questions_data, course_id):
     return question_ids
 
 def create_garden(uid, course_id, course_topics, question_ids):
+    # delete previous garden
+    garden_ref = db.collection('garden')
+    query = garden_ref.where('course_id', '==', course_id).where('uid', '==', uid).stream()
+    for doc in query:
+        garden_ref.document(doc.id).delete()
+        print("Deleting previous garden")
+    
+
+
+    # create new 
     garden_rows = []
     for i, topic in enumerate(course_topics, start=1):
         q1_id = question_ids.get((topic, 'easy'), ['none'])[0]
@@ -116,6 +132,7 @@ def create_garden(uid, course_id, course_topics, question_ids):
     
     garden_data = {
         'uid': uid,
+        'username': USERNAME,
         'course_id': course_id,
         'sunlight': 0,
         'garden_rows': garden_rows
@@ -130,8 +147,8 @@ if uid:
     print("Deleted all courses")
     course_id = create_new_course(COURSE_NAME, COURSE_TOPICS)
     print("Created new course with course_id", course_id)
-    delete_all_questions(course_id)
-    print("Deleted all questions for the course_id", course_id)
+    delete_all_questions(None)
+    print("Deleted questions")
     question_ids = add_questions(questions_data, course_id)
     print("Added questions", question_ids)
     create_garden(uid, course_id, COURSE_TOPICS, question_ids)

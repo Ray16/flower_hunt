@@ -1,9 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, RootModel
 import firebase_admin
 from firebase_admin import credentials, firestore
 import uuid
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 app = FastAPI()
 
@@ -83,6 +83,17 @@ async def delete_account(uid: UIDModel):
     else:
         return DeleteAccountResponse(status="failed", message="User not found")
 
+
+# === Garden section 
+def calculate_sunlight(garden_rows):
+    sunlight = 0
+    for row in garden_rows:
+        sunlight += row['conditions']['easy'] * 50
+        sunlight += row['conditions']['medium'] * 100
+        sunlight += row['conditions']['hard'] * 200
+    return sunlight
+
+
 class GardenLoadRequest(BaseModel):
     uid: str
     course_id: str
@@ -98,95 +109,91 @@ class Questions(BaseModel):
     q3_id: str
 
 class GardenRow(BaseModel):
-    row_num: str 
-    topic: str      
+    row_num: str
+    topic: str
     conditions: Condition
     questions: Questions
-
-class Garden(BaseModel):
-    course_id: str
-    sunlight: int
-    garden_rows: List[GardenRow]
 
 class GardenLoadResponse(BaseModel):
     status: str
     message: str
-    garden: Garden
+    course_id: str
+    sunlight: int
+    garden_rows: List[GardenRow]
 
-@app.post("/garden/page_load", response_model=GardenLoadResponse)
+# If no such garden, create a new one based on the course_topic (fetch from "courses" collection).
+# Else, fetch the garden and calcuate the total sunlight:
+# In conditions, easy: 1 means that there is 1 easy questions. 
+# Each easy flower worth 50 sunlight, a medium worth 100, a hard worth 200.
+@app.post("/garden/load_garden", response_model=GardenLoadResponse)
 async def garden_page_load(request: GardenLoadRequest):
-    init_garden_rows = [
-        GardenRow(row_num="1", topic="Array", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
-        GardenRow(row_num="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
-        GardenRow(row_num="3", topic="Stack", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
-        GardenRow(row_num="4", topic="Queue", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
-        GardenRow(row_num="5", topic="Binary Tree", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
-        GardenRow(row_num="6", topic="Hash Table", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
-        GardenRow(row_num="7", topic="Graph", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
-        GardenRow(row_num="8", topic="Heap", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
-        GardenRow(row_num="9", topic="Sorting", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
-        GardenRow(row_num="10", topic="Dynamic Programming", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none"))
-    ]
+    gardens_ref = db.collection('gardens')
+    garden_query = gardens_ref.where('uid', '==', request.uid).where('course_id', '==', request.course_id).stream()
 
-    user_ref = db.collection('gardens').document(request.uid)
-    doc = user_ref.get()
+    garden_data = None
+    for doc in garden_query:
+        garden_data = doc.to_dict()
+        garden_doc_id = doc.id
+        break
 
-    if doc.exists:
-        user_data = doc.to_dict()
-        courses = user_data.get('courses', {})
-
-        if request.course_id in courses:
-            # only in this case we need to recalculate the total sunlight because
-            # our flower might have been stolen, all other cases just get a new garden
-            course_data = courses[request.course_id]
-
-            # let's calculate the total sum of sunlight here
-            total_sunlight = 0
-            for row in course_data['garden_rows']:
-                total_sunlight += row['conditions']['easy']*50+row['conditions']['medium']*100+row['conditions']['hard']*200            
-
-            garden = Garden(
-                course_id=request.course_id,
-                sunlight=total_sunlight,
-                garden_rows=course_data['garden_rows']
-            )
-            return GardenLoadResponse(status="success", message="Old user, old course", garden=garden)
-        else:
-            courses[request.course_id] = {
-                'sunlight': 0,
-                'garden_rows': [row.dict() for row in init_garden_rows]
-            }
-            user_ref.update({'courses': courses})
-            garden = Garden(
-                course_id=request.course_id,
-                sunlight=0,
-                garden_rows=init_garden_rows
-            )
-            return GardenLoadResponse(status="success", message="Old user, new course", garden=garden)
-    else:
-        user_ref.set({
-            'courses': {
-                request.course_id: {
-                    'sunlight': 0,
-                    'garden_rows': [row.dict() for row in init_garden_rows]
-                }
-            }
-        })
-        garden = Garden(
-            course_id=request.course_id,
-            sunlight=0,
-            garden_rows=init_garden_rows
+    if garden_data:
+        sunlight = calculate_sunlight(garden_data['garden_rows'])
+        garden_data['sunlight'] = sunlight
+        
+        # Update the sunlight in Firestore
+        gardens_ref.document(garden_doc_id).update({'sunlight': sunlight})
+        
+        return GardenLoadResponse(
+            status="success",
+            message="Garden loaded successfully",
+            course_id=garden_data['course_id'],
+            sunlight=sunlight,
+            garden_rows=garden_data['garden_rows']
         )
-        return GardenLoadResponse(status="success", message="New user, new course", garden=garden)
+    else:
+        courses_ref = db.collection('courses').document(request.course_id)
+        course_doc = courses_ref.get()
+        if not course_doc.exists:
+            raise HTTPException(status_code=404, detail="Course not found")
 
-class GardenStealRequest(BaseModel):
+        course_data = course_doc.to_dict()
+        garden_rows = []
+        for i, topic in enumerate(course_data['course_topics'], start=1):
+            garden_row = {
+                'row_num': str(i),
+                'topic': topic,
+                'conditions': {'easy': 0, 'medium': 0, 'hard': 0},
+                'questions': {'q1_id': 'none', 'q2_id': 'none', 'q3_id': 'none'}
+            }
+            garden_rows.append(garden_row)
+        
+        garden_data = {
+            'uid': request.uid,
+            'course_id': request.course_id,
+            'sunlight': 0,
+            'garden_rows': garden_rows
+        }
+        
+        gardens_ref.add(garden_data)
+
+        return GardenLoadResponse(
+            status="success",
+            message="New garden created successfully",
+            course_id=garden_data['course_id'],
+            sunlight=0,
+            garden_rows=garden_rows
+        )
+
+
+class GetQuestionRequest(BaseModel):
     my_uid: str
     neighbor_uid: str
-    course_id: str  
+    course_id: str
     topic: str
     difficulty: str
+    question_id: Optional[str] = None
 
-class GardenStealResponse(BaseModel):
+class GetQuestionResponse(BaseModel):
     status: str
     message: str
     question_id: str    
@@ -197,66 +204,45 @@ class GardenStealResponse(BaseModel):
     question_number: str
     options: List[str]
 
-@app.post("/garden/steal", response_model=GardenStealResponse)
-async def garden_steal(request: GardenStealRequest):
-    response_data = GardenStealResponse(
+# if question_id is provided, directly use the question_id
+# else, go to questions to find a question with matching {course_id, topic, difficulty}. Just return the first one.
+@app.post("/garden/get_question", response_model=GetQuestionResponse)
+async def get_question(request: GetQuestionRequest):
+    questions_ref = db.collection('questions')
+
+    if request.question_id:
+        # Directly use the provided question_id
+        question_doc = questions_ref.document(request.question_id).get()
+        if not question_doc.exists:
+            raise HTTPException(status_code=404, detail="Question not found")
+        question_data = question_doc.to_dict()
+    else:
+        # Find a question with matching {course_id, topic, difficulty}
+        question_query = questions_ref.where('course_id', '==', request.course_id)\
+                                      .where('topic', '==', request.topic)\
+                                      .where('difficulty', '==', request.difficulty)\
+                                      .limit(1).stream()
+        question_data = None
+        for doc in question_query:
+            question_data = doc.to_dict()
+            question_data['question_id'] = doc.id
+            break
+        
+        if not question_data:
+            raise HTTPException(status_code=404, detail="No matching question found")
+
+    return GetQuestionResponse(
         status="success",
-        message="Placeholder question",
-        question_id='week1_q1',
-        difficulty='easy',
-        topic='Array',
-        answer='A',
-        question='You are given two strings word1 and word2. Merge the strings by adding letters in alternating order, starting with word1. If a string is longer than the other, append the additional letters onto the end of the merged string. Return the merged string.',
-        question_number='1768',
-        options=[
-            'Use two pointers, one for each string, to iterate through the strings in alternating order.',
-            'Convert the strings to lists, concatenate the lists, and then convert back to a string.',
-            'Use a single loop to iterate through the shorter string and append the remaining characters of the longer string.',
-            'Use recursion to merge the strings, with each recursive call merging one character from each string.'
-        ]
+        message="Question retrieved successfully",
+        question_id=question_data['question_id'],
+        difficulty=question_data['difficulty'],
+        topic=question_data['topic'],
+        answer=question_data['answer'],
+        question=question_data['question'],
+        question_number=question_data['question_number'],
+        options=question_data['options']
     )
 
-    garden_ref = db.collection('gardens').document(request.neighbor_uid)
-    doc_g = garden_ref.get()
-    
-    neighbor_garden = doc_g.to_dict()
-    courses = neighbor_garden.get('courses', {})
-    course_data = courses[request.course_id]
-    garden_rows = course_data['garden_rows']
-    
-    question_id = None
-    for row in garden_rows:
-        if row['topic'] == request.topic:
-            if request.difficulty == "easy":
-                question_id = row["questions"]['q1_id']
-                break
-            elif request.difficulty == "medium":
-                question_id = row["questions"]['q2_id']
-                break
-            elif request.difficulty == "hard":
-                question_id = row["questions"]['q3_id']
-                break
-
-    question_ref = db.collection('questions').document(question_id)
-    doc_q = question_ref.get()
-    
-    if doc_q.exists:
-        question_data = doc_q.to_dict()
-        response_data = GardenStealResponse(
-            status="success",
-            message="Got the question",
-            question_id=question_id,
-            difficulty=question_data['difficulty'],
-            topic=question_data['topic'],
-            answer=question_data['answer'],
-            question=question_data['question'],
-            question_number=question_data['question_number'],
-            options=question_data['options']
-        )
-    else:
-        response_data.message = f"Question id {question_id}, doc not found"
-
-    return response_data
 
 class SubmitAnswerRequest(BaseModel):
     uid: str
@@ -333,7 +319,7 @@ async def courses_page(request: CoursesRequest):
     res_arr = []
     for doc in query:
         course_data = doc.to_dict()
-        res_arr.append(CoursesItem(course_id=course_data['course_id'], course_name=course_data['course_name']))
+        res_arr.append(CoursesItem(course_id=doc.id, course_name=course_data['course_name']))
     return CoursesResponse(root=res_arr)
 
 # Select Neighbor
@@ -344,51 +330,33 @@ class SelectNeighborRequest(BaseModel):
 class SelectNeighborItem(BaseModel):
     uid: str
     username: str
-    total_flowers: int
+    sunlight: int
 
 class SelectNeighborResponse(RootModel[List[SelectNeighborItem]]):
     pass
 
+# Read from "gardens" collection and fetch all gardens 
+# with matching course_id AND non-matching uid (exclude myself)
 @app.post("/select_neighbor", response_model=SelectNeighborResponse)
 async def select_neighbor(request: SelectNeighborRequest):
-    # TODO: 1) fetch from firebase gardens collection and garden_id, include the ones with matching course_id
-    # 2) for each item, change total_flowers to sunlight, also add neighbor_id field
-    # res_arr = [
-    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Fara_1', total_flowers=100),
-    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Mike', total_flowers=10),
-    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Ray', total_flowers=5),
-    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Alice', total_flowers=15),
-    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Bob', total_flowers=20),
-    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Charlie', total_flowers=25),
-    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='David', total_flowers=30),
-    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Eve', total_flowers=35),
-    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Frank', total_flowers=40),
-    #     SelectNeighborItem(uid=str(uuid.uuid4()), username='Grace', total_flowers=45),
-    # ]
-    res_arr = []
-
-    # Fetch users from the 'gardens' collection
     gardens_ref = db.collection('gardens')
-    query = gardens_ref.stream()
+    
+    # Query gardens with matching course_id
+    garden_query = gardens_ref.where('course_id', '==', request.course_id).stream()
+    neighbor_list = []
 
-    for doc in query:
+    for doc in garden_query:
         garden_data = doc.to_dict()
-        uid = doc.id
+        if garden_data['uid'] != request.uid:
+            # Calculate sunlight just to be safe
+            sunlight = calculate_sunlight(garden_data['garden_rows'])
+            if sunlight != garden_data['sunlight']:
+                # Update the sunlight in Firestore
+                gardens_ref.document(doc.id).update({'sunlight': sunlight})
+            neighbor_list.append(SelectNeighborItem(
+                uid=garden_data['uid'],
+                username=garden_data['username'],
+                sunlight=sunlight
+            ))
 
-        # Check if the garden has the requested course
-        if request.course_id in garden_data.get('courses', {}):
-            course_data = garden_data['courses'][request.course_id]
-            total_flowers = course_data['sunlight']
-            
-            # Fetch the username from the 'users' collection
-            user_ref = db.collection('users').document(uid)
-            user_doc = user_ref.get()
-            if user_doc.exists:
-                user_data = user_doc.to_dict()
-                username = user_data['username']
-                
-                res_arr.append(
-                    SelectNeighborItem(uid=uid, username=username, total_flowers=total_flowers)
-                )
-
-    return SelectNeighborResponse(root=res_arr)
+    return SelectNeighborResponse(root=neighbor_list)

@@ -12,10 +12,10 @@ user_id {
 ```
 garden_id {
     uid: str,
+    username: str,
     course_id: str,
     sunlight: int,
-    total_flowers: int,
-    garden_rows: list of {id, topic, conditions}
+    garden_rows: List[{id, topic, conditions}]
 }
 ```
 
