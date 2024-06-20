@@ -1,16 +1,5 @@
-import firebase_admin
-from firebase_admin import credentials, firestore
 import uuid
 
-# Use a service account.
-cred = credentials.Certificate('faradawn_private_key.json')
-firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-
-questions_ref = db.collection("questions")
-
-# Define the questions data with different difficulties
 questions_data = [
     {
         'question_id': str(uuid.uuid4()),
@@ -27,7 +16,6 @@ questions_data = [
             'Recursion, merge one character at a time.'
         ]
     },
-
     {
         'question_id': str(uuid.uuid4()),
         'course_id': '101',
@@ -43,7 +31,6 @@ questions_data = [
             'Loop, reverse each word individually.'
         ]
     },
-
     {
         'question_id': str(uuid.uuid4()),
         'course_id': '101',
@@ -60,22 +47,3 @@ questions_data = [
         ]
     }
 ]
-
-def delete_all_questions():
-    questions_ref = db.collection('questions')
-    query = questions_ref.stream()
-    for doc in query:
-        questions_ref.document(doc.id).delete()
-    print("All questions deleted successfully")
-
-# Write the questions to Firestore
-def add_questions(questions_data):
-    for question_data in questions_data:
-        questions_ref.add(question_data)
-    print("Questions added successfully")
-
-    # add questions id to OG user 
-
-# Call the function to add the questions
-delete_all_questions()
-add_questions(questions_data)

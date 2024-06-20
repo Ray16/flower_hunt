@@ -38,7 +38,7 @@ Response {
 
 curl -X POST "http://129.114.24.200:8001/create_user" \
      -H "Content-Type: application/json" \
-     -d '{"username": "Faradawn_2", "password": "12345678", "user_email": "111"}'
+     -d '{"username": "OG", "password": "12345678"}'
 
 curl -X POST "http://129.114.24.200:8001/login" \
      -H "Content-Type: application/json" \
