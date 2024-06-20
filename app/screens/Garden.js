@@ -22,7 +22,7 @@ export default function Garden({ route, navigation }){
   const fetchData = async () => {
     try {
       const response = await fetch(
-        'http://129.114.24.200:8001/garden/page_load', {
+        'http://129.114.24.200:8001/garden/load_garden', {
           method: 'POST',
           headers: {
             "Content-Type": "application/json",
@@ -35,9 +35,9 @@ export default function Garden({ route, navigation }){
       );
 
       const data = await response.json();
-      console.log("Garden data", data);
+      console.log("My Garden data", data);
       if(data.status == "success"){
-        setUserData(data.garden);
+        setUserData(data);
       }else{
         console.log(data.message);
       }

@@ -16,7 +16,7 @@ export default function Question({ navigation, route }){
     const fetchQuestions = async () => {
         try {
             const response = await fetch(
-              'http://129.114.24.200:8001/garden/steal', {
+              'http://129.114.24.200:8001/garden/get_question', {
                 method: 'POST',
                 headers: {
                   "Content-Type": "application/json",
@@ -121,7 +121,7 @@ export default function Question({ navigation, route }){
                                 alignSelf: 'flex-start' 
                             } }
                             onPress={() => (navigation.navigate('NeighbourGarden', {
-                                course_id: course_id
+                                course_id: course_id, neighbour_id: neighbour_id
                             }))}
                         />
 
@@ -174,7 +174,7 @@ export default function Question({ navigation, route }){
                         {continueVisible ? (
                         <TouchableOpacity 
                             style={styles.continue}
-                            onPress={() => navigation.navigate('NeighbourGarden', { course_id: course_id })}>
+                            onPress={() => navigation.navigate('NeighbourGarden', { course_id: course_id, neighbour_id: neighbour_id })}>
                             <Text style={{
                                 fontFamily: 'Nunito-Regular', 
                             }}>Continue</Text>

@@ -14,6 +14,7 @@ export default function Classmates({ navigation, route }){
 
     const fetchClassmates = async () => {
         try {
+            console.log("select neighbor fetching", userState.userId, "couerse id", course_id);
             const response = await fetch(
                 'http://129.114.24.200:8001/select_neighbor', {
                     method: 'POST',
@@ -28,6 +29,7 @@ export default function Classmates({ navigation, route }){
             )
 
             const data = await response.json();
+            console.log("Got all select neighbor data", data);
             setClassmates(data);
 
         } catch(error) {
@@ -108,7 +110,7 @@ export default function Classmates({ navigation, route }){
 
                                             } }
                                         >
-                                            { item.total_flowers }
+                                            { item.sunlight }
                                         </Text>
                                     </ImageBackground>
                                 </TouchableOpacity>
