@@ -77,11 +77,12 @@ export default function Question({ navigation, route }){
                         headers: {
                             "Content-Type": "application/json",
                         },
-                        // TOOD: add neighbor_uid, course_id
                         body: JSON.stringify({
                             uid: userState.userId,
                             neighbor_uid: neighbour_id,
                             course_id: course_id,
+                            topic: topic,
+                            difficulty: difficulty,
                             question_id: question.question_id,
                             response_time: seconds,
                             user_answer: answer,
