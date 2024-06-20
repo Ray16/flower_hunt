@@ -57,6 +57,27 @@ def delete_all_courses():
     query = courses_ref.stream()
     for doc in query:
         courses_ref.document(doc.id).delete()
+    print("Deleted all courses")
+
+def delete_all_questions(course_id=None):
+  questions_ref = db.collection('questions')
+
+  if course_id is None:
+      print("Deleting all questions")
+      query = questions_ref.stream()
+  else:
+      print(f"Deleting questions with course id: {course_id}")
+      query = questions_ref.where('course_id', '==', course_id).stream()
+
+  for doc in query:
+      questions_ref.document(doc.id).delete()
+        
+def delete_all_gardens():
+    gardens_ref = db.collection('gardens')
+    query = gardens_ref.stream()
+    for doc in query:
+        gardens_ref.document(doc.id).delete()
+    print("Deleted all gardens")
 
 def create_new_course(course_name, course_topics):
     course_id = f"{course_name}_{uuid.uuid4()}"
@@ -67,17 +88,6 @@ def create_new_course(course_name, course_topics):
     db.collection('courses').document(course_id).set(course_data)
     return course_id
 
-def delete_all_questions(course_id):
-    questions_ref = db.collection('questions')
-    if course_id is None:
-        print("Deleting all questions")
-        query = questions_ref.stream()
-    else:
-        print("Deleting questions with course id", course_id)
-        query = questions_ref.where('course_id', '==', course_id).stream()
-    for doc in query:
-        questions_ref.document(doc.id).delete()
-        
 
 def add_questions(questions_data, course_id):
     questions_ref = db.collection('questions')
@@ -144,14 +154,12 @@ def create_garden(uid, course_id, course_topics, question_ids):
 uid = fetch_uid(USERNAME)
 if uid:
     delete_all_courses()
-    print("Deleted all courses")
+    delete_all_gardens()
+    delete_all_questions()
+
     course_id = create_new_course(COURSE_NAME, COURSE_TOPICS)
-    print("Created new course with course_id", course_id)
-    delete_all_questions(None)
-    print("Deleted questions")
     question_ids = add_questions(questions_data, course_id)
-    print("Added questions", question_ids)
     create_garden(uid, course_id, COURSE_TOPICS, question_ids)
-    print("Created garden")
+    print("Done! Created questions", question_ids)
 else:
     print(f"User with username {USERNAME} not found.")
