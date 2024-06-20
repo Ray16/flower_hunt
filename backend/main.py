@@ -116,7 +116,7 @@ class GardenLoadResponse(BaseModel):
 @app.post("/garden/page_load", response_model=GardenLoadResponse)
 async def garden_page_load(request: GardenLoadRequest):
     init_garden_rows = [
-        GardenRow(row_num="1", topic="Array", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="SxGy1eypKa7Wq31BXuPd", q2_id="PaUxnUASEMQueBuFH1BR", q3_id="tEehF1V0svY8Hi8jkt24")),
+        GardenRow(row_num="1", topic="Array", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
         GardenRow(row_num="2", topic="Linked List", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
         GardenRow(row_num="3", topic="Stack", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
         GardenRow(row_num="4", topic="Queue", conditions=Condition(easy=0, medium=0, hard=0), questions=Questions(q1_id="none", q2_id="none", q3_id="none")),
@@ -194,18 +194,20 @@ class GardenStealResponse(BaseModel):
     topic: str
     answer: str
     question: str
+    question_number: str
     options: List[str]
 
 @app.post("/garden/steal", response_model=GardenStealResponse)
 async def garden_steal(request: GardenStealRequest):
     response_data = GardenStealResponse(
         status="success",
-        message="Got the question",
+        message="Placeholder question",
         question_id='week1_q1',
         difficulty='easy',
         topic='Array',
         answer='A',
-        question='1768. You are given two strings word1 and word2. Merge the strings by adding letters in alternating order, starting with word1. If a string is longer than the other, append the additional letters onto the end of the merged string. Return the merged string.',
+        question='You are given two strings word1 and word2. Merge the strings by adding letters in alternating order, starting with word1. If a string is longer than the other, append the additional letters onto the end of the merged string. Return the merged string.',
+        question_number='1768',
         options=[
             'Use two pointers, one for each string, to iterate through the strings in alternating order.',
             'Convert the strings to lists, concatenate the lists, and then convert back to a string.',
@@ -248,8 +250,11 @@ async def garden_steal(request: GardenStealRequest):
             topic=question_data['topic'],
             answer=question_data['answer'],
             question=question_data['question'],
+            question_number=question_data['question_number'],
             options=question_data['options']
         )
+    else:
+        response_data.message = f"Question id {question_id}, doc not found"
 
     return response_data
 

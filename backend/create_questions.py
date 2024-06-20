@@ -1,5 +1,6 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
+import uuid
 
 # Use a service account.
 cred = credentials.Certificate('faradawn_private_key.json')
@@ -12,49 +13,60 @@ questions_ref = db.collection("questions")
 # Define the questions data with different difficulties
 questions_data = [
     {
+        'question_id': str(uuid.uuid4()),
         'course_id': '101',
         'topic': 'Array',
         'difficulty': 'easy',
         'answer': 'A',
-        'question': '1768. You are given two strings word1 and word2. Merge the strings by adding letters in alternating order, starting with word1. If a string is longer than the other, append the additional letters onto the end of the merged string. Return the merged string.',
+        'question': 'Merge two strings by alternating characters. Append remaining characters of the longer string.',
+        'question_number': '1768',
         'options': [
-            'Use two pointers, one for each string, to iterate through the strings in alternating order.',
-            'Convert the strings to lists, concatenate the lists, and then convert back to a string.',
-            'Use a single loop to iterate through the shorter string and append the remaining characters of the longer string.',
-            'Use recursion to merge the strings, with each recursive call merging one character from each string.'
+            'Two pointers. Iterate alternatively.',
+            'Convert strings to lists, concatenate, convert back.',
+            'Single loop for shorter string, append remaining characters.',
+            'Recursion, merge one character at a time.'
         ]
     },
 
     {
+        'question_id': str(uuid.uuid4()),
         'course_id': '101',
         'topic': 'Array',
         'difficulty': 'medium',
         'answer': 'A',
-        'question': '151. Given a string s, reverse the order of words. Return the string with words in reverse order, separated by a single space. Ignore leading, trailing, and multiple spaces.',
+        'question': 'Reverse the order of words in a string. Ignore extra spaces.',
+        'question_number': '151',
         'options': [
-            'Split the string into words, reverse the order of the words, and join them back together.',
-            'Use a two-pointer technique to swap characters in the string.',
-            'Use a stack to store characters and then pop them off to reverse the order of the words.',
-            'Loop through the string and reverse each word individually.'
+            'Split, reverse words, join back together.',
+            'Two-pointer technique to swap characters.',
+            'Use stack to reverse order of words.',
+            'Loop, reverse each word individually.'
         ]
     },
 
     {
+        'question_id': str(uuid.uuid4()),
         'course_id': '101',
         'topic': 'Array',
         'difficulty': 'hard',
         'answer': 'A',
-        'question': '188. Given an integer array prices where prices[i] is the price of a stock on the ith day, and an integer k, find the maximum profit you can achieve with at most k transactions. Note: You must sell the stock before you buy again.',
+        'question': 'Find max profit with at most k stock transactions. Sell before buying again.',
+        'question_number': '188',
         'options': [
-            'Use dynamic programming with a 2D array where dp[i][j] represents the maximum profit after j transactions up to the ith day.',
-            'Sort the prices array and select the k largest differences between consecutive prices.',
-            'Use a greedy approach to buy at every local minimum and sell at every local maximum.',
-            'Use a recursive function to try all possible transactions and return the maximum profit.'
+            'Dynamic programming with 2D array for max profit.',
+            'Sort prices, select k largest differences.',
+            'Greedy, buy at local min, sell at local max.',
+            'Recursive, try all transactions, return max profit.'
         ]
     }
-
-
 ]
+
+def delete_all_questions():
+    questions_ref = db.collection('questions')
+    query = questions_ref.stream()
+    for doc in query:
+        questions_ref.document(doc.id).delete()
+    print("All questions deleted successfully")
 
 # Write the questions to Firestore
 def add_questions(questions_data):
@@ -62,5 +74,8 @@ def add_questions(questions_data):
         questions_ref.add(question_data)
     print("Questions added successfully")
 
+    # add questions id to OG user 
+
 # Call the function to add the questions
+delete_all_questions()
 add_questions(questions_data)
