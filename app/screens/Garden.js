@@ -59,10 +59,10 @@ export default function Garden({ route, navigation }) {
       course_id: course_id,
     })
   }
-  
+
   return (
     <ImageBackground 
-      source={require('../../assets/images/garden_green_no_home_v2.png')}
+      source={require('../../assets/images/garden_green_v3.png')}
       style={{ width: '100%', height: '100%' }}
     >
       { isLoading ? (

@@ -8,8 +8,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 export default function Question({ navigation, route }){
     const { course_id, topic, difficulty, neighbour_id } = route.params;
 
-    const [question, setQuestion] = useState([])
-    const [isLoading, setIsLoading] = useState(true)
+    const [question, setQuestion] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const { userState } = useUser();
 
@@ -32,19 +32,19 @@ export default function Question({ navigation, route }){
             );
       
             const data = await response.json();
-            setQuestion(data)
-            console.log(data)
+            setQuestion(data);
+            console.log(data);
       
           } catch(error) {
             console.log('Error fetching data: ', error);
           } finally {
             setIsLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
-        setTimeout(fetchQuestions, 10)
-    }, [])
+        setTimeout(fetchQuestions, 10);
+    }, []);
 
     const [submit, setSubmit] = useState("Not Submitted");
     const [continueVisible, setContinueVisible] = useState(false);
@@ -62,7 +62,6 @@ export default function Question({ navigation, route }){
 
         return () => clearInterval(interval);
     }, [isRunning]);
-
 
     const pressHandler = async (answer) => {
         if(submit == "Not Submitted"){
@@ -89,45 +88,32 @@ export default function Question({ navigation, route }){
                             correct_answer: question.answer,
                         })
                     }
-                )
+                );
 
             } catch(error) {
-                console.log('Error fetching data: ', error)
+                console.log('Error fetching data: ', error);
             }
         }
-    }
+    };
 
     return (
         <View style={globalStyles.container}>
-
             { isLoading ? <ActivityIndicator /> 
                 :
             (
                 <View style={{ width: '100%', ...globalStyles.container }}>
-
-                    <View style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginTop: '40%',
-                        height: '20%',
-                        marginBottom: '10%',
-                        ...globalStyles.header
-                    }}>
+                    <View style={styles.header}>
                         <Ionicons
                             name='chevron-back'
                             size={24}
-                            style={ { 
-                                marginTop: 14,
-                                alignSelf: 'flex-start' 
-                            } }
+                            style={styles.backButton}
                             onPress={() => (navigation.navigate('NeighbourGarden', {
                                 course_id: course_id, neighbour_id: neighbour_id
                             }))}
                         />
-
-                        {/* Question */}
-                        <Text style={ { ...globalStyles.title } }>{ question.question }</Text>
+                    </View>
+                    <View style={styles.questionContainer}>
+                        <Text style={styles.questionText}>{ question.question }</Text>
                     </View>
 
                     <View style={ { 
@@ -187,10 +173,29 @@ export default function Question({ navigation, route }){
                 </View>
             )}
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: 50, // Adjusted for better visibility
+    },
+    backButton: {
+        marginLeft: 10,
+        alignSelf: 'flex-start',
+    },
+    questionContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: '5px',
+        marginBottom: '10%',
+    },
+    questionText: {
+        textAlign: 'center',
+    },
     card: {
         borderRadius: 5,
         elevation: 3,
@@ -222,4 +227,4 @@ const styles = StyleSheet.create({
         marginTop: 30,
         height: 40,
     }
-})
+});

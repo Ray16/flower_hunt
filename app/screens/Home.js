@@ -22,7 +22,7 @@ export default function Home(){
                     marginTop: 20, 
                     ...globalStyles.title
                 }}> 
-                    Become An Experienced Learner!
+                    Master algorithms, one flower at a time!
                 </Text>
                 
             </View>

@@ -66,7 +66,7 @@ export default function NeighbourGarden({ route, navigation }){
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/garden_gold_no_home.png')}
+      source={require('../../assets/images/garden_gold_v3.png')}
       style={{ width: '100%', height: '100%' }}
     >
       { isLoading ? (
