@@ -4,8 +4,23 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import uuid
 from typing import Dict, List, Optional
+import httpx
 
 app = FastAPI()
+
+# Add a route to fetch LeetCode user data
+@app.get("/leetcode/{username}")
+async def get_leetcode_user(username: str):
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(f"http://localhost:3000/user/{username}")  # Adjust URL/port as necessary
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            raise HTTPException(status_code=e.response.status_code, detail="Failed to fetch LeetCode user data.")
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=500, detail="An error occurred while trying to connect to the Node.js service.")
+
 
 # Initialize Firebase
 cred = credentials.Certificate('mike-secret-key.json')
