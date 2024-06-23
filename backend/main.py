@@ -12,6 +12,14 @@ cred = credentials.Certificate('mike-secret-key.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
+def fetch_username(uid):
+    users_ref = db.collection('users').document(uid)
+    user_doc = users_ref.get()
+    if user_doc.exists:
+        user_data = user_doc.to_dict()
+        return user_data.get('username', None)
+    return None
+
 # Models
 class User(BaseModel):
     username: str
@@ -66,23 +74,33 @@ async def login(userlog: UserLogin):
     return LoginResponse(status="failed", message="Please create an account first", uid="none")
 
 @app.post("/delete_account", response_model=DeleteAccountResponse)
-async def delete_account(uid: UIDModel):
-    user_ref = db.collection('users').document(uid.uid)
-    doc = user_ref.get()
+async def delete_account(uid_model: UIDModel):
+    uid = uid_model.uid
+    users_ref = db.collection('users')
+    gardens_ref = db.collection('gardens')
 
-    gard_ref = db.collection('gardens').document(uid.uid)
-    doc_g = gard_ref.get()
-
-    if doc.exists:
-        user_ref.delete()
-        if doc_g.exists:
-            gard_ref.delete()
-            return DeleteAccountResponse(status="success", message="Deleted both user and user's garden")
+    try:
+        # Delete the user
+        user_doc = users_ref.document(uid).get()
+        if user_doc.exists:
+            users_ref.document(uid).delete()
         else:
-            return DeleteAccountResponse(status="success", message="Deleted user but no garden found")
-    else:
-        return DeleteAccountResponse(status="failed", message="User not found")
+            raise HTTPException(status_code=404, detail="User not found")
 
+        # Delete the user's gardens
+        garden_query = gardens_ref.where('uid', '==', uid).stream()
+        for doc in garden_query:
+            gardens_ref.document(doc.id).delete()
+
+        return DeleteAccountResponse(
+            status="success",
+            message="Account and gardens deleted successfully."
+        )
+    except Exception as e:
+        return DeleteAccountResponse(
+            status="error",
+            message=f"An error occurred: {str(e)}"
+        )
 
 # === Garden section 
 def calculate_sunlight(garden_rows):
@@ -169,6 +187,7 @@ async def garden_page_load(request: GardenLoadRequest):
         
         garden_data = {
             'uid': request.uid,
+            'username': fetch_username(request.uid),
             'course_id': request.course_id,
             'sunlight': 0,
             'garden_rows': garden_rows
@@ -208,28 +227,47 @@ class GetQuestionResponse(BaseModel):
 # else, go to questions to find a question with matching {course_id, topic, difficulty}. Just return the first one.
 @app.post("/garden/get_question", response_model=GetQuestionResponse)
 async def get_question(request: GetQuestionRequest):
-    questions_ref = db.collection('questions')
+    # questions_ref = db.collection('questions')
 
-    if request.question_id:
-        # Directly use the provided question_id
-        question_doc = questions_ref.document(request.question_id).get()
-        if not question_doc.exists:
-            raise HTTPException(status_code=404, detail="Question not found")
-        question_data = question_doc.to_dict()
-    else:
-        # Find a question with matching {course_id, topic, difficulty}
-        question_query = questions_ref.where('course_id', '==', request.course_id)\
-                                      .where('topic', '==', request.topic)\
-                                      .where('difficulty', '==', request.difficulty)\
-                                      .limit(1).stream()
-        question_data = None
-        for doc in question_query:
-            question_data = doc.to_dict()
-            question_data['question_id'] = doc.id
-            break
+    # if request.question_id:
+    #     # Directly use the provided question_id
+    #     question_doc = questions_ref.document(request.question_id).get()
+    #     if not question_doc.exists:
+    #         raise HTTPException(status_code=404, detail="Question not found")
+    #     question_data = question_doc.to_dict()
+    # else:
+    #     # Find a question with matching {course_id, topic, difficulty}
+    #     question_query = questions_ref.where('course_id', '==', request.course_id)\
+    #                                   .where('topic', '==', request.topic)\
+    #                                   .where('difficulty', '==', request.difficulty)\
+    #                                   .limit(1).stream()
+    #     question_data = None
+    #     for doc in question_query:
+    #         question_data = doc.to_dict()
+    #         question_data['question_id'] = doc.id
+    #         break
         
-        if not question_data:
-            raise HTTPException(status_code=404, detail="No matching question found")
+    #     if not question_data:
+    #         raise HTTPException(status_code=404, detail="No matching question found")
+        
+    sample_res_1 = GetQuestionResponse(
+        status="success",
+        message="Question retrieved successfully",
+        question_id='sample_2',
+        difficulty='medium',
+        topic='Array',
+        answer='B',
+        question='Find Pivot Index. Given an array of integers, return the pivot index of the array. The pivot index is the index where the sum of all the numbers to the left of the index is equal to the sum of all the numbers to the right of the index.',
+        question_number='913',
+        options=[
+            'Iterate through the array while keeping track of the total sum and the sum of the elements to the left. Calculate the right sum by subtracting the left sum from the total sum and check for equality.', 
+            'Use a prefix sum array to store the cumulative sum up to each index and then iterate to find the pivot index where left and right sums are equal.', 
+            'Check each index by calculating the left and right sums on the fly using nested loops.', 
+            'Use a hashmap to store the cumulative sums and check for the pivot index efficiently.'
+        ]
+    )
+
+    return sample_res_1
 
     return GetQuestionResponse(
         status="success",

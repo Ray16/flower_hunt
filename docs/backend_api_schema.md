@@ -138,7 +138,7 @@ Response {
 }
 
 
-curl -X POST "http://0.0.0.0:8001/garden/steal" \
+curl -X POST "http://0.0.0.0:8001/garden/get_question" \
      -H "Content-Type: application/json" \
      -d '{"my_uid": "100", "neighbor_uid": "Faradawn_2_a19480c7-d365-415b-a50d-bc71de51776c", "course_id": "101", "topic": "Array", "difficulty": "easy"}'
 ```
