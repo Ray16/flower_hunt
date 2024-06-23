@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, View, ActivityIndicator, Dimensions, TouchableOpacity } from 'react-native';
-import { globalStyles } from '../globalStyles/globalStyles';
 import { Ionicons } from '@expo/vector-icons';
 
+import { globalStyles } from '../globalStyles/globalStyles';
 import Card from '../components/QuestionCard';
 
 const height = Dimensions.get('window').height * 0.95;
@@ -60,14 +60,26 @@ export default function Question(){
     }, []);
 
     const [currentPressed, setCurrentPressed] = useState('Not Touched');
+
     // handling selection of choice
     const handleChooseOption = (option) => { 
+        if(currentPressed == 'Time ran out'){
+            return;
+        }
+
         if(option == currentPressed) {
             setCurrentPressed('Not Touched');
         } else {
             setCurrentPressed(option) 
         }
     }
+
+    // function called when time runs out
+    useEffect(() => {
+        if(seconds == 0){ 
+            setCurrentPressed('Time ran out');
+        }
+    }, [seconds]);
 
     return (
         <View style={ { width: width, height: height } } >
@@ -79,7 +91,6 @@ export default function Question(){
                         style={ {
                             width: width,
                             height: height,
-                            backgroundColor: '#EFF0F3',
                             ...globalStyles.container,
                         } }
                     >   
@@ -123,6 +134,8 @@ export default function Question(){
                             style = { { 
                                 width: width,
                                 height: height * 0.35,
+
+                                justifyContent: 'center',
                                 alignItems: 'center',
                             } } 
                         >
@@ -249,6 +262,9 @@ export default function Question(){
                                 height: height * 0.08,
                                 alignItems: 'center',
                                 justifyContent: 'center',
+
+                                marginTop: height * -0.04,
+                                marginBottom: height * 0.08,
                             } }
                         >
                             <TouchableOpacity
@@ -259,18 +275,10 @@ export default function Question(){
                                     height: height * 0.06,
                                     width: width * 0.75,
 
-                                    borderRadius: 10,
-
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
+                                    ...globalStyles.button
                                 } }
                             >
-                                <Text
-                                    style = { { 
-                                        color: 'white',
-                                        fontFamily: 'Baloo2-Bold',
-                                    }}
-                                > Next </Text>
+                                <Text style = {globalStyles.buttonText}> Next </Text>
                             </TouchableOpacity>
                         </View>
 

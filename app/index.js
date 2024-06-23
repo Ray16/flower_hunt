@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native';
 import * as Font from 'expo-font';
 import AppLoading from 'expo-app-loading';
 
+import Login from './screens/Login';
 import Question from './screens/Question';
 
 const getFonts = () => Font.loadAsync({
@@ -26,7 +27,7 @@ export default function App(){
 
     return (
         <SafeAreaView>
-            <Question />
+            <Login />
         </SafeAreaView>
     );
 }
