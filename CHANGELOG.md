@@ -18,3 +18,5 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add helper function to calculate sunlight at /load_garden, /select_neighbor
 - Rename API /steal to /get_question. Let frontend pass {course_id, topic, difficulty, question_id (can be none))
 
+Frontend
+- Fix navigation from Questions to NeighbourGarden. UseEffectFocuse solves the non refreshing problem.

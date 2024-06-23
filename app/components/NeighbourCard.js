@@ -11,7 +11,7 @@ export default function NeighbourCard({ item, iconHandler, course_id, neighbour_
             <View style={{ flexDirection: 'row' }}>
                 <TouchableOpacity
                     style={ styles.box }
-                    onPress={() => iconHandler(course_id, item.topic, "easy", neighbour_id)}
+                    onPress={() => iconHandler(course_id, item.topic, "easy", neighbour_id, item.conditions.easy)}
                 >
                     <ImageBackground 
                         style={{ 
@@ -36,7 +36,7 @@ export default function NeighbourCard({ item, iconHandler, course_id, neighbour_
 
                 <TouchableOpacity
                     style={ styles.box }
-                    onPress={() => iconHandler(course_id, item.topic, "easy", neighbour_id)}
+                    onPress={() => iconHandler(course_id, item.topic, "medium", neighbour_id, item.conditions.medium)}
                 >
                     <ImageBackground 
                         style={{ 
@@ -61,7 +61,7 @@ export default function NeighbourCard({ item, iconHandler, course_id, neighbour_
                 
                 <TouchableOpacity
                     style={ styles.box }
-                    onPress={() => iconHandler(course_id, item.topic, "hard", neighbour_id)}
+                    onPress={() => iconHandler(course_id, item.topic, "hard", neighbour_id, item.conditions.hard)}
                 >
                     <ImageBackground 
                         style={{ 

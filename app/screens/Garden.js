@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator,
-  ImageBackground, Dimensions } from "react-native";
-
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground, Dimensions } from "react-native";
+import { useFocusEffect } from '@react-navigation/native';
 import { globalStyles } from '../globalStyles/globalStyles';
 import Card from '../components/Card';
 import { useUser } from '../components/UserContext';
 import SunlightBar from '../components/SunlightBar';
-
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const { width, height } = Dimensions.get('screen');
 
-export default function Garden({ route, navigation }){
+export default function Garden({ route, navigation }) {
   const { course_id } = route.params;
 
   const [isLoading, setIsLoading] = useState(true);
@@ -22,7 +20,7 @@ export default function Garden({ route, navigation }){
   const fetchData = async () => {
     try {
       const response = await fetch(
-        'http://129.114.24.200:8001/garden/page_load', {
+        'http://129.114.24.200:8001/garden/load_garden', {
           method: 'POST',
           headers: {
             "Content-Type": "application/json",
@@ -35,33 +33,36 @@ export default function Garden({ route, navigation }){
       );
 
       const data = await response.json();
-      console.log("Garden data", data);
-      if(data.status == "success"){
-        setUserData(data.garden);
-      }else{
+      console.log("My Garden data", data);
+      if (data.status === "success") {
+        setUserData(data);
+      } else {
         console.log(data.message);
       }
 
-    } catch(error) {
+    } catch (error) {
       console.log('Error fetching data: ', error);
     } finally {
       setIsLoading(false);
     }
   }
 
-  useEffect(() => {
-    setTimeout(fetchData, 10);
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [course_id, userState.userId])
+  );
+
 
   const stealHandler = (course_id) => {
     navigation.navigate('Classmates', {
       course_id: course_id,
     })
   }
-  
+
   return (
     <ImageBackground 
-      source={require('../../assets/images/garden_green_no_home_v2.png')}
+      source={require('../../assets/images/garden_green_v3.png')}
       style={{ width: '100%', height: '100%' }}
     >
       { isLoading ? (

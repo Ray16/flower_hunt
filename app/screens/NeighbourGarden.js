@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, Text, View, FlatList, ActivityIndicator, 
-  ImageBackground, TouchableOpacity, Dimensions } from "react-native";
+  ImageBackground, TouchableOpacity, Dimensions, 
+  Alert} from "react-native";
+import { useFocusEffect } from '@react-navigation/native';
 import { globalStyles } from '../globalStyles/globalStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import NeighbourCard from '../components/NeighbourCard';
@@ -16,7 +18,7 @@ export default function NeighbourGarden({ route, navigation }){
   const fetchData = async () => {
     try {
       const response = await fetch(
-        'http://129.114.24.200:8001/garden/page_load', {
+        'http://129.114.24.200:8001/garden/load_garden', {
           method: 'POST',
           headers: {
             "Content-Type": "application/json",
@@ -30,12 +32,11 @@ export default function NeighbourGarden({ route, navigation }){
 
       const data = await response.json();
       console.log("Neighbor Garden data", data);
-      if(data.status == "success"){
-        setUserData(data.garden);
-      }else{
+      if(data.status === "success"){
+        setUserData(data);
+      } else {
         console.log(data.message);
       }
-
     } catch(error) {
       console.log('Error fetching data: ', error);
     } finally {
@@ -43,22 +44,29 @@ export default function NeighbourGarden({ route, navigation }){
     }
   }
 
-  useEffect(() => {
-    setTimeout(fetchData, 10);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [course_id, neighbour_id])
+  );
 
-  const iconHandler = (course_id, topic, difficulty, neighbour_id) => {
-    navigation.navigate('Question', {
-        course_id: course_id,
-        topic: topic,
-        difficulty: difficulty,
-        neighbour_id: neighbour_id,
-    })
+  const iconHandler = (course_id, topic, difficulty, neighbour_id, num_flowers) => {
+    if(num_flowers <= 0){
+      Alert.alert("Ouch, I don't have any flowers.");
+    }
+    else{
+      navigation.navigate('Question', {
+          course_id: course_id,
+          topic: topic,
+          difficulty: difficulty,
+          neighbour_id: neighbour_id, 
+      })
+    }
   }
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/garden_gold_no_home.png')}
+      source={require('../../assets/images/garden_gold_v3.png')}
       style={{ width: '100%', height: '100%' }}
     >
       { isLoading ? (

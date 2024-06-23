@@ -60,14 +60,18 @@ export default function Courses({ navigation }){
                                 <TouchableOpacity style={
                                     {
                                         width: '90%',
-                                        backgroundColor: 'white',
-                                        borderRadius: 10,
-                                        borderColor: '#A9FFA9',
-                                        borderWidth: 3,
+                                        backgroundColor: '#F5F5F5', // light gray background for card-like appearance
+                                        borderColor: '#D3D3D3', // light gray border color
+                                        borderWidth: 1,
                                         marginVertical: 5,
                                         flexDirection: 'row',
                                         alignItems: 'center',
-                                        justifycontent: 'space-between',
+                                        justifyContent: 'space-between', // corrected from 'justifycontent'
+                                        shadowColor: '#000', // black shadow color
+                                        shadowOffset: { width: 7, height: 7 },
+                                        shadowOpacity: 0.2,
+                                        shadowRadius: 3,
+                                        elevation: 3, // for Android shadow
                                     }
                                 }
                                     onPress={() => pressHandler(item.course_id)}
@@ -77,7 +81,8 @@ export default function Courses({ navigation }){
                                             flex: 1,
                                             padding: 15,
                                             fontFamily: 'Nunito-Bold',
-                                            fontSize: 14
+                                            fontSize: 14,
+                                            color: '#000', // black text color
                                         } }
                                     >
                                         { item.course_name }
@@ -86,11 +91,12 @@ export default function Courses({ navigation }){
                                     <Ionicons 
                                         name='chevron-forward'
                                         size={24}
-                                        style={{ marginRight: 5 }}
+                                        style={{ marginRight: 15, color: '#808080' }} // gray color for icon
                                     />
 
                                 </TouchableOpacity>
                             </View>
+
                         )}
                     />
                 </View>
