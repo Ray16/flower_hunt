@@ -1,21 +1,19 @@
 import React, { useState, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ActivityIndicator, ImageBackground, Dimensions } from "react-native";
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, 
+  ImageBackground, TouchableOpacity, Dimensions, 
+  Alert} from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
 import { globalStyles } from '../globalStyles/globalStyles';
-import Card from '../components/Card';
-import { useUser } from '../components/UserContext';
-import SunlightBar from '../components/SunlightBar';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import NeighbourCard from '../components/NeighbourGardenCard';
 
 const { width, height } = Dimensions.get('screen');
 
-export default function Garden({ route, navigation }) {
-  const { course_id } = route.params;
+export default function NeighbourGarden({ route, navigation }){
+  const { course_id, neighbour_id, neighbour_user } = route.params;
 
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState([]);
-
-  const { userState } = useUser();
 
   const fetchData = async () => {
     try {
@@ -26,21 +24,20 @@ export default function Garden({ route, navigation }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            uid: userState.userId,
+            uid: neighbour_id,
             course_id: course_id,
           }),
         }
       );
 
       const data = await response.json();
-      console.log("My Garden data", data);
-      if (data.status === "success") {
+      console.log("Neighbor Garden data", data);
+      if(data.status === "success"){
         setUserData(data);
       } else {
         console.log(data.message);
       }
-
-    } catch (error) {
+    } catch(error) {
       console.log('Error fetching data: ', error);
     } finally {
       setIsLoading(false);
@@ -50,19 +47,26 @@ export default function Garden({ route, navigation }) {
   useFocusEffect(
     useCallback(() => {
       fetchData();
-    }, [course_id, userState.userId])
+    }, [course_id, neighbour_id])
   );
 
-
-  const stealHandler = (course_id) => {
-    navigation.navigate('Classmates', {
-      course_id: course_id,
-    })
+  const iconHandler = (course_id, topic, difficulty, neighbour_id, num_flowers) => {
+    if(num_flowers <= 0){
+      Alert.alert("Ouch, I don't have any flowers.");
+    }
+    else{
+      navigation.navigate('Question', {
+          course_id: course_id,
+          topic: topic,
+          difficulty: difficulty,
+          neighbour_id: neighbour_id, 
+      })
+    }
   }
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/garden_green_v3.png')}
+      source={require('../../assets/images/garden_gold_v3.png')}
       style={{ width: '100%', height: '100%' }}
     >
       { isLoading ? (
@@ -75,7 +79,6 @@ export default function Garden({ route, navigation }) {
                 marginLeft: width > 500 ? 50 : 0,
                 marginRight: width > 500 ? 50 : 0,
                 flexDirection: 'row',
-                justifyContent: 'space-between',
               }}
             >
               <TouchableOpacity
@@ -83,7 +86,7 @@ export default function Garden({ route, navigation }) {
                   height: 150,
                   width: 150,
                 }}
-                onPress={() => navigation.navigate('Courses', 
+                onPress={() => navigation.navigate('Classmates', 
                   { course_id: course_id })}
               >
                 <ImageBackground source={require('../../assets/images/farm_home.png')}
@@ -105,15 +108,6 @@ export default function Garden({ route, navigation }) {
                   </Text>
                 </ImageBackground>
               </TouchableOpacity>
-
-              <View style={ { 
-                marginTop: 80,
-              } }>
-                <SunlightBar 
-                  sunlight={ userData.sunlight }
-                />
-              </View>
-        
             </View>
 
             {/* body of the app */}
@@ -128,31 +122,10 @@ export default function Garden({ route, navigation }) {
                 data={userData.garden_rows}
                 keyExtractor={(item) => item.row_num}
                 renderItem={({ item }) => (
-                  <Card item={item}/>
+                  <NeighbourCard item={item} iconHandler={iconHandler} course_id={course_id} neighbour_id={neighbour_id}/>
                 )}
                 showsVerticalScrollIndicator={true}
               />
-              
-              {/* renders the steal button */}
-              <TouchableOpacity
-                style={ {
-                  backgroundColor: 'red',
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  borderRadius: 50,
-                } }
-                onPress={() => stealHandler(course_id)}
-              >
-                <Text 
-                  style={{
-                    color: 'white',
-                    fontFamily: 'Nunito-Bold',
-                    fontSize: 16,
-                  }}
-                >
-                  Select Neighbours
-                </Text>
-              </TouchableOpacity>
             </View>
           </View>
           )
@@ -162,16 +135,27 @@ export default function Garden({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  top: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  body: {
-    flex: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-})
+    header: {
+      flex: 2,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    body: {
+      flex: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  
+    sunlight: {
+      padding: 10,
+      borderRadius: 50,
+      backgroundColor: '#A9FFA9',
+    },
+    sunlightText: {
+      alignSelf: 'center',
+      fontFamily: 'Nunito-Bold',
+      fontSize: 14,
+    }
+  
+  })

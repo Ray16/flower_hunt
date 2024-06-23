@@ -7,7 +7,6 @@ export const globalStyles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'white',
         width: '100%',
     },
     title: {

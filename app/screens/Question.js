@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { ScrollView, Text, View, ActivityIndicator, Dimensions, TouchableOpacity } from 'react-native';
 import { globalStyles } from '../globalStyles/globalStyles';
-import { useUser } from '../components/UserContext';
+import { Ionicons } from '@expo/vector-icons';
 
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Card from '../components/QuestionCard';
 
-export default function Question({ navigation, route }){
-    const { course_id, topic, difficulty, neighbour_id } = route.params;
+const height = Dimensions.get('window').height * 0.95;
+const width = Dimensions.get('window').width;
 
-    const [question, setQuestion] = useState([]);
+export default function Question(){
+    const [data, setData] = useState([])
     const [isLoading, setIsLoading] = useState(true);
 
-    const { userState } = useUser();
-
+    // function for fetching data
     const fetchQuestions = async () => {
         try {
             const response = await fetch(
@@ -22,17 +22,17 @@ export default function Question({ navigation, route }){
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    my_uid: userState.userId,
-                    neighbor_uid: neighbour_id,
-                  course_id: course_id,
-                  topic: topic,
-                  difficulty: difficulty,
+                    my_uid: "100",
+                    neighbor_uid: "Faradawn_2_a19480c7-d365-415b-a50d-bc71de51776c",
+                    course_id: "101",
+                    topic: "Array",
+                    difficulty: "easy",
                 }),
               }
             );
       
-            const data = await response.json();
-            setQuestion(data);
+            const response_data = await response.json();
+            setData(response_data);
             console.log(data);
       
           } catch(error) {
@@ -42,189 +42,242 @@ export default function Question({ navigation, route }){
         }
     };
 
+    // runs fetchQuestions upon loading screen
     useEffect(() => {
         setTimeout(fetchQuestions, 10);
     }, []);
 
-    const [submit, setSubmit] = useState("Not Submitted");
-    const [continueVisible, setContinueVisible] = useState(false);
+    const [seconds, setSeconds] = useState(60);
 
-    const [seconds, setSeconds] = useState(0);
-    const [isRunning, setIsRunning] = useState(true);
-
+    // implementing timer, runs upon loading screen
     useEffect(() => {
         let interval;
-        if(isRunning) {
-            interval = setInterval(() => {
-                setSeconds(prevSeconds => prevSeconds + 1);
-            }, 1000);
-        }
+        interval = setInterval(() => {
+            setSeconds(prevSeconds => prevSeconds > 0 ? prevSeconds - 1 : 0);
+        }, 1000);
 
         return () => clearInterval(interval);
-    }, [isRunning]);
+    }, []);
 
-    const pressHandler = async (answer) => {
-        if(submit == "Not Submitted"){
-            setSubmit(answer);
-            setContinueVisible(true);
-            await setIsRunning(false);
-            
-            try {
-                const response = await fetch(
-                    'http://129.114.24.200:8001/garden/submit_answer', {
-                        method: 'POST',
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            uid: userState.userId,
-                            neighbor_uid: neighbour_id,
-                            course_id: course_id,
-                            topic: topic,
-                            difficulty: difficulty,
-                            question_id: question.question_id,
-                            response_time: seconds,
-                            user_answer: answer,
-                            correct_answer: question.answer,
-                        })
-                    }
-                );
-
-            } catch(error) {
-                console.log('Error fetching data: ', error);
-            }
+    const [currentPressed, setCurrentPressed] = useState('Not Touched');
+    // handling selection of choice
+    const handleChooseOption = (option) => { 
+        if(option == currentPressed) {
+            setCurrentPressed('Not Touched');
+        } else {
+            setCurrentPressed(option) 
         }
-    };
+    }
 
     return (
-        <View style={globalStyles.container}>
-            { isLoading ? <ActivityIndicator /> 
-                :
-            (
-                <View style={{ width: '100%', ...globalStyles.container }}>
-                    <View style={styles.header}>
-                        <Ionicons
-                            name='chevron-back'
-                            size={24}
-                            style={styles.backButton}
-                            onPress={() => (navigation.navigate('NeighbourGarden', {
-                                course_id: course_id, neighbour_id: neighbour_id
-                            }))}
-                        />
-                    </View>
-                    <View style={styles.questionContainer}>
-                        <Text style={styles.questionText}>{ question.question }</Text>
-                    </View>
+        <View style={ { width: width, height: height } } >
+            {
+                isLoading ? 
+                ( <ActivityIndicator /> ) : 
+                ( 
+                    <View 
+                        style={ {
+                            width: width,
+                            height: height,
+                            backgroundColor: '#EFF0F3',
+                            ...globalStyles.container,
+                        } }
+                    >   
+                        {/* Top Bar */}
+                        <View 
+                            style = {{
+                                width: width,
+                                height: height * 0.0625,
+                                justifyContent: 'flex-end',
+                            }}
+                        >
+                            <TouchableOpacity
+                                style = {{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Ionicons
+                                    name='chevron-back'
+                                    size={16}
+                                    color='#004643'
+                                    style = {{ 
+                                        marginLeft: width / 20,
+                                    }}
+                                />
+                                <Text 
+                                    style = { { 
+                                        color: '#004643', 
+                                        marginLeft: 3, 
+                                        fontSize: 16,
+                                        fontFamily: 'Baloo2-Bold',
+                                    } }
+                                > 
+                                    Previous 
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
 
-                    <View style={ { 
-                        width: '100%', 
-                        alignItems: 'center',
-                        ...globalStyles.body
-                    } }>
-                        {/* First Answer */}
-                        <TouchableOpacity style={ [styles.card,
-                            submit != "Not Submitted" && question.answer == "A" ? styles.right :
-                            (submit == "A" && question.answer != "A" ? styles.wrong : styles.inactive )
-                        ] }
-                        onPress={() => pressHandler('A')}>
-                            <Text style={ { marginLeft: 10, ...globalStyles.text } }>A: { question.options[0] }</Text>
-                        </TouchableOpacity>
+                        {/* Question Component */}
+                        <View
+                            style = { { 
+                                width: width,
+                                height: height * 0.35,
+                                alignItems: 'center',
+                            } } 
+                        >
+                            {/* Countdown Timer */}
+                            <View
+                                style = { {
+                                    width: 70,
+                                    height: 70,
 
-                        {/* Second Answer */}
-                        <TouchableOpacity style={[styles.card,
-                            submit != "Not Submitted" && question.answer == "B" ? styles.right :
-                            (submit == "B" && question.answer != "B" ? styles.wrong : styles.inactive )
-                        ]}
-                        onPress={() => pressHandler('B')}>
-                            <Text style={ { marginLeft: 10, ...globalStyles.text } }>B: { question.options[1] }</Text>
-                        </TouchableOpacity>
+                                    marginTop: 10,
+                                    borderRadius: 50,
+                                    borderWidth: 6,
+                                    borderColor: '#ABD1C6',
+                                    zIndex: 1,
 
-                        {/* Third Answer */}
-                        <TouchableOpacity style={ [styles.card,
-                            submit != "Not Submitted" && question.answer == "C" ? styles.right :
-                            (submit == "C" && question.answer != "C" ? styles.wrong : styles.inactive )
-                        ]}
-                        onPress={() => pressHandler('C')}>
-                            <Text style={ { marginLeft: 10, ...globalStyles.text } }>C: { question.options[2] }</Text>
-                        </TouchableOpacity>
+                                    backgroundColor: 'white',
+                                    
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                } }
+                            >
+                                <Text
+                                    style = { { 
+                                        color: '#0c2d1c',
+                                        fontSize: 20,
+                                        fontWeight: 'bold',
+                                        fontFamily: 'Baloo2-Bold' 
+                                    } }
+                                > 
+                                    { seconds } 
+                                </Text>
+                            </View>
 
-                        {/* Fourth Answer*/}
-                        <TouchableOpacity style={[styles.card,
-                            submit != "Not Submitted" && question.answer == "D" ? styles.right :
-                            (submit == "D" && question.answer != "D" ? styles.wrong : styles.inactive )
-                        ]}
-                        onPress={() => pressHandler('D')}>
-                            <Text style={ { marginLeft: 10, ...globalStyles.text } }>D: { question.options[3] }</Text>
-                        </TouchableOpacity>
-                        
-                        {/* Continue Button */}
-                        {continueVisible ? (
-                        <TouchableOpacity 
-                            style={styles.continue}
-                            onPress={() => navigation.navigate('NeighbourGarden', { course_id: course_id, neighbour_id: neighbour_id })}>
-                            <Text style={{
-                                fontFamily: 'Nunito-Regular', 
-                            }}>Continue</Text>
-                        </TouchableOpacity>
-                        ) : (
-                            <View style={styles.placeholder}></View>
-                        )}
-                    </View>
-                </View>
-            )}
+                            {/* Question Card */}
+                            <View
+                                style = { {
+                                    height: height * 0.30,
+                                    width: width * 0.85,
+                                    borderRadius: 20,
+                                    backgroundColor: 'white',
+
+                                    marginTop: -0.04 * height,
+
+                                    // styling shadow
+                                    shadowColor: '#000', // black shadow color
+                                    shadowOffset: { width: 0, height: 20 },
+                                    shadowOpacity: 0.2,
+                                    shadowRadius: 30,
+                                    elevation: 10, // for Android shadow
+                                } }
+                            >
+                                <Text 
+                                    style = { { 
+                                        marginTop: height * 0.03,
+                                        marginHorizontal: 5,
+                                        padding: 20,
+                                        fontFamily: 'Baloo2-Bold',
+                                        fontSize: 14,
+                                    } }
+                                > 
+                                    { data.question } 
+                                </Text>
+                            </View>
+                        </View>
+
+                        {/* Answer Component */}
+                        <ScrollView
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+
+                            alwaysBounceHorizontal={true}
+                            snapToOffsets={[0, 0.88*width, 1.76*width, 2.64*width]}
+                            snapToEnd={false}
+                            decelerationRate='fast'
+
+                            style = { {
+                                width: width,
+                                height: height * 0.4,
+                            } }
+
+                            contentContainerStyle = { { 
+                                alignItems: 'center',
+                                paddingLeft: 0.1*width,
+                            } }
+                        >
+                            <Card
+                                handlePress={handleChooseOption}
+                                currentPressed={currentPressed}
+                                option={'A'}
+                                text={data.options[0]} 
+                                width={width * 0.8} 
+                                height={height * 0.35}
+                            />
+                            <Card
+                                handlePress={handleChooseOption}
+                                currentPressed={currentPressed}
+                                option={'B'}
+                                text={data.options[1]} 
+                                width={width * 0.8} 
+                                height={height * 0.35}
+                            />
+                            <Card
+                                handlePress={handleChooseOption}
+                                currentPressed={currentPressed}
+                                option={'C'}
+                                text={data.options[2]} 
+                                width={width * 0.8} 
+                                height={height * 0.35}
+                            />
+                            <Card
+                                handlePress={handleChooseOption}
+                                currentPressed={currentPressed}
+                                option={'D'}
+                                text={data.options[3]} 
+                                width={width * 0.8} 
+                                height={height * 0.35}
+                            />
+                        </ScrollView>
+
+                        {/* Next Button */}
+                        <View
+                            style = { { 
+                                width: width,
+                                height: height * 0.08,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            } }
+                        >
+                            <TouchableOpacity
+                                activeOpacity={ currentPressed == "Not Touched" ? 1 : 0.7 }
+                                style = { {
+                                    backgroundColor: currentPressed == 'Not Touched' ? '#3c716f' : '#004643',
+
+                                    height: height * 0.06,
+                                    width: width * 0.75,
+
+                                    borderRadius: 10,
+
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                } }
+                            >
+                                <Text
+                                    style = { { 
+                                        color: 'white',
+                                        fontFamily: 'Baloo2-Bold',
+                                    }}
+                                > Next </Text>
+                            </TouchableOpacity>
+                        </View>
+
+                    </View> 
+                )
+            }
         </View>
-    );
+        
+    )
 }
-
-const styles = StyleSheet.create({
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: 50, // Adjusted for better visibility
-    },
-    backButton: {
-        marginLeft: 10,
-        alignSelf: 'flex-start',
-    },
-    questionContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: '5px',
-        marginBottom: '10%',
-    },
-    questionText: {
-        textAlign: 'center',
-    },
-    card: {
-        borderRadius: 5,
-        elevation: 3,
-        shadowOffset: {width: 5, height: 5},
-        shadowColor: '#333',
-        shadowOpacity: 0.3,
-        shadowRadius: 2,
-        paddingVertical: 4,
-        width: '75%',
-        marginVertical: 10,
-    },
-    inactive: {
-        backgroundColor: '#f1f1f1',
-    },
-    wrong: {
-        backgroundColor: '#FF7F7F',
-    },
-    right: {
-        backgroundColor: '#90EE90',
-    },
-    continue: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        backgroundColor: '#77C3EC',
-        marginTop: 30,
-        borderRadius: 5,
-    },
-    placeholder: {
-        marginTop: 30,
-        height: 40,
-    }
-});
