@@ -4,6 +4,7 @@ import { View, Image, ImageBackground, Dimensions, TextInput,
 } from 'react-native';
 
 import { globalStyles } from '../globalStyles/globalStyles';
+import { useUser } from '../components/UserContext';
 
 const height = Dimensions.get('screen').height;
 const width = Dimensions.get('screen').width;
@@ -13,6 +14,9 @@ export default function Login({ navigation }){
     const [password, setPassword] = useState('');
     const [infoCorrect, setInfoCorrect] = useState(true);
 
+    const { updateState } = useUser();
+
+    // handles login attempts from the user
     const loginAttempt = async () => {
         try {
             const response = await fetch(
@@ -29,10 +33,14 @@ export default function Login({ navigation }){
             )
 
             const data = await response.json();
-            console.log(data)
 
             if(data.status == 'success') {
+
                 setInfoCorrect(true);
+                updateState( 'uid', data.uid )
+                updateState( 'username', username )
+                navigation.navigate('Courses')
+
             } else {
                 setInfoCorrect(false)
             }
@@ -113,7 +121,7 @@ export default function Login({ navigation }){
                             }, 
                             globalStyles.textInput
                         ]}
-                        placeholder='12345678'
+                        placeholder="John Smith's Password"
                         placeholderTextColor='rgba(255, 255, 255, 0.5)'
                         onChangeText={(val) => setPassword(val)}
                         

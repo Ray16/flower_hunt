@@ -8,7 +8,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Login from './screens/Login';
 import SignUp from './screens/Signup';
+import Courses from './screens/Courses';
 import Question from './screens/Question';
+
+import { UserProvider } from './components/UserContext';
 
 // Accessing Font
 const getFonts = () => Font.loadAsync({
@@ -24,7 +27,9 @@ const RootStack = createNativeStackNavigator();
 function RootStackNavigator() {
     return (
         <View style={{ height: height, width: width }}>
-            <RootStack.Navigator>
+            <RootStack.Navigator
+                detachPreviousScreen={true}
+            >
                 <RootStack.Screen 
                     name="Login" 
                     component={Login}
@@ -33,6 +38,16 @@ function RootStackNavigator() {
                 <RootStack.Screen 
                     name="SignUp" 
                     component={SignUp}
+                    options={{headerShown: false}}
+                />
+                <RootStack.Screen 
+                    name="Courses" 
+                    component={Courses}
+                    options={{headerShown: false}}
+                />
+                <RootStack.Screen 
+                    name="Question" 
+                    component={Question}
                     options={{headerShown: false}}
                 />
             </RootStack.Navigator>
@@ -54,6 +69,8 @@ export default function App(){
     }
 
     return (
-        <RootStackNavigator/>
+        <UserProvider>
+            <RootStackNavigator/>
+        </UserProvider>
     );
 }

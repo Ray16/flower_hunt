@@ -16,6 +16,7 @@ export default function SignUp({ navigation }){
     const [infoCorrect, setInfoCorrect] = useState(true);
     const [errorMessage, setErrorMessage] = useState();
 
+    // handles signup attempts from the user
     const signupAttempt = async() => {
         if(username.length < 3) {
             setInfoCorrect(false);
@@ -50,10 +51,14 @@ export default function SignUp({ navigation }){
             )
 
             const data = await response.json();
-            console.log(data)
 
             if (data.status == 'success') {
+                
                 setInfoCorrect(true);
+                updateState( 'uid', data.uid )
+                updateState( 'username', username )
+                navigation.navigate('Courses')
+
             } else if (data.message == 'Username already exists') {
                 setInfoCorrect(false);
                 setErrorMessage('Username already taken')
@@ -178,7 +183,7 @@ export default function SignUp({ navigation }){
                             }, 
                             globalStyles.textInput
                         ]}
-                        placeholder='12345678'
+                        placeholder="John Smith's Password"
                         placeholderTextColor='rgba(255, 255, 255, 0.5)'
                         onChangeText={(val) => setPassword(val)}
 
@@ -200,7 +205,7 @@ export default function SignUp({ navigation }){
                             }, 
                             globalStyles.textInput
                         ]}
-                        placeholder='12345678'
+                        placeholder="John Smith's Password (again)"
                         placeholderTextColor='rgba(255, 255, 255, 0.5)'
                         onChangeText={(val) => setConfirmPassword(val)}
 
