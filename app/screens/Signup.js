@@ -1,40 +1,65 @@
 import React, { useState } from 'react';
 import { View, Image, ImageBackground, Dimensions, TextInput,
-    Text, TouchableOpacity, Keyboard, TouchableWithoutFeedback
+    Text, TouchableOpacity, TouchableWithoutFeedback, Keyboard
 } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { globalStyles } from '../globalStyles/globalStyles';
 
-const height = Dimensions.get('screen').height;
-const width = Dimensions.get('screen').width;
+const height = Dimensions.get('window').height;
+const width = Dimensions.get('window').width;
 
-export default function Login({ navigation }){
+export default function SignUp({ navigation }){
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [infoCorrect, setInfoCorrect] = useState(true);
+    const [errorMessage, setErrorMessage] = useState();
 
-    const loginAttempt = async () => {
+    const signupAttempt = async() => {
+        if(username.length < 3) {
+            setInfoCorrect(false);
+            setErrorMessage('Username must be at least 3 characters');
+            return;
+        }
+
+        if(password.length < 4) {
+            setInfoCorrect(false);
+            setErrorMessage('Password must be at least 4 characters');
+            return;
+        }
+
+        if(confirmPassword != password) {
+            setInfoCorrect(false);
+            setErrorMessage("Passwords do not match");
+            return;
+        }
+
         try {
             const response = await fetch(
-                'http://129.114.24.200:8001/login', {
-                    method: 'POST',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        password: password,
-                    }),
-                }
+				'http://129.114.24.200:8001/create_user', {
+					method: 'POST',
+					headers: {
+					    "Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						username: username,
+						password: password,
+					}),
+				}
             )
 
             const data = await response.json();
             console.log(data)
 
-            if(data.status == 'success') {
+            if (data.status == 'success') {
                 setInfoCorrect(true);
+            } else if (data.message == 'Username already exists') {
+                setInfoCorrect(false);
+                setErrorMessage('Username already taken')
             } else {
-                setInfoCorrect(false)
+                setInfoCorrect(false);
+                setErrorMessage('Error creating account')
             }
 
         } catch(error) {
@@ -51,24 +76,63 @@ export default function Login({ navigation }){
                 ...globalStyles.container
             }}
         >
-            {/* Flower Icon Header */}
+            {/* Signup Icon + Back Button Header */}
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View
                     style={ {
                         height: height * 0.4,
                         width: width,
                         alignItems: 'center',
-                        justifyContent: 'flex-end',
+                        justifyContent: 'flex-start',
                     } }
                 >
-                    <Image
-                        source={require('../../assets/images/FlowerIcon.jpg')}
-                        style={ { 
-                            marginBottom: 0.05 * height,
-                            height: 150,
+                    <TouchableOpacity 
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+
+                            marginLeft: 40,
+                            marginTop: 0.04 * height,
+                            alignSelf: 'flex-start' 
+                        }}
+                        onPress={() => navigation.navigate('Login')}
+                    >
+                        <Ionicons 
+                            size={30}
+                            name="chevron-back-outline"
+                            color='#F8C660'
+                        />
+                        <Text
+                            style={{
+                                fontFamily: 'Baloo2-Bold',
+                                fontSize: 20,
+                                color: '#F8C660'
+                            }}
+                        > Back </Text>
+                    </TouchableOpacity>
+                    
+                    <View
+                        style= { {
+                            height: 150, 
                             width: 150,
+                            borderRadius: 150,
+
+                            backgroundColor: 'white',
+
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginTop: 0.065 * height,
                         } }
-                    />
+                    >
+                        <Text
+                            style={ { 
+                                fontFamily: 'Baloo2-Bold',
+                                fontSize: 26,
+                            } }
+                        >
+                            Sign Up
+                        </Text>
+                    </View>   
                 </View>
             </TouchableWithoutFeedback>
 
@@ -84,7 +148,7 @@ export default function Login({ navigation }){
                 >
                     
                     {/* Username input field */}
-                    <Text style={globalStyles.inputKey}> Username </Text>
+                    <Text style={globalStyles.inputKey}> Enter Username </Text>
                     <TextInput 
                         style={[
                             { 
@@ -98,12 +162,13 @@ export default function Login({ navigation }){
                         placeholderTextColor='rgba(255, 255, 255, 0.5)'
                         onChangeText={(val) => setUsername(val)}
                         
+                        textContentType="oneTimeCode"
                         autoCapitalize="none"
                         autoCorrect={false}
                     />
 
                     {/* Password input field */}
-                    <Text style={globalStyles.inputKey}> Password </Text>
+                    <Text style={globalStyles.inputKey}> Enter Password </Text>
                     <TextInput 
                         style={[
                             { 
@@ -116,11 +181,32 @@ export default function Login({ navigation }){
                         placeholder='12345678'
                         placeholderTextColor='rgba(255, 255, 255, 0.5)'
                         onChangeText={(val) => setPassword(val)}
-                        
+
                         textContentType="oneTimeCode"
                         autoCapitalize="none"
                         autoCorrect={false}
-                        
+
+                        secureTextEntry={true}
+                    />
+
+                    {/* Confirm Password input field */}
+                    <Text style={globalStyles.inputKey}> Confirm Password </Text>
+                    <TextInput 
+                        style={[
+                            { 
+                                height: 0.06 * height, 
+                                width: 0.8 * width,
+                                paddingHorizontal: 20, 
+                            }, 
+                            globalStyles.textInput
+                        ]}
+                        placeholder='12345678'
+                        placeholderTextColor='rgba(255, 255, 255, 0.5)'
+                        onChangeText={(val) => setConfirmPassword(val)}
+
+                        autoCapitalize="none"
+                        autoCorrect={false}
+
                         secureTextEntry={true}
                     />
 
@@ -139,14 +225,14 @@ export default function Login({ navigation }){
                                     alignSelf: 'center',
                                 }}
                             >
-                                Invalid username or wrong password.
+                                {errorMessage}
                             </Text>
                         ) 
                     }
                 </View>
             </TouchableWithoutFeedback>
 
-            {/* Login Button */}
+            {/* Sign Up Button */}
             <View
                 style={{ 
                     height: 0.1 * height,
@@ -165,41 +251,14 @@ export default function Login({ navigation }){
                         }, 
                         globalStyles.button
                     ] }
-                    onPress={() => loginAttempt()}
+                    onPress={() => signupAttempt()}
                 >
-                    <Text style={globalStyles.buttonText}>Login</Text>
+                    <Text style={globalStyles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
             </View>
 
-            {/* Sign Up Message */}
-            <View 
-                style={{ 
-
-                    height: 0.2 * height, 
-                    flexDirection: 'row' 
-                }}
-            >
-                <Text
-                    style= {{ 
-                        fontFamily: 'Baloo2-Bold',
-                        fontSize: 16,
-                        color: 'white',
-                    }}
-                >
-                    Don't have an account? 
-                </Text>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('SignUp')}
-                >
-                    <Text
-                        style= {{
-                            fontFamily: 'Baloo2-Bold',
-                            fontSize: 16,
-                            color: '#FFD912',
-                        }}
-                    > Sign up.</Text>
-                </TouchableOpacity>
-            </View>
+            {/* placeholder for controlling the layout */}
+            <View style={{ height: 0.1 * height }}></View>
 
         </ImageBackground>
     )

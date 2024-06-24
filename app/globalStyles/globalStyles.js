@@ -27,6 +27,7 @@ export const globalStyles = StyleSheet.create({
         marginVertical: 5,
 
         fontFamily: 'Baloo2-Regular',
+        fontSize: 16,
         color: 'white',
 
         borderWidth: 2,
