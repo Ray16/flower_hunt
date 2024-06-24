@@ -85,7 +85,7 @@ export default function Question({ navigation, route }){
 
     // handling selection submit
     const handleNext = async() => {
-        if(seconds == 0){ navigation.navigate('Courses'); return; }
+        if(seconds == 0){ navigation.navigate('HomeTab'); return; }
 
         try {
             const response = await fetch(
@@ -110,7 +110,7 @@ export default function Question({ navigation, route }){
         } catch(error) {
             console.log('Error fetching data', error);
         } finally {
-            navigation.navigate('Courses')
+            navigation.navigate('HomeTab')
         }
     }
 
@@ -156,7 +156,7 @@ export default function Question({ navigation, route }){
                                         flexDirection: 'row',
                                         alignItems: 'center',
                                     }}
-                                    onPress={() => navigation.navigate('Courses')}
+                                    onPress={() => navigation.navigate('HomeTab')}
                                 >
                                     <Ionicons
                                         name='chevron-back'

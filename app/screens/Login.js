@@ -37,9 +37,13 @@ export default function Login({ navigation }){
             if(data.status == 'success') {
 
                 setInfoCorrect(true);
-                updateState( 'uid', data.uid )
-                updateState( 'username', username )
-                navigation.navigate('Courses')
+                updateState( 'uid', data.uid );
+                updateState( 'username', username );
+
+                setUsername('');
+                setPassword('');
+
+                navigation.navigate('HomeTab')
 
             } else {
                 setInfoCorrect(false)
@@ -105,6 +109,7 @@ export default function Login({ navigation }){
                         placeholder='John Smith'
                         placeholderTextColor='rgba(255, 255, 255, 0.5)'
                         onChangeText={(val) => setUsername(val)}
+                        value={username}
                         
                         autoCapitalize="none"
                         autoCorrect={false}
@@ -124,6 +129,7 @@ export default function Login({ navigation }){
                         placeholder="John Smith's Password"
                         placeholderTextColor='rgba(255, 255, 255, 0.5)'
                         onChangeText={(val) => setPassword(val)}
+                        value={password}
                         
                         textContentType="oneTimeCode"
                         autoCapitalize="none"

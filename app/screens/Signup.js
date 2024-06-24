@@ -5,6 +5,7 @@ import { View, Image, ImageBackground, Dimensions, TextInput,
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { globalStyles } from '../globalStyles/globalStyles';
+import { useUser } from '../components/UserContext';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -15,6 +16,8 @@ export default function SignUp({ navigation }){
     const [confirmPassword, setConfirmPassword] = useState('');
     const [infoCorrect, setInfoCorrect] = useState(true);
     const [errorMessage, setErrorMessage] = useState();
+
+    const { updateState } = useUser();
 
     // handles signup attempts from the user
     const signupAttempt = async() => {
@@ -57,7 +60,7 @@ export default function SignUp({ navigation }){
                 setInfoCorrect(true);
                 updateState( 'uid', data.uid )
                 updateState( 'username', username )
-                navigation.navigate('Courses')
+                navigation.navigate('HomeTab')
 
             } else if (data.message == 'Username already exists') {
                 setInfoCorrect(false);
