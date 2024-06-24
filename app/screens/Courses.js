@@ -1,31 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Dimensions, Text, FlatList, ActivityIndicator,
+    TouchableOpacity,
+} from 'react-native';
+
 import { globalStyles } from '../globalStyles/globalStyles';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Card from '../components/CourseCard';
 import { useUser } from '../components/UserContext';
+
+const height = Dimensions.get('screen').height;
+const width = Dimensions.get('screen').width;
 
 export default function Courses({ navigation }){
     const [isLoading, setIsLoading] = useState(true);
     const [courses, setCourses] = useState([])
+    const { state } = useUser();
 
-    const { userState } = useUser();
-
-    const fetchCourses = async () => {
+    const fetchTopics = async() => {
         try {
             const response = await fetch(
-                'http://129.114.24.200:8001/courses', {
+                'http://129.114.24.200:8001/get_garden', {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        uid: userState.userId,
+                        uid: state.uid,
+                        course_id: state.course_id,
                     }),
                 }
             )
 
             const data = await response.json();
             setCourses(data);
+            console.log(data);
 
         } catch(error) {
             console.log('Error fetching data: ', error)
@@ -35,70 +42,106 @@ export default function Courses({ navigation }){
     }
 
     useEffect(() => {
-        setTimeout(fetchCourses, 10);
+        setTimeout(fetchTopics, 10);
     }, [])
 
-    const pressHandler = (course_id) => {
-        navigation.navigate('Garden', {
-            course_id: course_id,
-        });
+    // navigation through clicking a specific topic
+    const topicPress = (topic) => {
+        navigation.navigate('Question', { topic: topic })
+    }
+
+    // navigation through random question selection
+    const randomSelect = () => {
+        navigation.navigate('Question', { topic: 'Array' })
     }
 
     return (
-        <View style={globalStyles.container}> 
-            { isLoading ? (
-                <ActivityIndicator />
-                ) : (
-                <View style={ {width: '100%', ...globalStyles.container} }>
-                    <Text style={ { marginTop: 50, ...globalStyles.title } }>Courses:</Text>
-                    <FlatList
-                        style={ { width: '100%' } }
-                        data={courses}
-                        keyExtractor={(item) => item.course_id}
-                        renderItem={({ item }) => (
-                            <View style={{ alignItems: 'center' }}>
-                                <TouchableOpacity style={
-                                    {
-                                        width: '90%',
-                                        backgroundColor: '#F5F5F5', // light gray background for card-like appearance
-                                        borderColor: '#D3D3D3', // light gray border color
-                                        borderWidth: 1,
-                                        marginVertical: 5,
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between', // corrected from 'justifycontent'
-                                        shadowColor: '#000', // black shadow color
-                                        shadowOffset: { width: 7, height: 7 },
-                                        shadowOpacity: 0.2,
-                                        shadowRadius: 3,
-                                        elevation: 3, // for Android shadow
-                                    }
-                                }
-                                    onPress={() => pressHandler(item.course_id)}
-                                >
-                                    <Text 
-                                        style={ {
-                                            flex: 1,
-                                            padding: 15,
-                                            fontFamily: 'Nunito-Bold',
-                                            fontSize: 14,
-                                            color: '#000', // black text color
-                                        } }
-                                    >
-                                        { item.course_name }
-                                    </Text>
-                                    
-                                    <Ionicons 
-                                        name='chevron-forward'
-                                        size={24}
-                                        style={{ marginRight: 15, color: '#808080' }} // gray color for icon
-                                    />
+        <View
+            style={{ 
+                height: height,
+                width: width,
+                ...globalStyles.container
+            }}
+        >  
+            { isLoading ? (<ActivityIndicator />) : 
+            (
+                <View>
+                    {/* Message At The Top */}
+                    <View
+                        style={{
+                            height: height * 0.1,
+                            width: width,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Text
+                            style={{
+                                
+                                fontFamily: 'Baloo2-Bold',
+                                fontSize: 20,
+                            }}
+                        >
+                            Let's nurture your garden, 
+                            <Text
+                                style={{
+                                    color: '#26C250'
+                                }}
+                            > {state.username}!
+                            </Text>
+                        </Text>
+                    </View>
+                    
+                    {/* FlatList Containing Topic Information */}
+                    <View
+                        style={{
+                            height: height * 0.6,
+                            width: width,
 
-                                </TouchableOpacity>
-                            </View>
+                            marginBottom: height * 0.05,
 
-                        )}
-                    />
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <FlatList
+                            style={{ flex : 1 }}
+                            data={courses.garden_rows}
+                            keyExtractor={(item) => item.row_num}
+                            showsVerticalScrollIndicator={false}
+                            renderItem={({ item }) => (
+                                <Card item={item} height={ height * 0.1 } width={ width * 0.8 } pressHandler={topicPress}/>
+                            )}
+                        />
+                    </View>
+
+                    {/* Random Button */}
+                    <View
+                        style={{
+                            height: height * 0.1,
+                            width: width,
+                            marginBottom: height * 0.10,
+
+                            alignItems: 'center',
+                            justifyContent: 'flex-start',
+                        }}
+                    >
+                        <TouchableOpacity
+                            style={{
+                                height: height * 0.06,
+                                width: width * 0.8,
+
+                                backgroundColor: '#004643',
+                                ...globalStyles.button
+                            }}
+                            onPress={() => randomSelect()}
+                        >
+                            <Text
+                                style={globalStyles.buttonText}
+                            > Random Question </Text>
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
             )}  
         </View>

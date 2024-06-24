@@ -1,146 +1,273 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, View, Text, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Image, ImageBackground, Dimensions, TextInput,
+    Text, TouchableOpacity, TouchableWithoutFeedback, Keyboard
+} from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+
 import { globalStyles } from '../globalStyles/globalStyles';
 import { useUser } from '../components/UserContext';
 
-export default function SignUpForm({ navigation }) {
-	const [username, setUsername] = useState('');
-	const [password, setPassword] = useState('');
-	const [confirmPassword, setConfirmPassword] = useState('');
+const height = Dimensions.get('window').height;
+const width = Dimensions.get('window').width;
 
-	const [existError, setExistError] = useState(false);
-	const [errorText, setErrorText] = useState('');
+export default function SignUp({ navigation }){
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [infoCorrect, setInfoCorrect] = useState(true);
+    const [errorMessage, setErrorMessage] = useState();
 
-	const { updateState } = useUser();
+    const { updateState } = useUser();
 
-	const handleSubmit = async () => {
-		if(username == "" || password == ""){
-			console.log("Ran first validation");
+    // handles signup attempts from the user
+    const signupAttempt = async() => {
+        if(username.length < 3) {
+            setInfoCorrect(false);
+            setErrorMessage('Username must be at least 3 characters');
+            return;
+        }
 
-			setExistError(true);
-			setErrorText("All fields are required");
-			return;
-		}
+        if(password.length < 4) {
+            setInfoCorrect(false);
+            setErrorMessage('Password must be at least 4 characters');
+            return;
+        }
 
-		if(password.length < 8){
-			console.log("Ran second validation");
+        if(confirmPassword != password) {
+            setInfoCorrect(false);
+            setErrorMessage("Passwords do not match");
+            return;
+        }
 
-			setExistError(true);
-			setErrorText("Password must be at least 8 characters");
-			return;
-		}
-
-		if(password != confirmPassword){
-			console.log("Ran third validation");
-
-			setExistError(true);
-			setErrorText("Passwords do not match");
-			return;
-		}
-
-		setExistError(false);
-		setErrorText("");
-
-		console.log("Passing data.... ")
-
-		try {
-			const response = await fetch(
+        try {
+            const response = await fetch(
 				'http://129.114.24.200:8001/create_user', {
 					method: 'POST',
 					headers: {
-					"Content-Type": "application/json",
+					    "Content-Type": "application/json",
 					},
 					body: JSON.stringify({
 						username: username,
 						password: password,
 					}),
 				}
-			);
+            )
 
-			const data = await response.json();
+            const data = await response.json();
 
-			if(data.status == "success"){
+            if (data.status == 'success') {
+                
+                setInfoCorrect(true);
+                updateState( 'uid', data.uid )
+                updateState( 'username', username )
+                navigation.navigate('HomeTab')
 
-				updateState( 'userId', data.uid )
-            	updateState( 'username', username )
-				navigation.navigate('HomeTab')
+            } else if (data.message == 'Username already exists') {
+                setInfoCorrect(false);
+                setErrorMessage('Username already taken')
+            } else {
+                setInfoCorrect(false);
+                setErrorMessage('Error creating account')
+            }
 
-			} else if(data.status == "already created"){
+        } catch(error) {
+            console.log('Error fetching data: ', error);
+        }
+    }
 
-				setExistError(true);
-				setErrorText("Username already taken");
+    return ( 
+        <ImageBackground 
+            source={require('../../assets/images/LoginBackground.jpg')}
+            style={{
+                height: height,
+                width: width,
+                ...globalStyles.container
+            }}
+        >
+            {/* Signup Icon + Back Button Header */}
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View
+                    style={ {
+                        height: height * 0.4,
+                        width: width,
+                        alignItems: 'center',
+                        justifyContent: 'flex-start',
+                    } }
+                >
+                    <TouchableOpacity 
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
 
-			}
+                            marginLeft: 40,
+                            marginTop: 0.04 * height,
+                            alignSelf: 'flex-start' 
+                        }}
+                        onPress={() => navigation.navigate('Login')}
+                    >
+                        <Ionicons 
+                            size={30}
+                            name="chevron-back-outline"
+                            color='#F8C660'
+                        />
+                        <Text
+                            style={{
+                                fontFamily: 'Baloo2-Bold',
+                                fontSize: 20,
+                                color: '#F8C660'
+                            }}
+                        > Back </Text>
+                    </TouchableOpacity>
+                    
+                    <View
+                        style= { {
+                            height: 150, 
+                            width: 150,
+                            borderRadius: 150,
 
-		} catch(error) {
-			console.log('Error fetching data: ', error);
-		}
-	}
+                            backgroundColor: 'white',
 
-	return (
-        <View style={globalStyles.container}>
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginTop: 0.065 * height,
+                        } }
+                    >
+                        <Text
+                            style={ { 
+                                fontFamily: 'Baloo2-Bold',
+                                fontSize: 26,
+                            } }
+                        >
+                            Sign Up
+                        </Text>
+                    </View>   
+                </View>
+            </TouchableWithoutFeedback>
 
-            {/* rendering title */}
-            <Text style={{ marginBottom: 20, ...globalStyles.title }}>Create Your Account</Text> 
+            {/* Text Input Component for Username and Password */}
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View
+                    style={{
+                        height: height * 0.3,
+                        width: width * 0.8,
+                        alignItems: 'flex-start',
+                        justifyContent: 'flex-end',
+                    }}
+                >
+                    
+                    {/* Username input field */}
+                    <Text style={globalStyles.inputKey}> Enter Username </Text>
+                    <TextInput 
+                        style={[
+                            { 
+                                height: 0.06 * height, 
+                                width: 0.8 * width,
+                                paddingHorizontal: 20, 
+                            }, 
+                            globalStyles.textInput
+                        ]}
+                        placeholder='John Smith'
+                        placeholderTextColor='rgba(255, 255, 255, 0.5)'
+                        onChangeText={(val) => setUsername(val)}
+                        
+                        textContentType="oneTimeCode"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                    />
 
-            {/* username input */}         
-            <TextInput
-                style={{ width: '75%', ...globalStyles.textInput}}
-                placeholder='Username'
-                onChangeText={(val) => setUsername(val)}
-            />
+                    {/* Password input field */}
+                    <Text style={globalStyles.inputKey}> Enter Password </Text>
+                    <TextInput 
+                        style={[
+                            { 
+                                height: 0.06 * height, 
+                                width: 0.8 * width,
+                                paddingHorizontal: 20, 
+                            }, 
+                            globalStyles.textInput
+                        ]}
+                        placeholder="John Smith's Password"
+                        placeholderTextColor='rgba(255, 255, 255, 0.5)'
+                        onChangeText={(val) => setPassword(val)}
 
-            {/* password input */}    
-            <TextInput
-                style={{ width: '75%', ...globalStyles.textInput}}
-                placeholder='Password'    
-                onChangeText={(val) => setPassword(val)}            
-                secureTextEntry={true}
-            />
+                        textContentType="oneTimeCode"
+                        autoCapitalize="none"
+                        autoCorrect={false}
 
-			{/* confirm password input */}    
-            <TextInput
-                style={{ width: '75%', ...globalStyles.textInput}}
-                placeholder='Confirm Password'    
-                onChangeText={(val) => setConfirmPassword(val)}            
-                secureTextEntry={true}
-            />
+                        secureTextEntry={true}
+                    />
 
-			{ existError ? (
-                <Text style={passwordStyle.incorrect}>
-					{ errorText }
-                </Text>
-            ) : (
-                <View style={passwordStyle.placeholder}></View>
-            )}	
+                    {/* Confirm Password input field */}
+                    <Text style={globalStyles.inputKey}> Confirm Password </Text>
+                    <TextInput 
+                        style={[
+                            { 
+                                height: 0.06 * height, 
+                                width: 0.8 * width,
+                                paddingHorizontal: 20, 
+                            }, 
+                            globalStyles.textInput
+                        ]}
+                        placeholder="John Smith's Password (again)"
+                        placeholderTextColor='rgba(255, 255, 255, 0.5)'
+                        onChangeText={(val) => setConfirmPassword(val)}
 
-            {/* sign up button */}  
-            <TouchableOpacity 
-                style={globalStyles.button} 
-                onPress={() => handleSubmit()}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+
+                        secureTextEntry={true}
+                    />
+
+                    {/* Error message field */}
+                    { infoCorrect ?
+                        (
+                            <View style={{ height: 23 }}>
+                            </View>
+                        ) 
+                        : 
+                        (
+                            <Text
+                                style={{
+                                    fontFamily: 'Baloo2-Bold',
+                                    color: '#FFD912',
+                                    alignSelf: 'center',
+                                }}
+                            >
+                                {errorMessage}
+                            </Text>
+                        ) 
+                    }
+                </View>
+            </TouchableWithoutFeedback>
+
+            {/* Sign Up Button */}
+            <View
+                style={{ 
+                    height: 0.1 * height,
+                    width: 0.8 * width,
+
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
             >
-                <Text style={globalStyles.buttonText}>
-                    Sign Up
-                </Text>
-            </TouchableOpacity>
-        </View>
+                <TouchableOpacity
+                    style={ [
+                        { 
+                            backgroundColor: '#F8C660',
+                            height: 0.06 * height,
+                            width: 0.8 * width,
+                        }, 
+                        globalStyles.button
+                    ] }
+                    onPress={() => signupAttempt()}
+                >
+                    <Text style={globalStyles.buttonText}>Sign Up</Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* placeholder for controlling the layout */}
+            <View style={{ height: 0.1 * height }}></View>
+
+        </ImageBackground>
     )
 }
-
-const style = StyleSheet.create({
-	errorText: {
-		fontFamily: 'Nunito-Regular',
-        fontSize: 14,
-		color: 'red',
-		alignSelf: 'center'
-	}
-})
-
-const passwordStyle = StyleSheet.create({
-    incorrect: {
-        color: 'red',
-    },
-    placeholder: {
-        height: 17,
-    }
-})

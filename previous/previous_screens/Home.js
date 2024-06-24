@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Image, Text, View } from "react-native";
 import { globalStyles } from '../globalStyles/globalStyles';
 import { useUser } from '../components/UserContext';
-import ProgressBar from '../components/ProgressBar';
 
 export default function Home(){
     const { userState } = useUser();

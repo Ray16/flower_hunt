@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { View, Dimensions, SafeAreaView } from 'react-native';
 
 import * as Font from 'expo-font';
 import AppLoading from 'expo-app-loading';
@@ -9,102 +10,88 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Login from './screens/Login';
-import SignUpForm from './screens/Signup';
-import Garden from './screens/Garden';
-import NeighbourGarden from './screens/NeighbourGarden';
-import Question from './screens/Question';
-import Classmates from './screens/Classmates';
-
-import Home from './screens/Home';
+import SignUp from './screens/Signup';
 import Courses from './screens/Courses';
-
-import Settings from './screens/Settings';
-import About from './screens/About';
+import Question from './screens/Question';
+import Profile from './screens/Profile';
 
 import { UserProvider } from './components/UserContext';
 
+// Accessing Font
 const getFonts = () => Font.loadAsync({
-    'Nunito-Regular': require('../assets/fonts/Nunito-Regular.ttf'),
-    'Nunito-Bold': require('../assets/fonts/Nunito-Bold.ttf'),
-    'Nunito-Italic': require('../assets/fonts/Nunito-Italic.ttf')
+    'Baloo2-Regular': require('../assets/fonts/Baloo2-Regular.ttf'),
+    'Baloo2-Bold': require('../assets/fonts/Baloo2-Bold.ttf'),
 });
 
+const height = Dimensions.get('screen').height;
+const width = Dimensions.get('screen').width;
 
-const SettingStack = createNativeStackNavigator();
-
-function SettingStackNavigator() {
-    return (
-        <SettingStack.Navigator screenOptions={{headerShown: false}}>
-            <SettingStack.Screen name="Settings" component={Settings} />
-            <SettingStack.Screen name="About" component={About} />
-        </SettingStack.Navigator>
-    );
-}
-
+// Creating Home Tab Navigator
 const HomeTab = createBottomTabNavigator();
-
 function HomeTabNavigator() {
-    
     return (
-        <HomeTab.Navigator
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
+        <SafeAreaView style={{ width: width, height: height }}>
+            <HomeTab.Navigator
+                screenOptions={({ route }) => ({
+                    tabBarIcon: ({ focused, color }) => {
+                    let iconName;
 
-            if (route.name === 'Home') {
-                iconName = focused
-                ? 'home'
-                : 'home-outline';
-            } else if (route.name === 'Setting') {
-                iconName = focused ? 'settings' : 'settings-outline';
-            } else if (route.name == 'Courses') {
-                iconName = focused ? 'book' : 'book-outline'
-            }
+                    if (route.name === 'Courses') {
+                        iconName = focused ? 'home' : 'home-outline';
+                    } else if (route.name === 'Profile') {
+                        iconName = focused ? 'settings' : 'settings-outline';
+                    }
 
-            // You can return any component that you like here!
-            return <Ionicons name={iconName} size={size} color={color} />;
-            },
+                    // You can return any component that you like here!
+                    return <Ionicons name={iconName} size={30} color={color} />;
+                    },
 
-            tabBarActiveTintColor: '#5bb450',
-            tabBarInactiveTintColor: 'gray',
-            headerShown: false,
+                    tabBarActiveTintColor: '#004643',
+                    tabBarInactiveTintColor: 'grey',
+                    headerShown: false,
 
-          })}
-          initialRouteName='Home'
-        >
-        <HomeTab.Screen name='Courses' component={Courses}/>
-        <HomeTab.Screen name='Home' component={Home}/>
-        <HomeTab.Screen name='Setting' component={SettingStackNavigator}/>
-      </HomeTab.Navigator>
+                    tabBarStyle: { height: 0.1 * height }
+                })}
+                initialRouteName='Courses'
+            >
+            <HomeTab.Screen name='Courses' component={Courses}/>
+            <HomeTab.Screen name='Profile' component={Profile}/>
+        </HomeTab.Navigator>
+      </SafeAreaView>
     );
 }
 
+// Creating Stack Navigator
 const RootStack = createNativeStackNavigator();
-
-function LoginStackNavigator() {
+function RootStackNavigator() {
     return (
-        <RootStack.Navigator>
-            <RootStack.Screen name="Login" component={Login} />
-            <RootStack.Screen name="Sign Up" component={SignUpForm} />
-            <RootStack.Screen 
-                options={{headerShown: false}} 
-                name="HomeTab" 
-                component={HomeTabNavigator}
-            />
-            <RootStack.Screen name="Garden" component={Garden} 
-                options={{headerShown: false}}
-            />
-            <RootStack.Screen name="Classmates" component={Classmates} 
-                options={{headerShown: false}}
-            />
-            <RootStack.Screen name="NeighbourGarden" component={NeighbourGarden} 
-                options={{headerShown: false}}
-            />
-            <RootStack.Screen name="Question" component={Question} 
-                options={{headerShown: false}}
-            />
-        </RootStack.Navigator>
-    );
+        <View style={{ height: height, width: width }}>
+            <RootStack.Navigator
+                detachPreviousScreen={true}
+            >
+                <RootStack.Screen 
+                    name="Login" 
+                    component={Login}
+                    options={{headerShown: false}}
+                />
+                <RootStack.Screen 
+                    name="SignUp" 
+                    component={SignUp}
+                    options={{headerShown: false}}
+                />
+                <RootStack.Screen 
+                    name="HomeTab" 
+                    component={HomeTabNavigator}
+                    options={{headerShown: false}}
+                />
+                <RootStack.Screen 
+                    name="Question" 
+                    component={Question}
+                    options={{headerShown: false}}
+                />
+            </RootStack.Navigator>
+        </View>
+    )
 }
 
 export default function App(){
@@ -122,7 +109,7 @@ export default function App(){
 
     return (
         <UserProvider>
-            <LoginStackNavigator />
+            <RootStackNavigator/>
         </UserProvider>
-    );
+    )
 }
