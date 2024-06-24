@@ -4,13 +4,16 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { globalStyles } from '../globalStyles/globalStyles';
 import Card from '../components/QuestionCard';
+import { useUser } from '../components/UserContext';
 
 const height = Dimensions.get('window').height * 0.95;
 const width = Dimensions.get('window').width;
 
-export default function Question(){
+export default function Question({ navigation, route }){
     const [data, setData] = useState([])
     const [isLoading, setIsLoading] = useState(true);
+    const { state } = useUser();
+    const topic = route.params?.topic;
 
     // function for fetching data
     const fetchQuestions = async () => {
@@ -22,22 +25,21 @@ export default function Question(){
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    my_uid: "100",
+                    my_uid: state.uid,
                     neighbor_uid: "Faradawn_2_a19480c7-d365-415b-a50d-bc71de51776c",
-                    course_id: "101",
-                    topic: "Array",
+                    course_id: state.course_id,
+                    topic: topic,
                     difficulty: "easy",
                 }),
               }
             );
       
             const response_data = await response.json();
+            console.log(response_data);
             setData(response_data);
-            console.log(data);
-      
-          } catch(error) {
+        } catch(error) {
             console.log('Error fetching data: ', error);
-          } finally {
+        } finally {
             setIsLoading(false);
         }
     };
@@ -81,8 +83,46 @@ export default function Question(){
         }
     }, [seconds]);
 
+    // handling selection submit
+    const handleNext = async() => {
+        if(seconds == 0){ navigation.navigate('Courses'); return; }
+
+        try {
+            const response = await fetch(
+                'http://129.114.24.200:8001/garden/submit_answer', {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        uid: state.uid,
+                        neighbor_uid: "Faradawn_2_a19480c7-d365-415b-a50d-bc71de51776c",
+                        course_id: state.course_id,
+                        topic: topic,
+                        difficulty: 'easy',
+                        question_id: data.question_id,
+                        response_time: (60 - seconds),
+                        user_answer: currentPressed,
+                        correct_answer: data.answer,
+                    })
+                }
+            );
+        } catch(error) {
+            console.log('Error fetching data', error);
+        } finally {
+            navigation.navigate('Courses')
+        }
+    }
+
     return (
-        <View style={ { width: width, height: height } } >
+        <View 
+            style={ { 
+                width: width, 
+                height: height,
+                alignItems: 'center',
+                justifyContent: 'center', 
+            } } 
+        >
             {
                 isLoading ? 
                 ( <ActivityIndicator /> ) : 
@@ -95,39 +135,50 @@ export default function Question(){
                         } }
                     >   
                         {/* Top Bar */}
-                        <View 
-                            style = {{
-                                width: width,
-                                height: height * 0.0625,
-                                justifyContent: 'flex-end',
-                            }}
-                        >
-                            <TouchableOpacity
+                        { seconds == 0 ? 
+                        (   
+                            <View 
+                                style={{
+                                    width: width,
+                                    height: height * 0.0625,
+                                }}
+                            /> 
+                        ) : ( 
+                            <View 
                                 style = {{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
+                                    width: width,
+                                    height: height * 0.0625,
+                                    justifyContent: 'flex-end',
                                 }}
                             >
-                                <Ionicons
-                                    name='chevron-back'
-                                    size={16}
-                                    color='#004643'
-                                    style = {{ 
-                                        marginLeft: width / 20,
+                                <TouchableOpacity
+                                    style = {{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
                                     }}
-                                />
-                                <Text 
-                                    style = { { 
-                                        color: '#004643', 
-                                        marginLeft: 3, 
-                                        fontSize: 16,
-                                        fontFamily: 'Baloo2-Bold',
-                                    } }
-                                > 
-                                    Previous 
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
+                                    onPress={() => navigation.navigate('Courses')}
+                                >
+                                    <Ionicons
+                                        name='chevron-back'
+                                        size={16}
+                                        color='#004643'
+                                        style = {{ 
+                                            marginLeft: width / 12,
+                                        }}
+                                    />
+                                    <Text 
+                                        style = { { 
+                                            color: '#004643', 
+                                            marginLeft: 3, 
+                                            fontSize: 16,
+                                            fontFamily: 'Baloo2-Bold',
+                                        } }
+                                    > 
+                                        Back
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        ) }
 
                         {/* Question Component */}
                         <View
@@ -277,6 +328,7 @@ export default function Question(){
 
                                     ...globalStyles.button
                                 } }
+                                onPress={() => handleNext()}
                             >
                                 <Text style = {globalStyles.buttonText}> Next </Text>
                             </TouchableOpacity>

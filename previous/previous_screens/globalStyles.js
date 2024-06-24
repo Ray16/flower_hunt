@@ -57,3 +57,9 @@ export const globalStyles = StyleSheet.create({
         flex: 20,
     }
 })
+
+export const images = {
+    id: {
+        '1': 
+    }
+}

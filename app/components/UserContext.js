@@ -5,20 +5,21 @@ const UserContext = createContext();
 
 // Create a provider component
 export const UserProvider = ({ children }) => {
-    const [userState, setUserState] = useState({
-        userId: '',
-        username: ''
+    const [state, setState] = useState({
+        uid: '',
+        username: '',
+        course_id: 'Software_Engineer_53fc0699-7eb2-4e66-bdd9-e1fa51aa4c3c'
     });
 
     const updateState = (key, value) => {
-        setUserState(prevState => ({
+        setState(prevState => ({
             ...prevState,
             [key]: value,
         }));
     }
 
     return (
-        <UserContext.Provider value={{ userState, updateState }}>
+        <UserContext.Provider value={{ state, updateState }}>
             {children}
         </UserContext.Provider>
     );
