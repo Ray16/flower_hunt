@@ -119,6 +119,11 @@ curl -X POST "http://129.114.24.200:8001/garden/page_load" \
      -d '{"uid": "Faradawn_2_a19480c7-d365-415b-a50d-bc71de51776c", "course_id": "101"}'
 ```
 
+### New garden
+```
+
+```
+
 ### 02 - On clicking steal
 ```
 POST {
