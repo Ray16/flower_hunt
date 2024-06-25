@@ -1,4 +1,6 @@
 # Backend Setup
+Ubuntu 20.04
+Default Python version: 3.8.10
 
 ## SSH to server
 ```
