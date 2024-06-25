@@ -73,6 +73,37 @@ async def create_user(user: User):
         'username': user.username,
         'password': user.password
     })
+    
+    # Create an empty garden for the user
+    gardens_ref = db.collection('gardens')
+    courses_ref = db.collection('courses')
+    
+    try:
+        # Fetch all courses to create gardens for each
+        course_docs = courses_ref.stream()
+        for course_doc in course_docs:
+            course_data = course_doc.to_dict()
+            garden_rows = []
+            for i, topic in enumerate(course_data['course_topics'], start=1):
+                garden_row = {
+                    'row_num': str(i),
+                    'topic': topic,
+                    'conditions': {'easy': 0, 'medium': 0, 'hard': 0},
+                    'questions': {'q1_id': 'none', 'q2_id': 'none', 'q3_id': 'none'}
+                }
+                garden_rows.append(garden_row)
+            
+            garden_data = {
+                'uid': uid,
+                'username': user.username,
+                'course_id': course_doc.id,
+                'sunlight': 0,
+                'garden_rows': garden_rows
+            }
+            gardens_ref.add(garden_data)
+    except Exception as e:
+        return HTTPException(status_code=500, detail=f"Error setting up gardens: {str(e)}")
+        
     return CreateUserResponse(status="success", message="User created successfully", uid=uid)
 
 @app.post("/login", response_model=LoginResponse)
@@ -223,7 +254,7 @@ async def garden_page_load(request: GardenLoadRequest):
 
 class GetQuestionRequest(BaseModel):
     my_uid: str
-    neighbor_uid: str
+    # neighbor_uid: str
     course_id: str
     topic: str
     difficulty: str
@@ -244,48 +275,30 @@ class GetQuestionResponse(BaseModel):
 # else, go to questions to find a question with matching {course_id, topic, difficulty}. Just return the first one.
 @app.post("/garden/get_question", response_model=GetQuestionResponse)
 async def get_question(request: GetQuestionRequest):
-    # questions_ref = db.collection('questions')
+    questions_ref = db.collection('questions')
 
-    # if request.question_id:
-    #     # Directly use the provided question_id
-    #     question_doc = questions_ref.document(request.question_id).get()
-    #     if not question_doc.exists:
-    #         raise HTTPException(status_code=404, detail="Question not found")
-    #     question_data = question_doc.to_dict()
-    # else:
-    #     # Find a question with matching {course_id, topic, difficulty}
-    #     question_query = questions_ref.where('course_id', '==', request.course_id)\
-    #                                   .where('topic', '==', request.topic)\
-    #                                   .where('difficulty', '==', request.difficulty)\
-    #                                   .limit(1).stream()
-    #     question_data = None
-    #     for doc in question_query:
-    #         question_data = doc.to_dict()
-    #         question_data['question_id'] = doc.id
-    #         break
+    if request.question_id:
+        # Directly use the provided question_id
+        question_doc = questions_ref.document(request.question_id).get()
+        if not question_doc.exists:
+            raise HTTPException(status_code=404, detail="Question not found")
+        question_data = question_doc.to_dict()
+    else:
+        # Find a question with matching {course_id, topic, difficulty}
+        question_query = questions_ref.where('course_id', '==', request.course_id)\
+                                      .where('topic', '==', request.topic)\
+                                      .where('difficulty', '==', request.difficulty)\
+                                      .limit(1).stream()
+        question_data = None
+        for doc in question_query:
+            if doc.exists:
+                question_data = doc.to_dict()
+                question_data['question_id'] = doc.id
+                break
         
-    #     if not question_data:
-    #         raise HTTPException(status_code=404, detail="No matching question found")
-        
-    sample_res_1 = GetQuestionResponse(
-        status="success",
-        message="Question retrieved successfully",
-        question_id='sample_2',
-        difficulty='medium',
-        topic='Array',
-        answer='B',
-        question='Find Pivot Index. Given an array of integers, return the pivot index of the array. The pivot index is the index where the sum of all the numbers to the left of the index is equal to the sum of all the numbers to the right of the index.',
-        question_number='913',
-        options=[
-            'Iterate through the array while keeping track of the total sum and the sum of the elements to the left. Calculate the right sum by subtracting the left sum from the total sum and check for equality.', 
-            'Use a prefix sum array to store the cumulative sum up to each index and then iterate to find the pivot index where left and right sums are equal.', 
-            'Check each index by calculating the left and right sums on the fly using nested loops.', 
-            'Use a hashmap to store the cumulative sums and check for the pivot index efficiently.'
-        ]
-    )
-
-    return sample_res_1
-
+        if not question_data:
+            raise HTTPException(status_code=404, detail="No matching question found")
+    
     return GetQuestionResponse(
         status="success",
         message="Question retrieved successfully",
@@ -458,27 +471,39 @@ class GetGardenRequest(BaseModel):
     course_id: str
 
 # Define the response model
+# class GardenRow(BaseModel):
+#     row_num: int
+#     topic: str
+#     question_ids: List[str]
 class GardenRow(BaseModel):
-    row_num: int
+    row_num: str
     topic: str
-    question_ids: List[str]
+    conditions: Condition
+    questions: Questions
 
 class GetGardenResponse(BaseModel):
     garden_rows: List[GardenRow]
 
 @app.post("/get_garden", response_model=GetGardenResponse)
 async def get_garden(request: GetGardenRequest):
-    # Dummy data for demonstration purposes
-    dummy_data = {
-        "garden_rows": [
-            {"row_num": 1, "topic": "Array", "question_ids": ["topic_1_q1", "topic_1_q2", "topic_1_q3", "topic_1_q4", "topic_1_q5", "topic_1_q6"]},
-            {"row_num": 2, "topic": "Linked List", "question_ids": ["topic_2_q1", "topic_2_q2", "topic_2_q3"]},
-            {"row_num": 3, "topic": "Stack", "question_ids": ["topic_3_q1"]},
-            {"row_num": 4, "topic": "Queue", "question_ids": ["topic_4_q1", "topic_4_q2", "topic_4_q3", "topic_4_q4", "topic_4_q5"]},
-            {"row_num": 5, "topic": "Binary Tree", "question_ids": ["topic_5_q1"]},
-            {"row_num": 6, "topic": "Hash Table", "question_ids": ["topic_6_q1"]}
-        ]
-    }
+    gardens_ref = db.collection('gardens')
+    # Query for  specific garden based on UID and course ID
+    garden_query = gardens_ref.where('uid', '==', request.uid).where('course_id', '==', request.course_id).stream()
+    garden_rows = []
+    for doc in garden_query:
+        if doc.exists:
+            garden_data = doc.to_dict()
+            for row in garden_data.get('garden_rows', []):
+                # Create a GardenRow object for each row in the garden
+                garden_row = GardenRow(
+                    row_num=row['row_num'],
+                    topic=row['topic'],
+                    conditions=Condition(**row['conditions']),
+                    questions=Questions(**row['questions'])
+                )
+                garden_rows.append(garden_row)
 
-    return dummy_data
-  
+    if not garden_rows:
+        raise HTTPException(status_code=404, detail="Garden not found or no garden rows available")
+
+    return GetGardenResponse(garden_rows=garden_rows)
