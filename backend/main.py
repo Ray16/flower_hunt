@@ -35,6 +35,13 @@ def fetch_username(uid):
         return user_data.get('username', None)
     return None
 
+def delete_all_gardens():
+    gardens_ref = db.collection('gardens')
+    query = gardens_ref.stream()
+    for doc in query:
+        gardens_ref.document(doc.id).delete()
+    print("All gardens deleted successfully")
+
 # Models
 class User(BaseModel):
     username: str
@@ -46,27 +53,25 @@ class UserLogin(BaseModel):
 
 class LoginResponse(BaseModel):
     status: str
-    message: str
     uid: str
 
 class CreateUserResponse(BaseModel):
     status: str
-    message: str
     uid: str
 
 class DeleteAccountResponse(BaseModel):
     status: str
-    message: str
 
 class UIDModel(BaseModel):
     uid: str
 
 @app.post("/create_user", response_model=CreateUserResponse)
 async def create_user(user: User):
+    delete_all_gardens()  # Remove all old gardens
     users_ref = db.collection('users')
     query = users_ref.where('username', '==', user.username).stream()
     for doc in query:
-        return CreateUserResponse(status="failed", message="Username already exists", uid="none")
+        return CreateUserResponse(status="already created", uid="none")
     
     uid = f"{user.username}_{uuid.uuid4()}"
     users_ref.document(uid).set({
@@ -88,8 +93,7 @@ async def create_user(user: User):
                 garden_row = {
                     'row_num': str(i),
                     'topic': topic,
-                    'conditions': {'easy': 0, 'medium': 0, 'hard': 0},
-                    'questions': {'q1_id': 'none', 'q2_id': 'none', 'q3_id': 'none'}
+                    'questions_done': []
                 }
                 garden_rows.append(garden_row)
             
@@ -97,14 +101,11 @@ async def create_user(user: User):
                 'uid': uid,
                 'username': user.username,
                 'course_id': course_doc.id,
-                'sunlight': 0,
                 'garden_rows': garden_rows
             }
             gardens_ref.add(garden_data)
     except Exception as e:
         return HTTPException(status_code=500, detail=f"Error setting up gardens: {str(e)}")
-        
-    return CreateUserResponse(status="success", message="User created successfully", uid=uid)
 
 @app.post("/login", response_model=LoginResponse)
 async def login(userlog: UserLogin):
@@ -113,9 +114,9 @@ async def login(userlog: UserLogin):
     for doc in query:
         user_data = doc.to_dict()
         if user_data['password'] == userlog.password:
-            return LoginResponse(status="success", message="Successfully logged in", uid=doc.id)
+            return LoginResponse(status="success", uid=doc.id)
         else:
-            return LoginResponse(status="failed", message="Wrong password", uid="none")
+            return LoginResponse(status="failed", uid="none")
     
     return LoginResponse(status="failed", message="Please create an account first", uid="none")
 
@@ -140,13 +141,9 @@ async def delete_account(uid_model: UIDModel):
 
         return DeleteAccountResponse(
             status="success",
-            message="Account and gardens deleted successfully."
         )
     except Exception as e:
-        return DeleteAccountResponse(
-            status="error",
-            message=f"An error occurred: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 # === Garden section 
 def calculate_sunlight(garden_rows):
@@ -162,27 +159,16 @@ class GardenLoadRequest(BaseModel):
     uid: str
     course_id: str
 
-class Condition(BaseModel):
-    easy: int
-    medium: int
-    hard: int
-
-class Questions(BaseModel):
-    q1_id: str
-    q2_id: str
-    q3_id: str
-
 class GardenRow(BaseModel):
-    row_num: str
+    row_num: int
     topic: str
-    conditions: Condition
-    questions: Questions
+    questions_done: List[str]
 
 class GardenLoadResponse(BaseModel):
     status: str
     message: str
     course_id: str
-    sunlight: int
+    course_name: str
     garden_rows: List[GardenRow]
 
 
@@ -253,12 +239,9 @@ async def garden_page_load(request: GardenLoadRequest):
 
 
 class GetQuestionRequest(BaseModel):
-    my_uid: str
-    # neighbor_uid: str
+    uid: str
     course_id: str
     topic: str
-    difficulty: str
-    question_id: Optional[str] = None
 
 class GetQuestionResponse(BaseModel):
     status: str
@@ -270,6 +253,7 @@ class GetQuestionResponse(BaseModel):
     question: str
     question_number: str
     options: List[str]
+    time_limit: int
 
 # if question_id is provided, directly use the question_id
 # else, go to questions to find a question with matching {course_id, topic, difficulty}. Just return the first one.
@@ -277,27 +261,19 @@ class GetQuestionResponse(BaseModel):
 async def get_question(request: GetQuestionRequest):
     questions_ref = db.collection('questions')
 
-    if request.question_id:
-        # Directly use the provided question_id
-        question_doc = questions_ref.document(request.question_id).get()
-        if not question_doc.exists:
-            raise HTTPException(status_code=404, detail="Question not found")
-        question_data = question_doc.to_dict()
-    else:
-        # Find a question with matching {course_id, topic, difficulty}
-        question_query = questions_ref.where('course_id', '==', request.course_id)\
-                                      .where('topic', '==', request.topic)\
-                                      .where('difficulty', '==', request.difficulty)\
-                                      .limit(1).stream()
-        question_data = None
-        for doc in question_query:
-            if doc.exists:
-                question_data = doc.to_dict()
-                question_data['question_id'] = doc.id
-                break
-        
-        if not question_data:
-            raise HTTPException(status_code=404, detail="No matching question found")
+    # Find a question with matching {course_id, topic}
+    question_query = questions_ref.where('course_id', '==', request.course_id)\
+                                  .where('topic', '==', request.topic)\
+                                  .limit(1).stream()
+    question_data = None
+    for doc in question_query:
+        if doc.exists:
+            question_data = doc.to_dict()
+            question_data['question_id'] = doc.id
+            break
+    
+    if not question_data:
+        raise HTTPException(status_code=404, detail="No matching question found")
     
     return GetQuestionResponse(
         status="success",
@@ -308,23 +284,24 @@ async def get_question(request: GetQuestionRequest):
         answer=question_data['answer'],
         question=question_data['question'],
         question_number=question_data['question_number'],
-        options=question_data['options']
+        options=question_data['options'],
+        time_limit=question_data['time_limit']
     )
 
 
 class SubmitAnswerRequest(BaseModel):
     uid: str
     neighbor_uid: str
-    course_id: str    
-    topic: str
-    difficulty: str      
-    question_id: str        
-    user_answer: str        
-    correct_answer: str     
+    course_id: str
+    question_id: str
+    response_time: int
+    user_answer: str
+    correct_answer: str
+
 
 class SubmitAnswerResponse(BaseModel):
     status: str
-    message: str
+
 
 def update_flower_count(garden_rows, topic, difficulty, increment):
     for row in garden_rows:
@@ -428,7 +405,7 @@ class SelectNeighborRequest(BaseModel):
 class SelectNeighborItem(BaseModel):
     uid: str
     username: str
-    sunlight: int
+    total_flowers: int
 
 class SelectNeighborResponse(RootModel[List[SelectNeighborItem]]):
     pass
@@ -466,44 +443,60 @@ async def select_neighbor(request: SelectNeighborRequest):
 # user post {uid, course_id}
 # return {course_id, garden_rows: [{row_num=int, topic=str, questions=list(str)}]}
 # Define the request model
-class GetGardenRequest(BaseModel):
-    uid: str
-    course_id: str
 
-# Define the response model
-# class GardenRow(BaseModel):
-#     row_num: int
-#     topic: str
-#     question_ids: List[str]
-class GardenRow(BaseModel):
-    row_num: str
-    topic: str
-    conditions: Condition
-    questions: Questions
-
-class GetGardenResponse(BaseModel):
-    garden_rows: List[GardenRow]
-
-@app.post("/get_garden", response_model=GetGardenResponse)
-async def get_garden(request: GetGardenRequest):
+@app.post("/get_garden", response_model=GardenLoadResponse)
+async def get_garden(request: GardenLoadRequest):
+    delete_all_gardens()  # Remove all old gardens
+    
     gardens_ref = db.collection('gardens')
-    # Query for  specific garden based on UID and course ID
+    courses_ref = db.collection('courses')
+
     garden_query = gardens_ref.where('uid', '==', request.uid).where('course_id', '==', request.course_id).stream()
-    garden_rows = []
+    garden_data = None
     for doc in garden_query:
         if doc.exists:
             garden_data = doc.to_dict()
-            for row in garden_data.get('garden_rows', []):
-                # Create a GardenRow object for each row in the garden
-                garden_row = GardenRow(
-                    row_num=row['row_num'],
-                    topic=row['topic'],
-                    conditions=Condition(**row['conditions']),
-                    questions=Questions(**row['questions'])
-                )
-                garden_rows.append(garden_row)
+            break
 
-    if not garden_rows:
-        raise HTTPException(status_code=404, detail="Garden not found or no garden rows available")
+    if garden_data:
+        return GardenLoadResponse(
+            status="success",
+            message="Garden retrieved successfully",
+            course_id=garden_data['course_id'],
+            course_name=garden_data.get('course_name', ''),
+            garden_rows=garden_data['garden_rows']
+        )
+    else:
+        course_doc = courses_ref.document(request.course_id).get()
+        if not course_doc.exists:
+            raise HTTPException(status_code=404, detail="Course not found")
 
-    return GetGardenResponse(garden_rows=garden_rows)
+        course_data = course_doc.to_dict()
+        course_name = course_data.get('course_name', '')
+
+        # Create a new garden based on course topics
+        garden_rows = []
+        for i, topic in enumerate(course_data.get('course_topics', []), start=1):
+            garden_row = GardenRow(
+                row_num=i,
+                topic=topic,
+                questions_done=[]
+            )
+            garden_rows.append(garden_row)
+        
+        garden_data = {
+            'uid': request.uid,
+            'username': fetch_username(request.uid),
+            'course_id': request.course_id,
+            'garden_rows': garden_rows
+        }
+        
+        gardens_ref.add(garden_data)
+
+        return GardenLoadResponse(
+            status="success",
+            message="New garden created successfully",
+            course_id=request.course_id,
+            course_name=course_name,
+            garden_rows=garden_rows
+        )
