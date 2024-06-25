@@ -76,36 +76,39 @@ curl -X POST "http://129.114.24.200:8001/courses" \
 
 ## Garden screen
 
-### 01 - On page load (each topic is a row)
-Sort the garden rows based on their id. \\
-Conditions mean how many flowers of each type the user has. \\
+### 01 - Get Garden
 ```
 POST {
   uid: 100
   course_id: 101
 }
 
+Firebase garden [
+  garden_id {
+    uid: str,
+    username: str,
+    course_id: str,
+    garden_rows: List[
+      {
+        row_num: int,
+        topic: str,
+        questions_done: List[str]
+      }
+    ]
+  }
+]
+
 Response {
-  sunlight: 100,
+  status: str
+  message: str
+  course_id: str
+  course_name: str
   garden_rows: [
     {
-      id: 1,
-      topic: "array",
-      conditions: {
-        easy: 3,
-        medium: 0,
-        hard: 0,
-      }
-    },
-    {
-      id: 2,
-      topic: "linked list",
-      conditions: {
-        easy: 0,
-        medium: 0,
-        hard: 0,
-      }
-    },
+      row_num: int,
+      topic: str,
+      questions_done: List[str]
+    }
   ]
 }
 
@@ -124,22 +127,37 @@ curl -X POST "http://129.114.24.200:8001/garden/page_load" \
 
 ```
 
-### 02 - On clicking steal
+### 02 - Get Question
 ```
 POST {
-  uid: '100'
-  course_id: '14100'
-  row_id: '1'
-  difficulty: 'easy'
+    uid: str
+    course_id: str
+    topic: str
 }
 
+Firebase questions [
+  question_id {
+    difficulty: str
+    topic: str
+    answer: str
+    question: str
+    question_number: str
+    options: List[str]
+    time_limit: int (seconds)
+  }
+]
+
 Response {
-  'question_id': 'week1_q1',
-  'chapter': '1',
-  'answer': 'B',
-  'difficulty': 'easy',
-  'question': 'What is Python?', 
-  'options': ['A type of snake', 'A programming language', 'A car brand', 'A music brand']
+    status: str
+    message: str
+    question_id: str    
+    difficulty: str
+    topic: str
+    answer: str
+    question: str
+    question_number: str
+    options: List[str]
+    time_limit: int
 }
 
 
