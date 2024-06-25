@@ -1,6 +1,5 @@
 # Backend Setup
-Ubuntu 20.04
-Default Python version: 3.8.10
+CC-Ubuntu 20.04 (6.6G). Default Python version: 3.8.10.
 
 ## SSH to server
 ```
